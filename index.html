@@ -3,12 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2f7fd8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1d1330" media="(prefers-color-scheme: dark)">
 <title>PicWord – Inglés con imágenes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;700&display=swap">
 <style>
 :root{--green:#0f6b2b;--lime:#9bc53d;--sun:#ffe21f;--pink:#e0338a;--red:#e8281e;--plum:#8b1a7e;--sky:#4a90d9;--orange:#f5821f;--paper:#f7ebcb;--lilac:#c9b6d9;--ink:#2a1a14;--card:#fffaf0;--bg:#fdeef3;--t1:#fff;--t2:#ffe21f;--t3:#ff6fb0}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#fff3dc;--card:#3a2a4a;--bg:#2a1d38;--paper:#3a2a4a}}
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:inherit}
 html{background:var(--bg)}
 body{margin:0;color:var(--ink);font-family:"Baloo 2","Trebuchet MS",sans-serif;font-size:18px;line-height:1.5;background:transparent}
@@ -23,13 +26,13 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 /* hero */
 .hero{max-width:none;position:relative;overflow:hidden;padding:48px 20px 72px}
 .hero-in{max-width:980px;margin:auto;position:relative}
-.sun{position:absolute;right:0;top:-10px;width:110px;height:110px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font-size:54px;animation:spin 20s linear infinite}
+.sun{position:absolute;right:0;top:-10px;width:110px;height:110px;border-radius:50%;background:var(--sun);color:#2a1a14;display:grid;place-items:center;font-size:54px;animation:spin 20s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .big{font-size:clamp(64px,17vw,170px);letter-spacing:-2px;display:flex;flex-wrap:wrap;gap:0 .08em;margin:30px 0 10px}
 .big span:nth-child(1){color:var(--t1)}.big span:nth-child(2){color:var(--t2)}.big span:nth-child(3){color:var(--t3)}
 .big .flip{display:inline-block;transform:rotate(180deg)}
 .lead{color:#fff;font-size:22px;max-width:30ch;margin:0 0 24px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
-.lead b{background:var(--sun);color:var(--ink);padding:0 8px;border-radius:8px;text-shadow:none}
+.lead b{background:var(--sun);color:#2a1a14;padding:0 8px;border-radius:8px;text-shadow:none}
 .btn{font:inherit;font-weight:700;font-size:20px;border:0;border-radius:999px;padding:14px 30px;cursor:pointer;background:var(--sun);color:#2a1a14;box-shadow:0 6px 0 #c9a800}
 .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c9a800}
 .btn:disabled{cursor:not-allowed}
@@ -149,6 +152,22 @@ section{padding:36px 16px}
 footer{padding-bottom:70px}
 }
 html{-webkit-text-size-adjust:100%}
+@media (prefers-color-scheme:dark){
+.opt{background:#4a3a5e;color:#fff3dc;border-color:#fff3dc}
+.opt:not(:disabled):hover{background:var(--sun);color:#2a1a14}
+.opt.good{background:#1f8a42;border-color:#9bf0b5;color:#fff}
+.opt.bad{background:#a32a3a;border-color:#ffb4ab;color:#fff}
+.bar i.cur{outline-color:#fff3dc}
+.hint{border-color:#7ab8ff}
+.book .l{background:#54406f;color:#fff3dc;border-color:#fff3dc}
+.fig [stroke="#0f6b2b"]{stroke:#6fdc8c}
+.fig [stroke="#8b1a7e"]{stroke:#d77be8}
+.fig [stroke="#4a90d9"]{stroke:#7ab8ff}
+.fig [stroke="#e8281e"]{stroke:#ff6b5c}
+.fig .eye{fill:#fff3dc}
+.chips span{background:#54406f;color:#fff3dc}
+.chips span.f{background:#2f8f4e;color:#fff}
+}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -253,9 +272,12 @@ const jobs=[
 ['.p3',{seed:59,base:'#4a90d9',cols:['#6aa8f0','#2f6fc0','#8cc0f5','#3a7fcb'],dens:180,lw:11,len:[40,110],a:[.12,.35],cell:90}]];
 jobs.forEach(([sel,o])=>{const el=document.querySelector(sel);if(!el||!el.offsetWidth)return;
 const cw=Math.min(1200,el.offsetWidth*SC|0),ch=Math.max(60,el.offsetHeight*SC|0);
-el.style.backgroundImage='url('+crayon(cw,ch,o).toDataURL('image/jpeg',.85)+')'})}
+const cv=crayon(cw,ch,o);
+if(dk){const g=cv.getContext('2d');g.fillStyle='rgba(12,6,30,'+(sel=='.hero'?.34:.18)+')';g.fillRect(0,0,cw,ch)}
+el.style.backgroundImage='url('+cv.toDataURL('image/jpeg',.85)+')'})}
 let lastW=0,tm;
 addEventListener('resize',()=>{clearTimeout(tm);tm=setTimeout(()=>{if(innerWidth!==lastW){lastW=innerWidth;paintAll()}},250)});
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',paintAll);
 applyTheme();paintAll();lastW=innerWidth;addEventListener('load',paintAll);
 
 /* ---------- Stick-figure coach (crayon style) ---------- */
