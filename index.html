@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PicWord – Inglés con imágenes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;700&display=swap">
+<style>
+:root{--green:#0f6b2b;--lime:#9bc53d;--sun:#ffe21f;--pink:#e0338a;--red:#e8281e;--plum:#8b1a7e;--sky:#4a90d9;--orange:#f5821f;--paper:#f7ebcb;--lilac:#c9b6d9;--ink:#2a1a14;--card:#fffaf0;--bg:#fdeef3;--t1:#fff;--t2:#ffe21f;--t3:#ff6fb0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#fff3dc;--card:#3a2a4a;--bg:#2a1d38;--paper:#3a2a4a}}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:inherit}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font-family:"Baloo 2","Trebuchet MS",sans-serif;font-size:18px;line-height:1.5;background:transparent}
+h1,h2,h3{font-family:"Bagel Fat One","Arial Rounded MT Bold",Impact,sans-serif;font-weight:400;line-height:1;margin:0}
+section{max-width:980px;margin:0 auto;padding:56px 20px}
+[hidden]{display:none!important}
+/* crayon background: painted by JS, random strokes */
+#bgc{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block}
+.hero{background-color:#2f7fd8;background-size:100% 100%}
+.pill{background-size:100% 100%}
+section.view{min-height:100dvh;display:grid;align-content:center}
+/* hero */
+.hero{max-width:none;position:relative;overflow:hidden;padding:48px 20px 72px}
+.hero-in{max-width:980px;margin:auto;position:relative}
+.sun{position:absolute;right:0;top:-10px;width:110px;height:110px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font-size:54px;animation:spin 20s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.big{font-size:clamp(64px,17vw,170px);letter-spacing:-2px;display:flex;flex-wrap:wrap;gap:0 .08em;margin:30px 0 10px}
+.big span:nth-child(1){color:var(--t1)}.big span:nth-child(2){color:var(--t2)}.big span:nth-child(3){color:var(--t3)}
+.big .flip{display:inline-block;transform:rotate(180deg)}
+.lead{color:#fff;font-size:22px;max-width:30ch;margin:0 0 24px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+.lead b{background:var(--sun);color:var(--ink);padding:0 8px;border-radius:8px;text-shadow:none}
+.btn{font:inherit;font-weight:700;font-size:20px;border:0;border-radius:999px;padding:14px 30px;cursor:pointer;background:var(--sun);color:#2a1a14;box-shadow:0 6px 0 #c9a800}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c9a800}
+.btn:disabled{cursor:not-allowed}
+.btn.pink{background:var(--pink);color:#fff;box-shadow:0 6px 0 #9c1f62}
+:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+.dots{display:flex;gap:10px;margin-top:34px;flex-wrap:wrap}
+.dots i{width:34px;height:34px;border-radius:50%;background:#fff}
+.dots i:nth-child(3n){background:var(--sun)}.dots i:nth-child(4n){background:var(--pink)}
+.dots i:nth-child(n+8){margin-left:14px}
+/* how it works */
+.book{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-radius:24px;overflow:hidden;box-shadow:0 8px 0 var(--lilac)}
+.book>div{padding:30px}
+.book .l{background:var(--lilac);color:#2a1a14;border-right:6px dotted #2a1a14}
+.book h2{font-size:34px;margin-bottom:14px}
+.demo{font-size:24px;line-height:2}
+.w{background:var(--sun);color:#2a1a14;border-radius:10px;padding:2px 10px;border:0;font:inherit;font-weight:700;cursor:pointer;position:relative}
+.pic{display:inline-grid;place-items:center;width:84px;height:84px;border-radius:50% 50% 50% 8px;background:#fff;font-size:48px;vertical-align:middle;margin-left:8px;animation:pop .35s}
+@keyframes pop{from{transform:scale(0)}}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:30px}
+.pill{border-radius:100px;padding:34px 22px;color:#fff;text-align:center;min-height:220px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+.pill h3{font-size:26px;margin:8px 0}
+.pill .em{font-size:44px}
+.p1{background-color:#e8281e}.p2{background-color:#ffd91a;color:#2a1a14;text-shadow:none}.p3{background-color:#4a90d9}
+/* quiz */
+#quiz,.card{background:var(--card);border-radius:28px;padding:30px;box-shadow:0 8px 0 var(--pink)}
+.bar{display:flex;gap:6px;margin-bottom:18px}
+.bar i{flex:1;height:14px;border-radius:99px;background:var(--lilac)}
+.bar i.ok{background:var(--green)}.bar i.no{background:var(--pink)}.bar i.cur{background:var(--sun);outline:2px solid #2a1a14}
+.q{font-size:clamp(24px,5vw,36px);font-family:"Bagel Fat One",sans-serif;margin-bottom:14px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}
+.opt{font:inherit;font-weight:700;font-size:20px;padding:14px;border-radius:18px;border:3px solid #2a1a14;background:#fff;color:#2a1a14;cursor:pointer}
+.opt:not(:disabled):hover{background:var(--sun)}
+.opt:disabled{cursor:default}
+.opt.good{background:var(--green);color:#fff;border-color:#053c19}
+.opt.bad{background:#ffb4ab;border-color:#9a1010;animation:shk .4s}
+@keyframes shk{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.hint{font:inherit;background:none;border:3px dashed var(--sky);color:var(--ink);border-radius:999px;padding:6px 16px;font-weight:700;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+/* stick-figure coach */
+.coach{display:flex;align-items:center;gap:10px;margin-bottom:10px;min-height:150px}
+.figwrap{position:relative;flex:none;width:120px}
+.fig{width:120px;height:auto;display:block;overflow:visible}
+.say{position:relative;background:#fff;color:#2a1a14;border:4px solid #2a1a14;border-radius:22px;padding:10px 18px;font-weight:700;font-size:22px;line-height:1.2;max-width:min(360px,100%)}
+.say::before{content:"";position:absolute;left:-18px;top:50%;margin-top:-10px;border:10px solid transparent;border-right:14px solid #2a1a14;border-left:0}
+.say::after{content:"";position:absolute;left:-9px;top:50%;margin-top:-6px;border:6px solid transparent;border-right:9px solid #fff;border-left:0}
+.say.good{background:var(--sun)}.say.bad{background:var(--lilac)}
+.say span{display:block;animation:pop .35s}
+.say small{display:block;font-size:16px;font-weight:500;margin-top:2px}
+.fig *{transform-box:view-box}
+.fig .body-g{transform-origin:60px 170px}
+.fig .head-g{transform-origin:60px 58px}
+.fig .armL,.fig .armR{transform-origin:60px 72px}
+.fig .legL,.fig .legR{transform-origin:60px 108px}
+.fig .eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.fig .m-sad,.fig .m-big{display:none}
+/* idle */
+.fig.idle .body-g{animation:sway 2.6s ease-in-out infinite}
+.fig.idle .armL{animation:swL 2.6s ease-in-out infinite}
+.fig.idle .armR{animation:swR 2.6s ease-in-out infinite}
+@keyframes sway{50%{transform:translateY(-4px) rotate(2deg)}}
+@keyframes swL{50%{transform:rotate(14deg)}}
+@keyframes swR{50%{transform:rotate(-14deg)}}
+/* happy */
+.fig.happy .m-smile{display:none}.fig.happy .m-big{display:inline}
+.fig.happy .body-g{animation:jump .55s ease-in-out 4}
+.fig.happy .armL{transform:rotate(85deg);animation:waveL .3s ease-in-out infinite alternate}
+.fig.happy .armR{transform:rotate(-85deg);animation:waveR .3s ease-in-out infinite alternate}
+.fig.happy .legL{animation:kickL .55s ease-in-out 4}
+.fig.happy .legR{animation:kickR .55s ease-in-out 4}
+@keyframes jump{0%,100%{transform:translateY(0)}45%{transform:translateY(-26px) rotate(-3deg)}}
+@keyframes waveL{from{transform:rotate(70deg)}to{transform:rotate(105deg)}}
+@keyframes waveR{from{transform:rotate(-70deg)}to{transform:rotate(-105deg)}}
+@keyframes kickL{45%{transform:rotate(-22deg)}}
+@keyframes kickR{45%{transform:rotate(22deg)}}
+/* sad */
+.fig.sad .m-smile{display:none}.fig.sad .m-sad{display:inline}
+.fig.sad .body-g{transform:translateY(5px)}
+.fig.sad .armL{transform:rotate(-38deg)}.fig.sad .armR{transform:rotate(38deg)}
+.fig.sad .head-g{animation:no .9s ease-in-out 2}
+@keyframes no{20%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}80%{transform:rotate(-8deg)}}
+/* stars burst */
+.st{position:absolute;left:50%;top:30%;width:14px;height:14px;border-radius:50%;pointer-events:none;animation:fly .9s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+/* result */
+.res{text-align:center}
+.lvl{width:min(260px,70%);aspect-ratio:3/4;margin:0 auto 20px;border-radius:130px;display:grid;place-items:center;color:#fff;font-family:"Bagel Fat One",sans-serif;font-size:92px;position:relative;text-shadow:0 3px 0 rgba(0,0,0,.25)}
+.lvl small{display:block;font:700 20px "Baloo 2",sans-serif;text-align:center;margin-top:-30px}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0 18px}
+.chips span{background:var(--lilac);color:#2a1a14;border-radius:999px;padding:2px 14px;font-weight:700;font-size:16px}
+.chips span.f{background:var(--lime)}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;text-align:left;margin-top:24px}
+.plan>div{background:var(--bg);border-radius:20px;padding:22px;border-left:10px solid var(--c)}
+.plan h3{font-size:24px;margin-bottom:10px}
+.plan ol,.plan ul{margin:0;padding-left:22px}
+.tip{background:var(--sun);color:#2a1a14;border-radius:24px 24px 24px 4px;padding:20px 24px;margin-top:20px;text-align:left;font-size:20px}
+/* palette picker */
+.pal{position:fixed;right:12px;bottom:12px;z-index:5;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.85);padding:6px 10px;border-radius:999px;box-shadow:0 3px 0 rgba(0,0,0,.2);font-size:14px;font-weight:700;color:#2a1a14}
+.pal button{width:28px;height:28px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 0 0 2px #2a1a14;padding:0}
+.pal button.on{box-shadow:0 0 0 2px #2a1a14,0 0 0 6px var(--sun)}
+footer{text-align:center;padding:30px;font-size:16px;opacity:.8}
+@media(max-width:700px){.book{grid-template-columns:1fr}.book .l{border-right:0;border-bottom:6px dotted #2a1a14}.sun{width:52px;height:52px;font-size:26px;top:0}.hero-in{padding-top:60px}.big{margin-top:0}.figwrap,.fig{width:92px}.coach{min-height:0}.say{flex:1;font-size:19px;padding:8px 14px}}
+@media(max-width:480px){
+section{padding:36px 16px}
+.hero{padding:32px 16px 56px}
+#quiz,.card{padding:20px 16px;border-radius:22px}
+.book>div{padding:20px}
+.book h2{font-size:28px}
+.demo{font-size:21px}
+.pill{min-height:0;padding:26px 18px}
+.lead{font-size:20px}
+.btn{font-size:18px;padding:12px 24px}
+.dots{gap:8px}.dots i{width:26px;height:26px}.dots i:nth-child(n+8){margin-left:0}
+.lvl{font-size:76px}
+.row>span{width:100%}.row .btn{width:100%}
+.pal{right:8px;bottom:8px;padding:4px 8px}.pal span{display:none}
+footer{padding-bottom:70px}
+}
+html{-webkit-text-size-adjust:100%}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<filter id="cr" x="-25%" y="-25%" width="150%" height="150%">
+<feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="n"/>
+<feDisplacementMap in="SourceGraphic" in2="n" scale="6" result="d"/>
+<feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="9" result="g"/>
+<feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 4 0 0 -1.05" result="m"/>
+<feComposite in="d" in2="m" operator="in"/>
+</filter></defs></svg>
+<canvas id="bgc" aria-hidden="true"></canvas>
+<div class="pal" role="group" aria-label="Colores de la página"><span>Colores</span>
+<button data-p="cielo" style="background:#2f7fd8" aria-label="Azul cielo"></button>
+<button data-p="uva" style="background:#7a3fb0" aria-label="Morado uva"></button>
+<button data-p="atardecer" style="background:#f06a3a" aria-label="Naranja atardecer"></button></div>
+
+<div id="home">
+<header class="hero">
+<div class="hero-in">
+<div class="sun" aria-hidden="true">☺</div>
+<h1 class="big" aria-label="Pic Word"><span>PIC</span><span>W<span class="flip">O</span></span><span>RD</span></h1>
+<p class="lead">Aprende inglés sin traducir. Si no entiendes una palabra, <b>mírala</b> en una imagen.</p>
+<button class="btn" onclick="start()">Hacer mi test de nivel</button>
+<div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div>
+</header>
+
+<section id="how">
+<div class="book">
+<div class="l"><h2>Así funciona</h2><p>Toca la palabra amarilla. En lugar de su traducción verás una imagen. Tu cerebro une la palabra con la imagen, igual que cuando eras niño.</p></div>
+<div class="demo">
+<div>The <button class="w" onclick="show(this,'🐘')">elephant</button><span></span> is very big.</div>
+<div>I drink <button class="w" onclick="show(this,'🍵')">tea</button><span></span> every day.</div>
+</div>
+</div>
+<div class="steps">
+<div class="pill p1"><div class="em">📝</div><h3>10 preguntas</h3><p>Con imagen de ayuda en cada una.</p></div>
+<div class="pill p2"><div class="em">🎈</div><h3>Tu nivel</h3><p>De A1 a C1, al terminar.</p></div>
+<div class="pill p3"><div class="em">🗺️</div><h3>Tu método</h3><p>Plan de estudio y truco palabra-imagen.</p></div>
+</div>
+</section>
+
+<footer>Hecho con colores de cuento 🌈</footer>
+</div>
+<section id="test" class="view" hidden><div id="quiz"></div></section>
+<section id="result" class="view" hidden><div id="res" class="res"></div></section>
+
+<script>
+/* ---------- Crayon background (random strokes, no pattern) ---------- */
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function crayon(w,h,o){
+const c=document.createElement('canvas');c.width=w;c.height=h;
+const x=c.getContext('2d'),r=rng(o.seed);
+x.fillStyle=o.base;x.fillRect(0,0,w,h);x.lineCap='round';x.lineJoin='round';
+/* coloring-book patches: each zone is colored in its own (random) direction */
+const cell=o.cell||150,gx=Math.ceil(w/cell)+1,gy=Math.ceil(h/cell)+1,A=[];
+for(let k=0;k<gx*gy;k++)A.push(r()*Math.PI);
+const n=Math.round(w*h/o.dens);
+for(let k=0;k<n;k++){
+const px=r()*w,py=r()*h,lw=o.lw*(.6+r()*.6);
+const base=A[((py/cell)|0)*gx+((px/cell)|0)],ang=base+(r()-.5)*.45;
+const len=o.len[0]+r()*(o.len[1]-o.len[0]),dx=Math.cos(ang),dy=Math.sin(ang),nx=-dy,ny=dx;
+x.strokeStyle=o.cols[(r()*o.cols.length)|0];
+const st=3+((r()*3)|0);
+for(let s=0;s<st;s++){
+x.globalAlpha=o.a[0]+r()*(o.a[1]-o.a[0]);x.lineWidth=lw*(.25+r()*.25);
+const off=(s-st/2)*lw*.28;let wob=(r()-.5)*lw*.3;
+x.beginPath();x.moveTo(px+nx*off,py+ny*off);
+for(let m=1;m<=3;m++){const u=m/3*len;wob+=(r()-.5)*lw*.25;x.lineTo(px+dx*u+nx*(off+wob),py+dy*u+ny*(off+wob))}
+x.stroke()}}
+x.globalAlpha=1;
+const g=(w*h/14)|0;
+for(let k=0;k<g;k++){x.fillStyle=r()<.75?'rgba(255,250,235,'+(.05+r()*.12)+')':'rgba(40,25,10,'+(.03+r()*.06)+')';x.fillRect(r()*w,r()*h,1+r()*1.2,1+r()*1.2)}
+return c}
+const $=id=>document.getElementById(id);
+const isDark=()=>matchMedia('(prefers-color-scheme:dark)').matches&&document.documentElement.dataset.theme!=='light';
+const SC=.6;
+const THEMES={
+cielo:{t:['#fff','#ffe21f','#ff6fb0'],paper:'#fdeef3',pc:['#fadde7','#fff6f9','#f6d0df','#ffffff'],hb:'#2f7fd8',hc:['#3b8fe6','#1f62b8','#5aa5f0','#2a74cc']},
+uva:{t:['#fff','#ffe21f','#ffb3d9'],paper:'#f2eafa',pc:['#e6d6f5','#faf5ff','#dcc8f0','#ffffff'],hb:'#7a3fb0',hc:['#8e52c4','#5e2a8f','#a46ad6','#6e369f']},
+atardecer:{t:['#fff','#fff0a0','#7a1f6e'],paper:'#fff0dc',pc:['#ffe0bd','#fff8ec','#fbd2a2','#ffffff'],hb:'#f06a3a',hc:['#f5824f','#d9502a','#ff9a63','#e65c30']}};
+let cur='cielo';
+try{const sv=localStorage.getItem('pw-pal');if(sv&&THEMES[sv])cur=sv}catch(e){}
+function applyTheme(){
+const T=THEMES[cur],rs=document.documentElement.style;
+T.t.forEach((c,k)=>rs.setProperty('--t'+(k+1),c));
+document.querySelectorAll('.pal button').forEach(b=>b.classList.toggle('on',b.dataset.p==cur))}
+document.querySelectorAll('.pal button').forEach(b=>b.addEventListener('click',()=>{cur=b.dataset.p;try{localStorage.setItem('pw-pal',cur)}catch(e){}applyTheme();paintAll()}));
+function paintAll(){
+const dk=isDark(),T=THEMES[cur];document.documentElement.style.setProperty('--bg',dk?'#2a1d38':T.paper);
+const bg=$('bgc'),w=Math.max(200,innerWidth*SC|0),h=Math.max(200,innerHeight*SC|0);
+const body=crayon(w,h,dk?
+{seed:11,base:'#2a1d38',cols:['#33244a','#221630','#3d2c55'],dens:520,lw:16,len:[60,160],a:[.1,.3],cell:170}:
+{seed:11,base:T.paper,cols:T.pc,dens:520,lw:16,len:[60,160],a:[.1,.3],cell:170});
+bg.width=w;bg.height=h;bg.getContext('2d').drawImage(body,0,0);
+const jobs=[
+['.hero',{seed:23,base:T.hb,cols:T.hc,dens:300,lw:14,len:[80,200],a:[.12,.35],cell:150}],
+['.p1',{seed:31,base:'#e8281e',cols:['#ff5a4a','#b8160e','#f0402f','#ff7a52'],dens:180,lw:11,len:[40,110],a:[.12,.35],cell:90}],
+['.p2',{seed:47,base:'#ffd91a',cols:['#ffe760','#f5c400','#ffef9a','#f0b800'],dens:180,lw:11,len:[40,110],a:[.12,.35],cell:90}],
+['.p3',{seed:59,base:'#4a90d9',cols:['#6aa8f0','#2f6fc0','#8cc0f5','#3a7fcb'],dens:180,lw:11,len:[40,110],a:[.12,.35],cell:90}]];
+jobs.forEach(([sel,o])=>{const el=document.querySelector(sel);if(!el||!el.offsetWidth)return;
+const cw=Math.min(1200,el.offsetWidth*SC|0),ch=Math.max(60,el.offsetHeight*SC|0);
+el.style.backgroundImage='url('+crayon(cw,ch,o).toDataURL('image/jpeg',.85)+')'})}
+let lastW=0,tm;
+addEventListener('resize',()=>{clearTimeout(tm);tm=setTimeout(()=>{if(innerWidth!==lastW){lastW=innerWidth;paintAll()}},250)});
+applyTheme();paintAll();lastW=innerWidth;addEventListener('load',paintAll);
+
+/* ---------- Stick-figure coach (crayon style) ---------- */
+function fig(cls){return `<svg class="fig ${cls}" viewBox="0 0 120 170" aria-hidden="true"><g filter="url(#cr)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="7">
+<g class="body-g">
+<g class="head-g">
+<path d="M46 22L40 8M60 18L60 3M74 22L80 8" stroke="#e8281e" stroke-width="6"/>
+<circle cx="60" cy="40" r="20" stroke="#f5821f"/>
+<circle class="eye" cx="52" cy="35" r="2.8" fill="#2a1a14" stroke="none"/>
+<circle class="eye" cx="68" cy="35" r="2.8" fill="#2a1a14" stroke="none"/>
+<path class="m-smile" d="M51 46Q60 54 69 46" stroke="#e0338a" stroke-width="5"/>
+<path class="m-big" d="M48 44Q60 64 72 44Z" stroke="#e0338a" stroke-width="4" fill="#e0338a"/>
+<path class="m-sad" d="M51 52Q60 43 69 52" stroke="#e0338a" stroke-width="5"/>
+</g>
+<path d="M60 61L60 108" stroke="#4a90d9"/>
+<g class="armL"><path d="M60 72L32 96" stroke="#8b1a7e"/></g>
+<g class="armR"><path d="M60 72L88 96" stroke="#8b1a7e"/></g>
+<g class="legL"><path d="M60 108L40 148" stroke="#0f6b2b"/></g>
+<g class="legR"><path d="M60 108L80 148" stroke="#0f6b2b"/></g>
+</g></g></svg>`}
+function burst(){const w=document.querySelector('.figwrap');if(!w)return;
+const cols=['#ffe21f','#e0338a','#4a90d9','#9bc53d','#f5821f','#8b1a7e'];
+for(let k=0;k<10;k++){const a=Math.random()*6.283,d=50+Math.random()*50,s=document.createElement('i');s.className='st';
+s.style.cssText='background:'+cols[k%6]+';--dx:'+Math.cos(a)*d+'px;--dy:'+(Math.sin(a)*d-20)+'px';
+w.appendChild(s);setTimeout(()=>s.remove(),1000)}}
+function mood(m,txt,sub){const f=document.querySelector('.fig'),b=$('say');if(!f||!b)return;
+f.setAttribute('class','fig '+m);
+b.className='say '+(m=='happy'?'good':m=='sad'?'bad':'');
+b.innerHTML='<span>'+txt+(sub?'<small>'+sub+'</small>':'')+'</span>'}
+const GOOD=['Good answer! 🎉','Great job!','Awesome!','Perfect!','Nice one!','Well done!'];
+const BAD=['Oops! Almost!','Don’t worry!','Next time!','Keep going!'];
+const pickR=a=>a[Math.random()*a.length|0];
+
+/* ---------- Test ---------- */
+const LV=['A1','A2','B1','B2','C1'];
+const Q=[
+{lv:0,q:"She ___ a student.",o:["am","is","are","be"],a:1,w:"student",e:"🧑‍🎓"},
+{lv:0,q:"We eat soup with a ___.",o:["spoon","shoe","pillow","window"],a:0,w:"spoon",e:"🥄"},
+{lv:1,q:"Yesterday I ___ to the market.",o:["go","going","went","gone"],a:2,w:"market",e:"🛒"},
+{lv:1,q:"There aren’t ___ apples in the basket.",o:["some","any","a","much"],a:1,w:"basket",e:"🧺"},
+{lv:2,q:"If it rains, we ___ at home.",o:["stayed","staying","will stay","would stayed"],a:2,w:"rains",e:"🌧️"},
+{lv:2,q:"I have lived here ___ 2015.",o:["for","since","from","during"],a:1,w:"lived",e:"🏠"},
+{lv:3,q:"By the time we arrived, the film ___.",o:["started","had started","has started","was starting"],a:1,w:"film",e:"🎬"},
+{lv:3,q:"If I had known, I ___ come.",o:["will","would have","had","would"],a:1,w:"known",e:"💡"},
+{lv:4,q:"Not only ___ late, but he also forgot the documents.",o:["he arrived","arrived he","did he arrive","he did arrive"],a:2,w:"documents",e:"📄"},
+{lv:4,q:"The new law should ___ the effects of pollution.",o:["meditate","mitigate","militate","motivate"],a:1,w:"mitigate",e:"🛡️"}];
+const L=[
+{n:"A1",name:"Principiante",c:"linear-gradient(#e8281e,#f5821f)",m:["Aprende 5 palabras nuevas al día, solo objetos y animales.","Pon etiquetas con imagen en tu casa: 🚪 door, 🪑 chair.","Repite frases de 3 palabras en voz alta: “I see a dog”.","Mira dibujos animados en inglés 10 minutos."],t:"Una palabra, una imagen. Nunca escribas la traducción: dibuja o busca el dibujo."},
+{n:"A2",name:"Básico",c:"linear-gradient(#ffe21f,#9bc53d)",m:["10 palabras nuevas por semana, agrupadas por imagen (comida, ropa, casa).","Escribe 3 frases al día sobre lo que hiciste ayer.","Lee cuentos infantiles con dibujos.","Habla 5 minutos solo, describiendo tu cuarto."],t:"Haz tarjetas con la imagen delante y la palabra detrás. Adivina antes de voltear."},
+{n:"B1",name:"Intermedio",c:"linear-gradient(#9bc53d,#0f6b2b)",m:["Lee un artículo corto al día; al toparte con una palabra rara, búscala en imágenes.","Mira series con subtítulos en inglés.","Escribe un diario de 5 líneas.","Practica un intercambio de idiomas cada semana."],t:"Busca la palabra en Google Imágenes y describe la foto en inglés con tus propias palabras."},
+{n:"B2",name:"Intermedio alto",c:"linear-gradient(#4a90d9,#8b1a7e)",m:["Escucha un podcast y anota 5 expresiones nuevas por episodio.","Escribe resúmenes de 100 palabras.","Aprende verbos con preposición (give up, look for) con una escena dibujada.","Debate en inglés un tema por semana."],t:"Convierte cada expresión en una mini escena: dibújala y cuéntala en voz alta."},
+{n:"C1",name:"Avanzado",c:"linear-gradient(#8b1a7e,#e0338a)",m:["Lee novelas y noticias sin diccionario.","Escribe ensayos y pide corrección.","Aprende matices: persistent, stubborn, determined, con imágenes de cada uno.","Da una charla corta en inglés cada mes."],t:"Compara palabras parecidas con dos imágenes lado a lado y escribe cuál usarías y por qué."}];
+let i=0,done=[],locked=false;
+function show(b,e){const n=b.nextElementSibling;n.innerHTML=n.innerHTML?'':'<span class="pic">'+e+'</span>'}
+function view(v){['home','test','result'].forEach(x=>$(x).hidden=x!=v);window.scrollTo(0,0);document.querySelector('.pal').hidden=v!='home';if(v=='home')paintAll()}
+function start(){i=0;done=[];view('test');render()}
+function render(){
+const d=Q[i];locked=false;
+const bar=Q.map((_,k)=>'<i class="'+(k<i?(done[k]?'ok':'no'):k==i?'cur':'')+'"></i>').join('');
+$('quiz').innerHTML='<div class="bar">'+bar+'</div>'+
+'<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say" id="say"><span>Hi! Pick the best answer 👇</span></div></div>'+
+'<div class="q">'+(i+1)+'. '+d.q+'</div>'+
+'<button class="hint" onclick="pic()">🖼️ No entiendo: '+d.w+'</button><span id="hp"></span>'+
+'<div class="opts">'+d.o.map((t,k)=>'<button class="opt" onclick="pick('+k+',this)">'+t+'</button>').join('')+'</div>'+
+'<div class="row"><span>Pregunta '+(i+1)+' de 10</span><button class="btn pink" id="nx" onclick="next()" disabled>'+(i==9?'Ver mi nivel':'Siguiente')+'</button></div>';
+$('nx').style.opacity=.5}
+function pic(){$('hp').innerHTML='<span class="pic">'+Q[i].e+'</span>'}
+function pick(k,b){
+if(locked)return;locked=true;
+const d=Q[i],ok=k===d.a;done[i]=ok;
+const bs=document.querySelectorAll('.opt');
+bs.forEach(o=>o.disabled=true);
+b.classList.add(ok?'good':'bad');bs[d.a].classList.add('good');
+if(ok){mood('happy',pickR(GOOD));burst()}else mood('sad',pickR(BAD),'The answer: '+d.o[d.a]);
+$('nx').disabled=false;$('nx').style.opacity=1}
+function next(){i++;i<10?render():result()}
+function level(){
+const cnt=LV.map((_,l)=>Q.filter((q,k)=>q.lv==l&&done[k]).length);
+let best=0,cum=0;
+cnt.forEach((c,l)=>{cum+=c;if(c==2&&cum>=2*(l+1)-1)best=l});
+return{k:best,cnt}}
+function result(){
+const {k,cnt}=level(),l=L[k],s=done.filter(Boolean).length;
+view('result');
+$('res').innerHTML='<div class="card"><div class="coach" style="justify-content:center"><div class="figwrap">'+fig('happy')+'</div></div>'+
+'<h2 style="font-size:32px;margin-bottom:8px">¡Terminaste! '+s+' de 10 🎉</h2>'+
+'<p style="margin:0 0 14px">Tu nivel estimado es:</p>'+
+'<div class="lvl" style="background:'+l.c+'">'+l.n+'<small>'+l.name+'</small></div>'+
+'<div class="chips">'+cnt.map((c,j)=>'<span class="'+(c==2?'f':'')+'">'+LV[j]+': '+c+'/2</span>').join('')+'</div>'+
+'<div class="plan"><div style="--c:var(--pink)"><h3>Tu método de estudio</h3><ol>'+l.m.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
+'<div style="--c:var(--sky)"><h3>Cada día</h3><ul><li>10 min: palabras con imagen</li><li>10 min: escuchar</li><li>10 min: hablar o escribir</li></ul></div></div>'+
+'<div class="tip"><b>🖼️ Truco palabra-imagen:</b> '+l.t+'</div>'+
+'<p><button class="btn" onclick="start()">Repetir el test</button> <button class="btn pink" onclick="view(\'home\')">Inicio</button></p></div>';
+setTimeout(burst,300)}
+</script>
+</body>
+</html>
