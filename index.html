@@ -229,6 +229,36 @@ html{-webkit-text-size-adjust:100%}
 .chips span,.wchips span{background:#54406f;color:#fff3dc}
 .chips span.f{background:#2f8f4e;color:#fff}
 }
+/* quiz screens: everything fits one phone screen, Migo stays, the sheet slides */
+#method.view,#test.view{min-height:0;display:block;padding:12px 12px 76px}
+#quiz.qcard,#mq.qcard{display:flex;flex-direction:column;max-width:720px;margin:0 auto;padding:12px 14px;height:calc(100vh - 90px - env(safe-area-inset-top,0px));height:calc(100dvh - 90px - env(safe-area-inset-top,0px));min-height:430px;max-height:780px;overflow:hidden;border-radius:24px}
+.qcard .top{display:flex;gap:10px;align-items:center;flex:none}
+.qcard .top .bar{flex:1;margin:0;gap:4px}
+.qcard .bar i{height:12px;transition:background .3s}
+.qcard .back{margin:0;padding:2px 12px;font-size:15px;flex:none}
+.qcard .coach{flex:none;margin:6px 0 0;min-height:0;gap:8px}
+.qcard .figwrap{width:clamp(54px,7.5vh,84px);width:clamp(54px,7.5dvh,84px)}
+.qcard .fig{width:100%}
+.qcard .nm{font-size:12px;padding:0 8px}
+.qcard .say{flex:1;max-width:none;font-size:clamp(15px,2.3vh,19px);font-size:clamp(15px,2.3dvh,19px);padding:6px 12px;border-width:3px;border-radius:18px;line-height:1.15}
+.qcard .say small{font-size:13px}
+.sheetwrap{position:relative;flex:1;min-height:0;margin-top:6px;overflow:hidden;border-radius:18px}
+.sheet{position:absolute;inset:0;display:flex;flex-direction:column;overflow:auto;background:var(--card);padding:8px 8px 6px 20px;border-radius:18px;box-shadow:inset 0 0 0 3px var(--lilac)}
+.sheet::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:9px;border-radius:0 6px 6px 0;background:repeating-linear-gradient(var(--pink) 0 16px,var(--sun) 16px 32px,var(--sky) 32px 48px,var(--lime) 48px 64px)}
+.sheet.in{animation:pgIn .55s cubic-bezier(.25,.8,.25,1) both;transform-origin:100% 100%}
+.sheet.out{animation:pgOut .55s cubic-bezier(.5,0,.75,.4) both;transform-origin:0 100%;pointer-events:none;z-index:2}
+@keyframes pgIn{from{transform:translateX(104%) rotate(4deg)}to{transform:none}}
+@keyframes pgOut{to{transform:translateX(-104%) rotate(-5deg)}}
+.qcard .mword{flex:none;gap:10px;margin:0 0 2px;align-items:center;flex-wrap:nowrap}
+.qcard .mword .sent{flex:1;font-size:clamp(18px,3vh,26px);font-size:clamp(18px,3dvh,26px);line-height:1.5}
+.qcard .bigpic{width:clamp(72px,11vh,108px);height:clamp(72px,11vh,108px);width:clamp(72px,11dvh,108px);height:clamp(72px,11dvh,108px)}
+.qcard .bigpic.on{font-size:clamp(40px,6.5vh,62px);font-size:clamp(40px,6.5dvh,62px)}
+.qcard .q{flex:none;font-size:clamp(18px,3vh,26px);font-size:clamp(18px,3dvh,26px);margin:4px 0;line-height:1.15}
+.qcard .opts{flex:1;min-height:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));grid-auto-rows:minmax(44px,76px);gap:8px;margin:4px 0;align-content:start}
+.qcard .opt{padding:4px 12px;font-size:clamp(15px,2.3vh,19px);font-size:clamp(15px,2.3dvh,19px);line-height:1.15;border-width:3px;border-radius:16px}
+.qcard .row{flex:none;margin-top:8px}
+.qcard .row>span{width:auto;font-size:15px}
+.qcard .row .btn{width:auto;padding:10px 26px;font-size:18px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -393,28 +423,42 @@ const TRYA=['Oops! Try again','Almost! Try again','Not quite, try again'];
 const shuf=a=>{a=a.slice();for(let k=a.length;k>1;k--){const j=Math.random()*k|0;[a[k-1],a[j]]=[a[j],a[k-1]]}return a};
 const setBtn=(id,t,on)=>{const b=$(id);if(!b)return;b.textContent=t;b.disabled=!on;b.style.opacity=on?1:.5};
 let M=[],mi=0,mres=[],mlock=false,mwrong=0,msel=null;
-function startMethod(){M=shuf(WORDS).slice(0,8);mi=0;mres=[];view('method');mrender()}
-function mrender(){
+const NEXTW=['Next word! 👇','Let’s go! 👇','Here we go! 👇','You got this! 👇'];
+const NEXTQ=['Next one! 👇','Keep going! 👇','Here we go! 👇'];
+const mopts=()=>document.querySelectorAll('#mq .sheet:not(.out) .opt');
+function shellHTML(bid,fn,a,b){return '<div class="top"><button class="back" onclick="view(\'home\')" aria-label="Volver al menú">← Menú</button><div class="bar"></div></div>'+
+'<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say"><span>'+a+'<small>'+b+'</small></span></div></div>'+
+'<div class="sheetwrap"></div>'+
+'<div class="row"><span class="cnt"></span><button class="btn pink" id="'+bid+'" onclick="'+fn+'" disabled>Verificar</button></div>'}
+function updBar(root,n,cur,res){const b=root.querySelector('.bar');if(!b.children.length)b.innerHTML='<i></i>'.repeat(n);
+[].forEach.call(b.children,(e,k)=>{e.className=k<cur?(res[k]?'ok':'no'):k==cur?'cur':''})}
+function slide(root,html){
+const w=root.querySelector('.sheetwrap'),old=w.querySelector('.sheet:not(.out)');
+const nw=document.createElement('div');nw.className='sheet in';nw.innerHTML=html;
+if(old){old.classList.add('out');old.querySelectorAll('button').forEach(b=>b.disabled=true);setTimeout(()=>old.remove(),650)}
+w.appendChild(nw)}
+function startMethod(){M=shuf(WORDS).slice(0,8);mi=0;mres=[];view('method');
+const q=$('mq');q.className='card qcard';q.innerHTML=shellHTML('mn','mbtn()','Hi! I’m Migo 👋','Read the sentence 👇');mrender(true)}
+function mrender(first){
 const d=M[mi];mlock=false;mwrong=0;msel=null;
 d.opts=shuf([{t:d.a,ok:1}].concat(d.o.map(t=>({t:t,ok:0}))));
-const bar=M.map((_,k)=>'<i class="'+(k<mi?(mres[k]?'ok':'no'):k==mi?'cur':'')+'"></i>').join('');
+updBar($('mq'),M.length,mi,mres);
+$('mq').querySelector('.cnt').textContent='Palabra '+(mi+1)+' de '+M.length;
 const sent=d.s.replace(/\[(.+?)\]/,'<span class="ww">$1</span>');
-$('mq').innerHTML='<button class="back" onclick="view(\'home\')" aria-label="Volver al menú">← Menú</button>'+'<div class="bar">'+bar+'</div>'+
-'<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say"><span>Hi! I’m Migo 👋<small>Read the sentence 👇</small></span></div></div>'+
-'<div class="mword"><div class="sent">'+sent+'</div><button class="bigpic" id="mp" onclick="mpeek()" aria-label="Ver la imagen"><span>Ver<br>imagen</span></button></div>'+
+slide($('mq'),'<div class="mword"><div class="sent">'+sent+'</div><button class="bigpic" onclick="mpeek()" aria-label="Ver la imagen"><span>Ver<br>imagen</span></button></div>'+
 '<div class="q">What does “'+d.w+'” mean?</div>'+
-'<div class="opts">'+d.opts.map((o,k)=>'<button class="opt" onclick="mpick('+k+',this)">'+o.t+'</button>').join('')+'</div>'+
-'<div class="row"><span>Palabra '+(mi+1)+' de '+M.length+'</span><button class="btn pink" id="mn" onclick="mbtn()" disabled>Verificar</button></div>';
-setBtn('mn','Verificar',false)}
-function mpeek(){const p=$('mp');if(!p||p.classList.contains('on'))return;p.className='bigpic on';p.innerHTML=M[mi].e;p.setAttribute('aria-label',M[mi].w)}
+'<div class="opts">'+d.opts.map((o,k)=>'<button class="opt" onclick="mpick('+k+',this)">'+o.t+'</button>').join('')+'</div>');
+setBtn('mn','Verificar',false);
+if(!first)mood('idle',pickR(NEXTW),'Read the sentence')}
+function mpeek(){const p=document.querySelector('#mq .sheet:not(.out) .bigpic');if(!p||p.classList.contains('on'))return;p.className='bigpic on';p.innerHTML=M[mi].e;p.setAttribute('aria-label',M[mi].w)}
 function mpick(k,b){
 if(mlock)return;msel=k;
-document.querySelectorAll('#mq .opt').forEach(x=>x.classList.remove('sel'));
+mopts().forEach(x=>x.classList.remove('sel'));
 b.classList.add('sel');setBtn('mn','Verificar',true)}
 function mbtn(){
 if(mlock){mnext();return}
 if(msel===null)return;
-const d=M[mi],o=d.opts[msel],all=document.querySelectorAll('#mq .opt'),b=all[msel];
+const d=M[mi],o=d.opts[msel],all=mopts(),b=all[msel];
 b.classList.remove('sel');
 if(o.ok){mlock=true;mres[mi]=mwrong==0;
 all.forEach(x=>x.disabled=true);
@@ -425,7 +469,7 @@ else{mwrong++;b.disabled=true;b.classList.add('bad');msel=null;mpeek();
 mood('sad',pickR(TRYA),'Look at the picture 👀');setBtn('mn','Verificar',false)}}
 function mnext(){mi++;mi<M.length?mrender():mend()}
 function mend(){
-const s=mres.filter(Boolean).length;
+const s=mres.filter(Boolean).length;$('mq').className='card';
 $('mq').innerHTML='<div class="res"><div class="coach" style="justify-content:center"><div class="figwrap">'+fig('happy')+'</div></div>'+
 '<h2 style="font-size:32px;margin-bottom:8px">¡Método completado! 🎉</h2>'+
 '<p style="margin:0">Aprendiste '+M.length+' palabras sin traducir.<br>Acertaste '+s+' a la primera.</p>'+
@@ -498,26 +542,26 @@ const L=[
 let i=0,done=[],locked=false,tsel=null,tpicks=[];
 function show(b,e,g){const n=b.parentElement.querySelector('.slot');n.innerHTML=n.innerHTML?'':'<span class="pic">'+e+'</span>'+(g?'<span class="gl">= '+g+'</span>':'')}
 function view(v){['home','method','test','result'].forEach(x=>$(x).hidden=x!=v);window.scrollTo(0,0);document.querySelector('.pal').hidden=v!='home';if(v=='home')paintAll()}
-function start(){i=0;done=[];tpicks=[];view('test');render()}
-function render(){
+const topts=()=>document.querySelectorAll('#quiz .sheet:not(.out) .opt');
+function start(){i=0;done=[];tpicks=[];view('test');const q=$('quiz');q.className='qcard';q.innerHTML=shellHTML('nx','nbtn()','I’m Migo. Test time!','No help this time 💪');render(true)}
+function render(first){
 const d=Q[i];locked=false;tsel=null;
-const bar=Q.map((_,k)=>'<i class="'+(k<i?(done[k]?'ok':'no'):k==i?'cur':'')+'"></i>').join('');
-$('quiz').innerHTML='<button class="back" onclick="view(\'home\')" aria-label="Volver al menú">← Menú</button>'+'<div class="bar">'+bar+'</div>'+
-'<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say" id="say"><span>I’m Migo. Test time!<small>No help this time 💪</small></span></div></div>'+
-'<div class="q">'+(i+1)+'. '+d.q+'</div>'+
-'<div class="opts">'+d.o.map((t,k)=>'<button class="opt" onclick="pick('+k+',this)">'+t+'</button>').join('')+'</div>'+
-'<div class="row"><span>Pregunta '+(i+1)+' de 10</span><button class="btn pink" id="nx" onclick="nbtn()" disabled>Verificar</button></div>';
-setBtn('nx','Verificar',false)}
+updBar($('quiz'),10,i,done);
+$('quiz').querySelector('.cnt').textContent='Pregunta '+(i+1)+' de 10';
+slide($('quiz'),'<div class="q">'+(i+1)+'. '+d.q+'</div>'+
+'<div class="opts">'+d.o.map((t,k)=>'<button class="opt" onclick="pick('+k+',this)">'+t+'</button>').join('')+'</div>');
+setBtn('nx','Verificar',false);
+if(!first)mood('idle',pickR(NEXTQ),'No help this time 💪')}
 function pick(k,b){
 if(locked)return;tsel=k;
-document.querySelectorAll('#quiz .opt').forEach(x=>x.classList.remove('sel'));
+topts().forEach(x=>x.classList.remove('sel'));
 b.classList.add('sel');setBtn('nx','Verificar',true)}
 function nbtn(){
 if(locked){next();return}
 if(tsel===null)return;
 locked=true;
 const d=Q[i],ok=tsel===d.a;done[i]=ok;tpicks[i]=tsel;
-const bs=document.querySelectorAll('#quiz .opt');
+const bs=topts();
 bs.forEach(o=>{o.disabled=true;o.classList.remove('sel')});
 bs[tsel].classList.add(ok?'good':'bad');bs[d.a].classList.add('good');
 if(ok){mood('happy',pickR(GOOD));burst()}else mood('sad',pickR(BAD),'The answer: '+d.o[d.a]);
