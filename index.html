@@ -6,7 +6,9 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#2f7fd8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1d1330" media="(prefers-color-scheme: dark)">
-<title>PicWord – Inglés con imágenes</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<title>Migo – Inglés con imágenes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;700&display=swap">
 <style>
 :root{--green:#0f6b2b;--lime:#9bc53d;--sun:#ffe21f;--pink:#e0338a;--red:#e8281e;--plum:#8b1a7e;--sky:#4a90d9;--orange:#f5821f;--paper:#f7ebcb;--lilac:#c9b6d9;--ink:#2a1a14;--card:#fffaf0;--bg:#fdeef3;--t1:#fff;--t2:#ffe21f;--t3:#ff6fb0}
@@ -29,7 +31,7 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 .sun{position:absolute;right:0;top:-10px;width:110px;height:110px;border-radius:50%;background:var(--sun);color:#2a1a14;display:grid;place-items:center;font-size:54px;animation:spin 20s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .big{font-size:clamp(64px,17vw,170px);letter-spacing:-2px;display:flex;flex-wrap:wrap;gap:0 .08em;margin:30px 0 10px}
-.big span:nth-child(1){color:var(--t1)}.big span:nth-child(2){color:var(--t2)}.big span:nth-child(3){color:var(--t3)}
+.big span:nth-child(1){color:var(--t1)}.big span:nth-child(2){color:var(--t2)}.big span:nth-child(3){color:var(--t3)}.big span:nth-child(4){color:var(--lilac)}
 .big .flip{display:inline-block;transform:rotate(180deg)}
 .lead{color:#fff;font-size:22px;max-width:30ch;margin:0 0 24px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
 .lead b{background:var(--sun);color:#2a1a14;padding:0 8px;border-radius:8px;text-shadow:none}
@@ -66,6 +68,7 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 .opt{font:inherit;font-weight:700;font-size:20px;padding:14px;border-radius:18px;border:3px solid #2a1a14;background:#fff;color:#2a1a14;cursor:pointer}
 .opt:not(:disabled):hover{background:var(--sun)}
 .opt:disabled{cursor:default}
+.opt.sel,.opt.sel:not(:disabled):hover{background:var(--pink);color:#fff;border-color:var(--plum)}
 .opt.good{background:var(--green);color:#fff;border-color:#053c19}
 .opt.bad{background:#ffb4ab;border-color:#9a1010;animation:shk .4s}
 @keyframes shk{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
@@ -74,6 +77,7 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 /* stick-figure coach */
 .coach{display:flex;align-items:center;gap:10px;margin-bottom:10px;min-height:150px}
 .figwrap{position:relative;flex:none;width:120px}
+.nm{display:block;width:max-content;margin:4px auto 0;background:var(--sun);color:#2a1a14;border-radius:999px;padding:0 12px;font-weight:700;font-size:15px;line-height:1.5}
 .fig{width:120px;height:auto;display:block;overflow:visible}
 .say{position:relative;background:#fff;color:#2a1a14;border:4px solid #2a1a14;border-radius:22px;padding:10px 18px;font-weight:700;font-size:22px;line-height:1.2;max-width:min(360px,100%)}
 .say::before{content:"";position:absolute;left:-18px;top:50%;margin-top:-10px;border:10px solid transparent;border-right:14px solid #2a1a14;border-left:0}
@@ -129,6 +133,61 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 .plan h3{font-size:24px;margin-bottom:10px}
 .plan ol,.plan ul{margin:0;padding-left:22px}
 .tip{background:var(--sun);color:#2a1a14;border-radius:24px 24px 24px 4px;padding:20px 24px;margin-top:20px;text-align:left;font-size:20px}
+/* method */
+.back{font:inherit;font-weight:700;font-size:17px;background:var(--lilac);color:#2a1a14;border:0;border-radius:999px;padding:4px 16px;cursor:pointer;margin-bottom:14px}
+.back:active{transform:translateY(2px)}
+.ctas{display:flex;gap:12px;flex-wrap:wrap}
+.btn.ghost{background:transparent;color:#fff;border:3px solid #fff;box-shadow:none;padding:11px 24px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+.btn.ghost:active{transform:translateY(2px)}
+.gl{margin-left:6px;font-size:18px;font-weight:700;background:var(--sun);color:#2a1a14;border-radius:999px;padding:2px 12px}
+.mword{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}
+.mword .sent{flex:1 1 240px;font-size:clamp(22px,5vw,32px);line-height:1.7}
+.ww{background:var(--sun);color:#2a1a14;border-radius:10px;padding:2px 10px;font-weight:700}
+.bigpic{flex:none;width:130px;height:130px;border-radius:50% 50% 50% 14px;background:#fff;display:grid;place-items:center;border:4px dashed var(--sky);cursor:pointer;color:#2a1a14;padding:0;font:700 18px/1.1 "Baloo 2",sans-serif}
+.bigpic.on{border:4px solid #2a1a14;font-size:76px;line-height:1;animation:pop .35s;pointer-events:none}
+.wchips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.wchips span{background:var(--lilac);color:#2a1a14;border-radius:999px;padding:4px 16px;font-weight:700;font-size:18px}
+/* PDF report (always light, A4 pages) */
+#rep{position:fixed;left:0;top:0;width:794px;z-index:-9999;pointer-events:none;color:#2a1a14;font-family:"Baloo 2","Trebuchet MS",sans-serif;font-size:16px;line-height:1.45}
+#rep:empty{display:none}
+#rep *{box-sizing:border-box}
+#rep .pg{width:794px;height:1123px;background:#fffaf0;position:relative;overflow:hidden;padding:0 44px}
+#rep .rh{margin:0 -44px;height:210px;padding:34px 44px;background-size:100% 100%;color:#fff}
+#rep .rh.sm{height:140px;padding-top:24px}
+#rep .logo{font:400 64px/1 "Bagel Fat One",Impact,sans-serif;letter-spacing:-1px}
+#rep .rh.sm .logo{font-size:44px}
+#rep .sub{font-size:19px;margin-top:10px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+#rep .lvrow{display:flex;gap:30px;align-items:center;margin-top:-34px;position:relative}
+#rep .lv{flex:none;width:190px;height:250px;border-radius:95px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font:400 82px/1 "Bagel Fat One",Impact,sans-serif;text-shadow:0 3px 0 rgba(0,0,0,.25);border:6px solid #fffaf0}
+#rep .lv small{font:700 21px/1.1 "Baloo 2",sans-serif;margin-top:8px}
+#rep .info{padding-top:36px}
+#rep h2,#rep h3{font-family:"Bagel Fat One",Impact,sans-serif;font-weight:400;margin:0;line-height:1.05}
+#rep h2{font-size:34px;margin-bottom:6px}
+#rep .big{font-size:21px;font-weight:700;margin:0 0 10px}
+#rep .rchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#rep .rchips span{background:#c9b6d9;border-radius:999px;padding:1px 14px;font-weight:700;font-size:15px}
+#rep .rchips span.f{background:#9bc53d}
+#rep .note{font-size:15px;margin:0;opacity:.85}
+#rep .plan{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px}
+#rep .plan>div{background:#f6ecd0;border-radius:20px;padding:20px 22px;border-left:10px solid var(--c)}
+#rep .plan h3{font-size:23px;margin-bottom:10px}
+#rep ol,#rep ul{margin:0;padding-left:20px;font-size:16px}
+#rep li{margin-bottom:6px}
+#rep .tip{background:#ffe21f;border-radius:24px 24px 24px 4px;padding:18px 24px;margin-top:22px;font-size:18px}
+#rep .wk{margin-top:24px}
+#rep .wk h3{font-size:23px;margin-bottom:12px}
+#rep .days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+#rep .days div{border-radius:18px;padding:12px 6px;text-align:center;font-size:13px;line-height:1.2;min-height:118px;color:#2a1a14}
+#rep .days b{display:block;font:400 20px/1 "Bagel Fat One",Impact,sans-serif;margin-bottom:8px}
+#rep .rfoot{position:absolute;left:44px;right:44px;bottom:26px;display:flex;justify-content:space-between;font-size:14px;opacity:.7}
+#rep .rr{display:flex;gap:12px;align-items:flex-start;background:#fff;border-radius:16px;border-left:10px solid #9bc53d;padding:9px 16px;margin-top:10px;box-shadow:0 3px 0 #eadfc0}
+#rep .rr.no{border-left-color:#e0338a}
+#rep .rr b{flex:none;width:26px;font-family:"Bagel Fat One",Impact,sans-serif;font-weight:400;font-size:19px}
+#rep .rr div{flex:1;font-size:16px;line-height:1.3}
+#rep .rr u{font-weight:700;text-decoration:underline;text-decoration-color:#e0338a}
+#rep .rr small{display:block;font-size:14px;color:#9c1f62;margin-top:2px}
+#rep .rr .tag{flex:none;font-size:22px;line-height:1}
+@media print{@page{size:A4;margin:0}body>*:not(#rep){display:none!important}#rep{position:static;width:auto;z-index:auto}#rep .pg{break-after:page}}
 /* palette picker */
 .pal{position:fixed;right:12px;bottom:12px;z-index:5;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.85);padding:6px 10px;border-radius:999px;box-shadow:0 3px 0 rgba(0,0,0,.2);font-size:14px;font-weight:700;color:#2a1a14}
 .pal button{width:28px;height:28px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 0 0 2px #2a1a14;padding:0}
@@ -150,6 +209,8 @@ section{padding:36px 16px}
 .row>span{width:100%}.row .btn{width:100%}
 .pal{right:8px;bottom:8px;padding:4px 8px}.pal span{display:none}
 footer{padding-bottom:70px}
+.bigpic{width:104px;height:104px}.bigpic.on{font-size:58px}
+.ctas .btn{flex:1 1 100%;text-align:center}
 }
 html{-webkit-text-size-adjust:100%}
 @media (prefers-color-scheme:dark){
@@ -165,7 +226,7 @@ html{-webkit-text-size-adjust:100%}
 .fig [stroke="#4a90d9"]{stroke:#7ab8ff}
 .fig [stroke="#e8281e"]{stroke:#ff6b5c}
 .fig .eye{fill:#fff3dc}
-.chips span{background:#54406f;color:#fff3dc}
+.chips span,.wchips span{background:#54406f;color:#fff3dc}
 .chips span.f{background:#2f8f4e;color:#fff}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -181,6 +242,7 @@ html{-webkit-text-size-adjust:100%}
 <feComposite in="d" in2="m" operator="in"/>
 </filter></defs></svg>
 <canvas id="bgc" aria-hidden="true"></canvas>
+<div id="rep" aria-hidden="true"></div>
 <div class="pal" role="group" aria-label="Colores de la página"><span>Colores</span>
 <button data-p="cielo" style="background:#2f7fd8" aria-label="Azul cielo"></button>
 <button data-p="uva" style="background:#7a3fb0" aria-label="Morado uva"></button>
@@ -190,30 +252,31 @@ html{-webkit-text-size-adjust:100%}
 <header class="hero">
 <div class="hero-in">
 <div class="sun" aria-hidden="true">☺</div>
-<h1 class="big" aria-label="Pic Word"><span>PIC</span><span>W<span class="flip">O</span></span><span>RD</span></h1>
+<h1 class="big" aria-label="Migo"><span>M</span><span>I</span><span>G</span><span>O</span></h1>
 <p class="lead">Aprende inglés sin traducir. Si no entiendes una palabra, <b>mírala</b> en una imagen.</p>
-<button class="btn" onclick="start()">Hacer mi test de nivel</button>
+<div class="ctas"><button class="btn" onclick="startMethod()">Iniciar método</button><button class="btn ghost" onclick="start()">Hacer test de nivel</button></div>
 <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </div>
 </header>
 
 <section id="how">
 <div class="book">
-<div class="l"><h2>Así funciona</h2><p>Toca la palabra amarilla. En lugar de su traducción verás una imagen. Tu cerebro une la palabra con la imagen, igual que cuando eras niño.</p></div>
+<div class="l"><h2>Así funciona</h2><p>Toca la palabra amarilla. En lugar de su traducción verás una imagen y su significado en inglés sencillo. Tu cerebro une la palabra con la imagen, igual que cuando eras niño.</p></div>
 <div class="demo">
-<div>The <button class="w" onclick="show(this,'🐘')">elephant</button><span></span> is very big.</div>
-<div>I drink <button class="w" onclick="show(this,'🍵')">tea</button><span></span> every day.</div>
+<div>Fish <button class="w" onclick="show(this,'🏊','move in the water')">swim</button> in the sea. <span class="slot"></span></div>
+<div>I <button class="w" onclick="show(this,'🥶','shake because you are cold')">shiver</button> when it is cold. <span class="slot"></span></div>
 </div>
 </div>
 <div class="steps">
-<div class="pill p1"><div class="em">📝</div><h3>10 preguntas</h3><p>Con imagen de ayuda en cada una.</p></div>
-<div class="pill p2"><div class="em">🎈</div><h3>Tu nivel</h3><p>De A1 a C1, al terminar.</p></div>
-<div class="pill p3"><div class="em">🗺️</div><h3>Tu método</h3><p>Plan de estudio y truco palabra-imagen.</p></div>
+<div class="pill p1"><div class="em">🖼️</div><h3>8 palabras</h3><p>Cada una con frase e imagen.</p></div>
+<div class="pill p2"><div class="em">🎈</div><h3>Elige el significado</h3><p>Opciones en inglés, sin traducir.</p></div>
+<div class="pill p3"><div class="em">🗺️</div><h3>Mide tu nivel</h3><p>Test opcional al final, de A1 a C1.</p></div>
 </div>
 </section>
 
 <footer>Hecho con colores de cuento 🌈</footer>
 </div>
+<section id="method" class="view" hidden><div id="mq" class="card"></div></section>
 <section id="test" class="view" hidden><div id="quiz"></div></section>
 <section id="result" class="view" hidden><div id="res" class="res"></div></section>
 
@@ -297,19 +360,121 @@ function fig(cls){return `<svg class="fig ${cls}" viewBox="0 0 120 170" aria-hid
 <g class="armR"><path d="M60 72L88 96" stroke="#8b1a7e"/></g>
 <g class="legL"><path d="M60 108L40 148" stroke="#0f6b2b"/></g>
 <g class="legR"><path d="M60 108L80 148" stroke="#0f6b2b"/></g>
-</g></g></svg>`}
-function burst(){const w=document.querySelector('.figwrap');if(!w)return;
+</g></g></svg><span class="nm">Migo</span>`}
+const vis=()=>document.querySelector('.view:not([hidden])')||document;
+function burst(){const w=vis().querySelector('.figwrap');if(!w)return;
 const cols=['#ffe21f','#e0338a','#4a90d9','#9bc53d','#f5821f','#8b1a7e'];
 for(let k=0;k<10;k++){const a=Math.random()*6.283,d=50+Math.random()*50,s=document.createElement('i');s.className='st';
 s.style.cssText='background:'+cols[k%6]+';--dx:'+Math.cos(a)*d+'px;--dy:'+(Math.sin(a)*d-20)+'px';
 w.appendChild(s);setTimeout(()=>s.remove(),1000)}}
-function mood(m,txt,sub){const f=document.querySelector('.fig'),b=$('say');if(!f||!b)return;
+function mood(m,txt,sub){const R=vis(),f=R.querySelector('.fig'),b=R.querySelector('.say');if(!f||!b)return;
 f.setAttribute('class','fig '+m);
 b.className='say '+(m=='happy'?'good':m=='sad'?'bad':'');
 b.innerHTML='<span>'+txt+(sub?'<small>'+sub+'</small>':'')+'</span>'}
 const GOOD=['Good answer! 🎉','Great job!','Awesome!','Perfect!','Nice one!','Well done!'];
 const BAD=['Oops! Almost!','Don’t worry!','Next time!','Keep going!'];
 const pickR=a=>a[Math.random()*a.length|0];
+
+/* ---------- Method: word -> picture -> meaning (in English) ---------- */
+const WORDS=[
+{w:"swim",e:"🏊",s:"Fish [swim] in the sea.",a:"move in the water",o:["take a shower","dry your hair","drink water"]},
+{w:"umbrella",e:"☂️",s:"I take an [umbrella] when it rains.",a:"protects you from the rain",o:["a cold drink for summer","a type of shoe","a tool to cut paper"]},
+{w:"ladder",e:"🪜",s:"He climbed the [ladder] to fix the roof.",a:"you climb it to reach high places",o:["a big spoon for soup","a small bird","a letter you send"]},
+{w:"candle",e:"🕯️",s:"She lit a [candle] and the room felt warm.",a:"a stick of wax that burns and gives light",o:["a machine for cooking","a kind of fruit","a very small flower"]},
+{w:"bridge",e:"🌉",s:"We crossed the [bridge] over the river.",a:"it lets you cross a river",o:["a place to buy bread","a big boat","a kind of cloud"]},
+{w:"whisper",e:"🤫",s:"Please [whisper]. The baby is sleeping.",a:"speak very quietly",o:["shout very loud","sing in a choir","laugh a lot"]},
+{w:"shiver",e:"🥶",s:"I [shiver] when it is very cold.",a:"shake because you are cold",o:["sweat because it is hot","sleep because you are tired","jump because you are happy"]},
+{w:"mushroom",e:"🍄",s:"We found a [mushroom] in the forest.",a:"a small food that grows in damp places",o:["an insect that lives in trees","a rock near the river","a tool for painting"]},
+{w:"yawn",e:"🥱",s:"I [yawn] when I am sleepy.",a:"open your mouth wide when you are tired",o:["close your eyes when you are scared","jump when you are happy","cough when you are ill"]},
+{w:"anchor",e:"⚓",s:"The ship dropped its [anchor].",a:"a heavy metal thing that keeps a ship in place",o:["a small boat for fishing","a kind of sea fish","a flag on a ship"]},
+{w:"hammer",e:"🔨",s:"He used a [hammer] to hit the nail.",a:"a tool for hitting nails",o:["a tool for cutting wood","a tool for measuring","a tool for painting"]},
+{w:"kite",e:"🪁",s:"The [kite] flew high in the windy sky.",a:"a toy that flies on a string in the wind",o:["a small bird in a cage","a paper boat","a water balloon"]}];
+const TRYA=['Oops! Try again','Almost! Try again','Not quite, try again'];
+const shuf=a=>{a=a.slice();for(let k=a.length;k>1;k--){const j=Math.random()*k|0;[a[k-1],a[j]]=[a[j],a[k-1]]}return a};
+const setBtn=(id,t,on)=>{const b=$(id);if(!b)return;b.textContent=t;b.disabled=!on;b.style.opacity=on?1:.5};
+let M=[],mi=0,mres=[],mlock=false,mwrong=0,msel=null;
+function startMethod(){M=shuf(WORDS).slice(0,8);mi=0;mres=[];view('method');mrender()}
+function mrender(){
+const d=M[mi];mlock=false;mwrong=0;msel=null;
+d.opts=shuf([{t:d.a,ok:1}].concat(d.o.map(t=>({t:t,ok:0}))));
+const bar=M.map((_,k)=>'<i class="'+(k<mi?(mres[k]?'ok':'no'):k==mi?'cur':'')+'"></i>').join('');
+const sent=d.s.replace(/\[(.+?)\]/,'<span class="ww">$1</span>');
+$('mq').innerHTML='<button class="back" onclick="view(\'home\')" aria-label="Volver al menú">← Menú</button>'+'<div class="bar">'+bar+'</div>'+
+'<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say"><span>Hi! I’m Migo 👋<small>Read the sentence 👇</small></span></div></div>'+
+'<div class="mword"><div class="sent">'+sent+'</div><button class="bigpic" id="mp" onclick="mpeek()" aria-label="Ver la imagen"><span>Ver<br>imagen</span></button></div>'+
+'<div class="q">What does “'+d.w+'” mean?</div>'+
+'<div class="opts">'+d.opts.map((o,k)=>'<button class="opt" onclick="mpick('+k+',this)">'+o.t+'</button>').join('')+'</div>'+
+'<div class="row"><span>Palabra '+(mi+1)+' de '+M.length+'</span><button class="btn pink" id="mn" onclick="mbtn()" disabled>Verificar</button></div>';
+setBtn('mn','Verificar',false)}
+function mpeek(){const p=$('mp');if(!p||p.classList.contains('on'))return;p.className='bigpic on';p.innerHTML=M[mi].e;p.setAttribute('aria-label',M[mi].w)}
+function mpick(k,b){
+if(mlock)return;msel=k;
+document.querySelectorAll('#mq .opt').forEach(x=>x.classList.remove('sel'));
+b.classList.add('sel');setBtn('mn','Verificar',true)}
+function mbtn(){
+if(mlock){mnext();return}
+if(msel===null)return;
+const d=M[mi],o=d.opts[msel],all=document.querySelectorAll('#mq .opt'),b=all[msel];
+b.classList.remove('sel');
+if(o.ok){mlock=true;mres[mi]=mwrong==0;
+all.forEach(x=>x.disabled=true);
+b.classList.add('good');mpeek();
+mood('happy',pickR(GOOD),d.w+' = '+d.a);burst();
+setBtn('mn',mi==M.length-1?'Terminar':'Siguiente',true)}
+else{mwrong++;b.disabled=true;b.classList.add('bad');msel=null;mpeek();
+mood('sad',pickR(TRYA),'Look at the picture 👀');setBtn('mn','Verificar',false)}}
+function mnext(){mi++;mi<M.length?mrender():mend()}
+function mend(){
+const s=mres.filter(Boolean).length;
+$('mq').innerHTML='<div class="res"><div class="coach" style="justify-content:center"><div class="figwrap">'+fig('happy')+'</div></div>'+
+'<h2 style="font-size:32px;margin-bottom:8px">¡Método completado! 🎉</h2>'+
+'<p style="margin:0">Aprendiste '+M.length+' palabras sin traducir.<br>Acertaste '+s+' a la primera.</p>'+
+'<div class="wchips">'+M.map(d=>'<span>'+d.e+' '+d.w+'</span>').join('')+'</div>'+
+'<div class="tip"><b>🖼️ Para recordarlas:</b> mañana mira cada imagen y di la palabra en voz alta, sin traducir. Si dudas, vuelve a ver la imagen.</div>'+
+'<p style="margin-top:22px"><button class="btn" onclick="start()">Medir mi nivel (10 preguntas)</button> <button class="btn pink" onclick="startMethod()">Otras 8 palabras</button> <button class="hint" onclick="view(\'home\')">Inicio</button></p></div>';
+setTimeout(burst,300)}
+
+/* ---------- PDF report ---------- */
+function reportHTML(){
+const lv=level(),k=lv.k,cnt=lv.cnt,l=L[k],s=done.filter(Boolean).length,T=THEMES[cur];
+const hdr=crayon(800,230,{seed:23,base:T.hb,cols:T.hc,dens:300,lw:14,len:[80,200],a:[.12,.35],cell:150}).toDataURL('image/jpeg',.9);
+const fecha=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+const logo='<span style="color:'+T.t[0]+'">M</span><span style="color:'+T.t[1]+'">I</span><span style="color:'+T.t[2]+'">G</span><span style="color:#c9b6d9">O</span>';
+const hi=s>=8?'¡Excelente!':s>=5?'¡Buen trabajo!':'¡Buen comienzo!';
+const foot=n=>'<div class="rfoot"><span>Migo · Hecho con colores de cuento 🌈</span><span>'+n+' / 2</span></div>';
+const p1='<div class="pg"><div class="rh" style="background-image:url('+hdr+')"><div class="logo">'+logo+'</div><div class="sub">Tu resultado del test de nivel · '+fecha+'</div></div>'+
+'<div class="lvrow"><div class="lv" style="background:'+l.c+'">'+l.n+'<small>'+l.name+'</small></div>'+
+'<div class="info"><h2>'+hi+'</h2><p class="big">'+s+' de 10 respuestas correctas</p>'+
+'<div class="rchips">'+cnt.map((c,j)=>'<span class="'+(c==2?'f':'')+'">'+LV[j]+': '+c+'/2</span>').join('')+'</div>'+
+'<p class="note">Tu nivel es el más alto en el que acertaste las 2 preguntas y casi todas las anteriores.</p></div></div>'+
+'<div class="plan"><div style="--c:#e0338a"><h3>Tu método de estudio</h3><ol>'+l.m.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
+'<div style="--c:#4a90d9"><h3>Cada día</h3><ul><li>10 min: palabras con imagen</li><li>10 min: escuchar</li><li>10 min: hablar o escribir</li></ul></div></div>'+
+'<div class="tip"><b>🖼️ Truco palabra-imagen:</b> '+l.t+'</div>'+
+'<div class="wk"><h3>Tu semana de práctica</h3><div class="days">'+
+[['Lun','Palabras con imagen','#ffe21f'],['Mar','Escuchar 15 min','#9bc53d'],['Mié','Hablar en voz alta','#c9b6d9'],['Jue','Leer o escribir','#ffb3d9'],['Vie','Repasar tarjetas','#9fd0ff'],['Sáb','Una serie en inglés','#ffc48a'],['Dom','Descanso 😴','#e9dcb4']].map(d=>'<div style="background:'+d[2]+'"><b>'+d[0]+'</b>'+d[1]+'</div>').join('')+
+'</div></div>'+foot(1)+'</div>';
+const rows=Q.map((d,n)=>{const ok=done[n],pk=d.o[tpicks[n]];
+return '<div class="rr '+(ok?'ok':'no')+'"><b>'+(n+1)+'</b><div>'+d.q.replace('___','<u>'+pk+'</u>')+(ok?'':'<small>Tu respuesta: '+pk+' · Correcta: '+d.o[d.a]+'</small>')+'</div><span class="tag">'+(ok?'✅':'❌')+'</span></div>'}).join('');
+const p2='<div class="pg"><div class="rh sm" style="background-image:url('+hdr+')"><div class="logo">'+logo+'</div><div class="sub">Revisa tus respuestas</div></div>'+rows+
+'<div class="tip" style="margin-top:20px"><b>👉 Migo dice:</b> practica el método palabra-imagen en Migo y repite el test en un mes para ver cuánto avanzaste.</div>'+foot(2)+'</div>';
+return p1+p2}
+async function makePDF(btn){
+const old=btn.textContent,rep=$('rep');btn.disabled=true;btn.textContent='Creando PDF…';
+let keep=false;
+try{
+if(!window.jspdf||!window.html2canvas)throw new Error('libs');
+rep.innerHTML=reportHTML();
+if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+const pgs=rep.querySelectorAll('.pg');
+for(let n=0;n<pgs.length;n++){
+const c=await window.html2canvas(pgs[n],{scale:2,useCORS:true,backgroundColor:'#fffaf0'});
+if(n)pdf.addPage();
+pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,210,297)}
+pdf.save('Migo-mi-nivel-'+L[level().k].n+'.pdf')}
+catch(e){keep=true;rep.innerHTML=reportHTML();setTimeout(()=>window.print(),300)}
+finally{if(!keep)rep.innerHTML='';btn.disabled=false;btn.textContent=old}}
+addEventListener('afterprint',()=>{$('rep').innerHTML=''});
 
 /* ---------- Test ---------- */
 const LV=['A1','A2','B1','B2','C1'];
@@ -330,29 +495,33 @@ const L=[
 {n:"B1",name:"Intermedio",c:"linear-gradient(#9bc53d,#0f6b2b)",m:["Lee un artículo corto al día; al toparte con una palabra rara, búscala en imágenes.","Mira series con subtítulos en inglés.","Escribe un diario de 5 líneas.","Practica un intercambio de idiomas cada semana."],t:"Busca la palabra en Google Imágenes y describe la foto en inglés con tus propias palabras."},
 {n:"B2",name:"Intermedio alto",c:"linear-gradient(#4a90d9,#8b1a7e)",m:["Escucha un podcast y anota 5 expresiones nuevas por episodio.","Escribe resúmenes de 100 palabras.","Aprende verbos con preposición (give up, look for) con una escena dibujada.","Debate en inglés un tema por semana."],t:"Convierte cada expresión en una mini escena: dibújala y cuéntala en voz alta."},
 {n:"C1",name:"Avanzado",c:"linear-gradient(#8b1a7e,#e0338a)",m:["Lee novelas y noticias sin diccionario.","Escribe ensayos y pide corrección.","Aprende matices: persistent, stubborn, determined, con imágenes de cada uno.","Da una charla corta en inglés cada mes."],t:"Compara palabras parecidas con dos imágenes lado a lado y escribe cuál usarías y por qué."}];
-let i=0,done=[],locked=false;
-function show(b,e){const n=b.nextElementSibling;n.innerHTML=n.innerHTML?'':'<span class="pic">'+e+'</span>'}
-function view(v){['home','test','result'].forEach(x=>$(x).hidden=x!=v);window.scrollTo(0,0);document.querySelector('.pal').hidden=v!='home';if(v=='home')paintAll()}
-function start(){i=0;done=[];view('test');render()}
+let i=0,done=[],locked=false,tsel=null,tpicks=[];
+function show(b,e,g){const n=b.parentElement.querySelector('.slot');n.innerHTML=n.innerHTML?'':'<span class="pic">'+e+'</span>'+(g?'<span class="gl">= '+g+'</span>':'')}
+function view(v){['home','method','test','result'].forEach(x=>$(x).hidden=x!=v);window.scrollTo(0,0);document.querySelector('.pal').hidden=v!='home';if(v=='home')paintAll()}
+function start(){i=0;done=[];tpicks=[];view('test');render()}
 function render(){
-const d=Q[i];locked=false;
+const d=Q[i];locked=false;tsel=null;
 const bar=Q.map((_,k)=>'<i class="'+(k<i?(done[k]?'ok':'no'):k==i?'cur':'')+'"></i>').join('');
-$('quiz').innerHTML='<div class="bar">'+bar+'</div>'+
-'<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say" id="say"><span>Hi! Pick the best answer 👇</span></div></div>'+
+$('quiz').innerHTML='<button class="back" onclick="view(\'home\')" aria-label="Volver al menú">← Menú</button>'+'<div class="bar">'+bar+'</div>'+
+'<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say" id="say"><span>I’m Migo. Test time!<small>No help this time 💪</small></span></div></div>'+
 '<div class="q">'+(i+1)+'. '+d.q+'</div>'+
-'<button class="hint" onclick="pic()">🖼️ No entiendo: '+d.w+'</button><span id="hp"></span>'+
 '<div class="opts">'+d.o.map((t,k)=>'<button class="opt" onclick="pick('+k+',this)">'+t+'</button>').join('')+'</div>'+
-'<div class="row"><span>Pregunta '+(i+1)+' de 10</span><button class="btn pink" id="nx" onclick="next()" disabled>'+(i==9?'Ver mi nivel':'Siguiente')+'</button></div>';
-$('nx').style.opacity=.5}
-function pic(){$('hp').innerHTML='<span class="pic">'+Q[i].e+'</span>'}
+'<div class="row"><span>Pregunta '+(i+1)+' de 10</span><button class="btn pink" id="nx" onclick="nbtn()" disabled>Verificar</button></div>';
+setBtn('nx','Verificar',false)}
 function pick(k,b){
-if(locked)return;locked=true;
-const d=Q[i],ok=k===d.a;done[i]=ok;
-const bs=document.querySelectorAll('.opt');
-bs.forEach(o=>o.disabled=true);
-b.classList.add(ok?'good':'bad');bs[d.a].classList.add('good');
+if(locked)return;tsel=k;
+document.querySelectorAll('#quiz .opt').forEach(x=>x.classList.remove('sel'));
+b.classList.add('sel');setBtn('nx','Verificar',true)}
+function nbtn(){
+if(locked){next();return}
+if(tsel===null)return;
+locked=true;
+const d=Q[i],ok=tsel===d.a;done[i]=ok;tpicks[i]=tsel;
+const bs=document.querySelectorAll('#quiz .opt');
+bs.forEach(o=>{o.disabled=true;o.classList.remove('sel')});
+bs[tsel].classList.add(ok?'good':'bad');bs[d.a].classList.add('good');
 if(ok){mood('happy',pickR(GOOD));burst()}else mood('sad',pickR(BAD),'The answer: '+d.o[d.a]);
-$('nx').disabled=false;$('nx').style.opacity=1}
+setBtn('nx',i==9?'Ver mi nivel':'Siguiente',true)}
 function next(){i++;i<10?render():result()}
 function level(){
 const cnt=LV.map((_,l)=>Q.filter((q,k)=>q.lv==l&&done[k]).length);
@@ -370,7 +539,7 @@ $('res').innerHTML='<div class="card"><div class="coach" style="justify-content:
 '<div class="plan"><div style="--c:var(--pink)"><h3>Tu método de estudio</h3><ol>'+l.m.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
 '<div style="--c:var(--sky)"><h3>Cada día</h3><ul><li>10 min: palabras con imagen</li><li>10 min: escuchar</li><li>10 min: hablar o escribir</li></ul></div></div>'+
 '<div class="tip"><b>🖼️ Truco palabra-imagen:</b> '+l.t+'</div>'+
-'<p><button class="btn" onclick="start()">Repetir el test</button> <button class="btn pink" onclick="view(\'home\')">Inicio</button></p></div>';
+'<p><button class="btn" id="pdfb" onclick="makePDF(this)">📄 Descargar mi PDF</button></p><p><button class="btn pink" onclick="startMethod()">Practicar palabras</button> <button class="hint" onclick="start()">Repetir el test</button> <button class="hint" onclick="view(\'home\')">Inicio</button></p></div>';
 setTimeout(burst,300)}
 </script>
 </body>
