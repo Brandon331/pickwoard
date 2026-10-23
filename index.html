@@ -142,7 +142,7 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 .gl{margin-left:6px;font-size:18px;font-weight:700;background:var(--sun);color:#2a1a14;border-radius:999px;padding:2px 12px}
 .mword{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}
 .mword .sent{flex:1 1 240px;font-size:clamp(22px,5vw,32px);line-height:1.7}
-.ww{background:var(--sun);color:#2a1a14;border-radius:10px;padding:2px 10px;font-weight:700}
+.ww{background:var(--sun);color:#2a1a14;border-radius:10px;padding:2px 10px;font-weight:700;border:0;font:inherit;font-weight:700;cursor:pointer}
 .bigpic{flex:none;width:130px;height:130px;border-radius:50% 50% 50% 14px;background:#fff;display:grid;place-items:center;border:4px dashed var(--sky);cursor:pointer;color:#2a1a14;padding:0;font:700 18px/1.1 "Baloo 2",sans-serif}
 .bigpic.on{border:4px solid #2a1a14;font-size:76px;line-height:1;animation:pop .35s;pointer-events:none}
 .wchips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0}
@@ -188,6 +188,58 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 #rep .rr small{display:block;font-size:14px;color:#9c1f62;margin-top:2px}
 #rep .rr .tag{flex:none;font-size:22px;line-height:1}
 @media print{@page{size:A4;margin:0}body>*:not(#rep){display:none!important}#rep{position:static;width:auto;z-index:auto}#rep .pg{break-after:page}}
+/* sound, vocabulary, compact result, CTA */
+.snd,.spk{flex:none;border:0;border-radius:999px;background:var(--lilac);color:#2a1a14;cursor:pointer;padding:0;line-height:1}
+.snd{width:36px;height:30px;font-size:16px}
+.spk{width:34px;height:30px;font-size:16px;vertical-align:middle;margin-left:6px}
+.snd:active,.spk:active,.vw:active{transform:scale(.94)}
+.lvl.sm{width:112px;margin:0;border-radius:56px;font-size:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+.lvl.sm small{font-size:13px;margin:2px 0 0}
+.lvrow2{display:flex;gap:16px;align-items:center;justify-content:center;margin:8px 0 14px;text-align:left}
+.lvinfo .k{margin:0;font-size:15px;opacity:.8}
+.lvinfo .nm2{margin:0 0 6px;font:400 26px/1.05 "Bagel Fat One",sans-serif}
+.lvinfo .chips{justify-content:flex-start;margin:0}
+.res .figwrap{width:84px}
+.sec{font-size:25px;text-align:left;margin:24px 0 6px;line-height:1.1}
+.note2{text-align:left;margin:0 0 10px;font-size:16px;opacity:.85}
+.vocab{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+.vw{font:inherit;font-weight:700;font-size:16px;background:var(--lilac);color:#2a1a14;border:0;border-radius:999px;padding:4px 14px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.cta{background:var(--sun);color:#2a1a14;border-radius:24px;padding:20px 18px;margin-top:20px;box-shadow:0 6px 0 var(--pink)}
+.cta h3{font-size:26px;text-transform:uppercase;margin-bottom:8px}
+.cta p{margin:0 0 14px}
+#rep .vg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+#rep .vg div{background:#fff;border-radius:16px;box-shadow:0 3px 0 #eadfc0;padding:8px 6px;text-align:center;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:5px solid var(--c)}
+#rep .vg i{font-style:normal;font-size:26px;line-height:1.1}
+#rep .vg b{font-size:16px;line-height:1.15}
+/* time box, vocabulary cards */
+.tbox{background:var(--bg);color:var(--ink);border-radius:20px;padding:16px;margin-top:16px;text-align:left;border-left:10px solid var(--sun)}
+.tbox h3{font-size:22px;margin-bottom:10px;line-height:1.1}
+.trow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tc{background:var(--card);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.tc b{font:400 21px/1.1 "Bagel Fat One",sans-serif}
+.tc span{font-size:13px;line-height:1.2}
+.tbox p{font-size:13px;margin:10px 0 0;opacity:.85;line-height:1.35}
+.vlist{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:560px){.vlist{grid-template-columns:1fr 1fr}}
+.vc{font:inherit;text-align:left;display:flex;gap:10px;align-items:center;background:var(--bg);color:var(--ink);border:0;border-left:8px solid var(--pink);border-radius:16px;padding:8px 12px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.12)}
+.vc:nth-child(4n+2){border-left-color:var(--sky)}.vc:nth-child(4n+3){border-left-color:var(--sun)}.vc:nth-child(4n+4){border-left-color:var(--lime)}
+.vc:active{transform:scale(.98)}
+.vi{flex:none;width:68px;text-align:center;font-size:26px;line-height:1.1;white-space:nowrap}
+.vt{display:flex;flex-direction:column;line-height:1.25}
+.vt b{font-size:17px}
+.vt i{font-style:normal;font-size:15px;opacity:.9}
+#rep .tbox{background:#f6ecd0;color:#2a1a14;border-radius:20px;padding:16px 20px;margin-top:18px;border-left:10px solid #ffc400}
+#rep .tbox h3{font-size:23px;margin-bottom:10px}
+#rep .trow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+#rep .tc{background:#fff;color:#2a1a14;border-radius:14px;padding:10px 6px;text-align:center}
+#rep .tc b{display:block;font:400 26px/1.1 "Bagel Fat One",Impact,sans-serif}
+#rep .tc span{font-size:14px}
+#rep .tbox p{font-size:13.5px;margin:10px 0 0;opacity:.85;line-height:1.35}
+#rep .vg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+#rep .vg2 div{display:flex;gap:10px;align-items:center;background:#fff;border-radius:16px;padding:8px 12px;border-left:8px solid var(--c);box-shadow:0 3px 0 #eadfc0;min-height:74px}
+#rep .vg2 i{flex:none;width:72px;text-align:center;font-style:normal;font-size:24px;line-height:1.1;white-space:nowrap}
+#rep .vg2 b{display:block;font-size:17px;line-height:1.1}
+#rep .vg2 span{font-size:14.5px;line-height:1.25}
 /* palette picker */
 .pal{position:fixed;right:12px;bottom:12px;z-index:5;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.85);padding:6px 10px;border-radius:999px;box-shadow:0 3px 0 rgba(0,0,0,.2);font-size:14px;font-weight:700;color:#2a1a14}
 .pal button{width:28px;height:28px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 0 0 2px #2a1a14;padding:0}
@@ -284,7 +336,7 @@ html{-webkit-text-size-adjust:100%}
 <div class="sun" aria-hidden="true">☺</div>
 <h1 class="big" aria-label="Migo"><span>M</span><span>I</span><span>G</span><span>O</span></h1>
 <p class="lead">Aprende inglés sin traducir. Si no entiendes una palabra, <b>mírala</b> en una imagen.</p>
-<div class="ctas"><button class="btn" onclick="startMethod()">Iniciar método</button><button class="btn ghost" onclick="start()">Hacer test de nivel</button></div>
+<div class="ctas"><button class="btn" onclick="startMethod()">Iniciar método</button><button class="btn ghost" onclick="start()">Obtén tu plan de estudio</button></div>
 <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </div>
 </header>
@@ -300,7 +352,7 @@ html{-webkit-text-size-adjust:100%}
 <div class="steps">
 <div class="pill p1"><div class="em">🖼️</div><h3>8 palabras</h3><p>Cada una con frase e imagen.</p></div>
 <div class="pill p2"><div class="em">🎈</div><h3>Elige el significado</h3><p>Opciones en inglés, sin traducir.</p></div>
-<div class="pill p3"><div class="em">🗺️</div><h3>Mide tu nivel</h3><p>Test opcional al final, de A1 a C1.</p></div>
+<div class="pill p3"><div class="em">🗺️</div><h3>Tu plan de estudio</h3><p>Test de 10 preguntas: tu nivel, un plan y tus primeras palabras clave.</p></div>
 </div>
 </section>
 
@@ -426,7 +478,7 @@ let M=[],mi=0,mres=[],mlock=false,mwrong=0,msel=null;
 const NEXTW=['Next word! 👇','Let’s go! 👇','Here we go! 👇','You got this! 👇'];
 const NEXTQ=['Next one! 👇','Keep going! 👇','Here we go! 👇'];
 const mopts=()=>document.querySelectorAll('#mq .sheet:not(.out) .opt');
-function shellHTML(bid,fn,a,b){return '<div class="top"><button class="back" onclick="view(\'home\')" aria-label="Volver al menú">← Menú</button><div class="bar"></div></div>'+
+function shellHTML(bid,fn,a,b){return '<div class="top"><button class="back" onclick="view(\'home\')" aria-label="Volver al menú">← Menú</button><div class="bar"></div><button class="snd" onclick="toggleSnd()" aria-label="Sonido" aria-pressed="'+(SOUND?'true':'false')+'">'+(SOUND?'🔊':'🔇')+'</button></div>'+
 '<div class="coach"><div class="figwrap">'+fig('idle')+'</div><div class="say"><span>'+a+'<small>'+b+'</small></span></div></div>'+
 '<div class="sheetwrap"></div>'+
 '<div class="row"><span class="cnt"></span><button class="btn pink" id="'+bid+'" onclick="'+fn+'" disabled>Verificar</button></div>'}
@@ -444,7 +496,8 @@ const d=M[mi];mlock=false;mwrong=0;msel=null;
 d.opts=shuf([{t:d.a,ok:1}].concat(d.o.map(t=>({t:t,ok:0}))));
 updBar($('mq'),M.length,mi,mres);
 $('mq').querySelector('.cnt').textContent='Palabra '+(mi+1)+' de '+M.length;
-const sent=d.s.replace(/\[(.+?)\]/,'<span class="ww">$1</span>');
+const plain=d.s.replace(/[\[\]]/g,'');
+const sent=d.s.replace(/\[(.+?)\]/,'<button class="ww" data-t="'+d.w+'" onclick="speak(this.dataset.t)" aria-label="Escuchar '+d.w+'">$1 🔊</button>')+' <button class="spk" data-t="'+plain+'" onclick="speak(this.dataset.t)" aria-label="Escuchar la frase">🔊</button>';
 slide($('mq'),'<div class="mword"><div class="sent">'+sent+'</div><button class="bigpic" onclick="mpeek()" aria-label="Ver la imagen"><span>Ver<br>imagen</span></button></div>'+
 '<div class="q">What does “'+d.w+'” mean?</div>'+
 '<div class="opts">'+d.opts.map((o,k)=>'<button class="opt" onclick="mpick('+k+',this)">'+o.t+'</button>').join('')+'</div>');
@@ -454,7 +507,7 @@ function mpeek(){const p=document.querySelector('#mq .sheet:not(.out) .bigpic');
 function mpick(k,b){
 if(mlock)return;msel=k;
 mopts().forEach(x=>x.classList.remove('sel'));
-b.classList.add('sel');setBtn('mn','Verificar',true)}
+b.classList.add('sel');setBtn('mn','Verificar',true);speak(M[mi].opts[k].t,true)}
 function mbtn(){
 if(mlock){mnext();return}
 if(msel===null)return;
@@ -463,7 +516,7 @@ b.classList.remove('sel');
 if(o.ok){mlock=true;mres[mi]=mwrong==0;
 all.forEach(x=>x.disabled=true);
 b.classList.add('good');mpeek();
-mood('happy',pickR(GOOD),d.w+' = '+d.a);burst();
+mood('happy',pickR(GOOD),d.w+' = '+d.a);burst();speak(d.w+'. '+d.s.replace(/[\[\]]/g,''),true);
 setBtn('mn',mi==M.length-1?'Terminar':'Siguiente',true)}
 else{mwrong++;b.disabled=true;b.classList.add('bad');msel=null;mpeek();
 mood('sad',pickR(TRYA),'Look at the picture 👀');setBtn('mn','Verificar',false)}}
@@ -475,8 +528,41 @@ $('mq').innerHTML='<div class="res"><div class="coach" style="justify-content:ce
 '<p style="margin:0">Aprendiste '+M.length+' palabras sin traducir.<br>Acertaste '+s+' a la primera.</p>'+
 '<div class="wchips">'+M.map(d=>'<span>'+d.e+' '+d.w+'</span>').join('')+'</div>'+
 '<div class="tip"><b>🖼️ Para recordarlas:</b> mañana mira cada imagen y di la palabra en voz alta, sin traducir. Si dudas, vuelve a ver la imagen.</div>'+
-'<p style="margin-top:22px"><button class="btn" onclick="start()">Medir mi nivel (10 preguntas)</button> <button class="btn pink" onclick="startMethod()">Otras 8 palabras</button> <button class="hint" onclick="view(\'home\')">Inicio</button></p></div>';
+'<div class="cta"><h3>¡Obtén tu plan de estudio!</h3><p>Haz el test de 10 preguntas y recibe tu nivel, un plan hecho para ti y las primeras palabras clave para empezar a subir de nivel.</p><button class="btn pink" onclick="start()">Obtener mi plan de estudio</button></div>'+
+'<p style="margin-top:16px"><button class="btn" onclick="startMethod()">Otras 8 palabras</button> <button class="hint" onclick="view(\'home\')">Inicio</button></p></div>';
 setTimeout(burst,300)}
+
+/* ---------- Sound (English words) ---------- */
+let SOUND=true;try{SOUND=localStorage.getItem('mg-snd')!=='0'}catch(e){}
+let VOICE=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();VOICE=vs.find(v=>/^en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}}
+if('speechSynthesis' in window){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}}
+function speak(t,auto){
+if(auto&&!SOUND)return;if(!('speechSynthesis' in window)||!t)return;
+try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(VOICE)u.voice=VOICE;u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+function toggleSnd(){SOUND=!SOUND;try{localStorage.setItem('mg-snd',SOUND?'1':'0')}catch(e){}
+document.querySelectorAll('.snd').forEach(b=>{b.textContent=SOUND?'🔊':'🔇';b.setAttribute('aria-pressed',SOUND?'true':'false')});
+if(!SOUND&&'speechSynthesis' in window)try{speechSynthesis.cancel()}catch(e){}}
+
+/* ---------- Vocabulary needed to reach the next level ---------- */
+const VOC=[
+{to:'A2',w:[['house','🏠','My house is big and blue.'],['kitchen','🍳','She cooks in the kitchen.'],['bed','🛏️','I sleep in my bed.'],['door','🚪','Please close the door.'],['bread','🍞','I eat bread for breakfast.'],['water','💧','Drink water every day.'],['milk','🥛','The baby drinks milk.'],['apple','🍎','He eats a red apple.'],['chicken','🍗','We have chicken for dinner.'],['rice','🍚','I like rice with beans.'],['friend','🧑‍🤝‍🧑','Ana is my best friend.'],['teacher','🧑‍🏫','The teacher is very kind.'],['school','🏫','The children go to school.'],['market','🛒','We buy fruit at the market.'],['street','🛣️','The street is very busy.'],['morning','🌅','I run in the morning.'],['tomorrow','📅','I work tomorrow.'],['buy','🛍️','I want to buy shoes.'],['eat','🍽️','We eat at seven.'],['drink','🥤','What do you want to drink?'],['work','💼','I work in an office.'],['play','⚽','The boys play football.'],['want','🙋','I want a glass of water.'],['like','👍','I like music.']]},
+{to:'B1',w:[['ticket','🎫','I need a ticket for the train.'],['passport','🛂','Show your passport, please.'],['airport','✈️','The airport is far from here.'],['luggage','🧳','Your luggage is very heavy.'],['hotel','🏨','We stayed in a small hotel.'],['doctor','🩺','I have an appointment with the doctor.'],['medicine','💊','Take this medicine twice a day.'],['headache','🤕','I have a terrible headache.'],['weather','⛅','The weather is nice today.'],['price','🏷️','The price is too high.'],['cheap','💸','This shirt is very cheap.'],['expensive','💎','That watch is too expensive.'],['borrow','🤲','Can I borrow your pen?'],['forget','🤔','Don’t forget your keys.'],['remember','🧠','I remember my first day at school.'],['arrive','🛬','The plane arrives at nine.'],['invite','💌','I want to invite you to my party.'],['decide','✅','We must decide today.'],['enjoy','😄','I enjoy cooking.'],['improve','📈','I want to improve my English.'],['advice','💡','Thanks for your advice.'],['however','🌧️🚶','It rained; however, we went out.'],['because','🌧️☂️','I take an umbrella because it rains.'],['although','😴💼','Although I was tired, I kept working.']]},
+{to:'B2',w:[['experience','🎓','She has ten years of experience.'],['opportunity','🚪✨','This job is a great opportunity.'],['environment','🌳','We must protect the environment.'],['career','💼📈','He started his career as a nurse.'],['salary','💰','My salary goes up in January.'],['deadline','⏰','The deadline is Friday at noon.'],['achieve','🏆','She worked hard to achieve her goal.'],['manage','🗂️','He manages a team of five.'],['suggest','💬','I suggest we leave early.'],['require','📋','This job requires good English.'],['avoid','🚫','Try to avoid sugar.'],['increase','📈','Prices increase every year.'],['reduce','📉','We must reduce plastic.'],['affect','🌧️🌾','Rain can affect the harvest.'],['depend on','🌦️🤷','It depends on the weather.'],['compare','⚖️','Let’s compare the two phones.'],['support','🤝','My family supports me.'],['challenge','🧗','Learning Chinese is a big challenge.'],['despite','🌧️⚽','We played despite the rain.'],['whereas','🍎🍊','I like apples, whereas she likes oranges.'],['nevertheless','😓🏁','It was hard; nevertheless, he finished.'],['instead of','🍬➡️🍎','I ate fruit instead of candy.'],['as long as','🕙🏠','You can go as long as you come back early.'],['in fact','🧓❗','He looks young; in fact, he is fifty.']]},
+{to:'C1',w:[['reluctant','😬','He was reluctant to speak.'],['thorough','🔍','She did a thorough investigation.'],['overwhelming','🌊😵','The workload was overwhelming.'],['subtle','🔍🎨','There is a subtle difference.'],['controversial','🔥','It is a controversial decision.'],['sustainable','♻️','We need sustainable energy.'],['implement','🛠️','The company will implement a new system.'],['elaborate','🗣️➕','Could you elaborate on that idea?'],['undermine','⛏️','Rumours undermine trust.'],['enhance','✨','These tools enhance our work.'],['mitigate','🛡️','Trees help mitigate climate change.'],['foster','🌱','Teachers foster creativity.'],['rely on','🤝','You can rely on me.'],['cope with','😰💪','She copes with stress by running.'],['come across','👀📚','I came across an old photo.'],['bring up','🗣️⬆️','Don’t bring up that topic.'],['turn out','🎁❓','It turned out to be easy.'],['out of the blue','⚡','He called me out of the blue.'],['on the other hand','⚖️','On the other hand, it is cheaper.'],['to some extent','📏','To some extent, you are right.'],['by and large','🌍','By and large, people are friendly.'],['namely','👉','Two students, namely Ana and Leo, won.'],['hence','🕛➡️🏠','It was late, hence we left.'],['albeit','👍💸','A good, albeit expensive, choice.']]},
+{to:'C2',w:[['meticulous','🔬','She is meticulous about details.'],['ubiquitous','🌐','Smartphones are ubiquitous today.'],['ambiguous','❓','The answer was ambiguous.'],['resilient','💪','Children are often resilient.'],['pragmatic','🧰','He took a pragmatic approach.'],['inevitable','⏳','Change is inevitable.'],['plausible','🤔','That sounds plausible.'],['arbitrary','🎲','The rule seems arbitrary.'],['tangible','✋','We need tangible results.'],['profound','🌊','It had a profound effect.'],['scrutiny','🔎','The plan came under scrutiny.'],['leverage','🛠️💪','Use your skills as leverage.'],['coherent','🧩','Her argument is clear and coherent.'],['notion','💭','The notion is absurd.'],['nonetheless','😓🏁','It was hard; nonetheless, we won.'],['notwithstanding','🌧️🎉','Notwithstanding the rain, we celebrated.'],['hinder','🚧','Bad weather hinders progress.'],['alleviate','🩹','This cream alleviates pain.'],['exacerbate','🔥😖','Stress can exacerbate pain.'],['ephemeral','🫧','Fame is often ephemeral.']]}];
+const vocTitle=k=>'Primeras palabras clave para llegar a '+VOC[k].to;
+const vocNote='Es solo tu primer paso: para subir de nivel necesitas aprender cientos de palabras más. Como referencia, la lista Oxford 3000 cubre de A1 a B2 y la Oxford 5000 llega hasta C1.';
+const vocScreen=k=>'<div class="vlist">'+VOC[k].w.map(x=>'<button class="vc" data-t="'+x[0]+'. '+x[2]+'" onclick="speak(this.dataset.t)"><span class="vi">'+x[1]+'</span><span class="vt"><b>'+x[0]+' 🔊</b><i>'+x[2]+'</i></span></button>').join('')+'</div>';
+
+/* ---------- Time to reach the next level ---------- */
+const HRS=[100,185,175,200,350];
+const HNOTE=['Estimación nuestra: unas 100 horas (Cambridge indica 180–200 horas desde cero hasta A2).','Cambridge: de 180–200 h (A2) a 350–400 h (B1) desde cero, unas 185 horas más.','Cambridge: de 350–400 h (B1) a 500–600 h (B2), unas 175 horas más.','Cambridge: de 500–600 h (B2) a 700–800 h (C1), unas 200 horas más.','Cambridge: de 700–800 h (C1) a 1,000–1,200 h (C2), unas 350 horas más.'];
+const SCEN=[['30 min al día · tu plan',.5],['1 hora al día',1],['2 horas al día',2]];
+function fmtT(h,hpd){const d=h/hpd,m=d/30.4;return m<1.5?'~'+Math.max(1,Math.round(d/7))+' semanas':'~'+Math.round(m)+' meses'}
+function timeBox(k){return '<div class="tbox"><h3>⏱️ ¿En cuánto tiempo llegas a '+VOC[k].to+'?</h3><div class="trow">'+
+SCEN.map(x=>'<div class="tc"><b>'+fmtT(HRS[k],x[1])+'</b><span>'+x[0]+'</span></div>').join('')+'</div>'+
+'<p>'+HNOTE[k]+' Es una guía, no una garantía: depende de tu idioma, tu edad y cuánto inglés escuchas fuera del estudio.</p></div>'}
 
 /* ---------- PDF report ---------- */
 function reportHTML(){
@@ -485,7 +571,7 @@ const hdr=crayon(800,230,{seed:23,base:T.hb,cols:T.hc,dens:300,lw:14,len:[80,200
 const fecha=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
 const logo='<span style="color:'+T.t[0]+'">M</span><span style="color:'+T.t[1]+'">I</span><span style="color:'+T.t[2]+'">G</span><span style="color:#c9b6d9">O</span>';
 const hi=s>=8?'¡Excelente!':s>=5?'¡Buen trabajo!':'¡Buen comienzo!';
-const foot=n=>'<div class="rfoot"><span>Migo · Hecho con colores de cuento 🌈</span><span>'+n+' / 2</span></div>';
+const foot=n=>'<div class="rfoot"><span>Migo · Hecho con colores de cuento 🌈</span><span>'+n+' / 4</span></div>';
 const p1='<div class="pg"><div class="rh" style="background-image:url('+hdr+')"><div class="logo">'+logo+'</div><div class="sub">Tu resultado del test de nivel · '+fecha+'</div></div>'+
 '<div class="lvrow"><div class="lv" style="background:'+l.c+'">'+l.n+'<small>'+l.name+'</small></div>'+
 '<div class="info"><h2>'+hi+'</h2><p class="big">'+s+' de 10 respuestas correctas</p>'+
@@ -493,15 +579,25 @@ const p1='<div class="pg"><div class="rh" style="background-image:url('+hdr+')">
 '<p class="note">Tu nivel es el más alto en el que acertaste las 2 preguntas y casi todas las anteriores.</p></div></div>'+
 '<div class="plan"><div style="--c:#e0338a"><h3>Tu método de estudio</h3><ol>'+l.m.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
 '<div style="--c:#4a90d9"><h3>Cada día</h3><ul><li>10 min: palabras con imagen</li><li>10 min: escuchar</li><li>10 min: hablar o escribir</li></ul></div></div>'+
-'<div class="tip"><b>🖼️ Truco palabra-imagen:</b> '+l.t+'</div>'+
-'<div class="wk"><h3>Tu semana de práctica</h3><div class="days">'+
-[['Lun','Palabras con imagen','#ffe21f'],['Mar','Escuchar 15 min','#9bc53d'],['Mié','Hablar en voz alta','#c9b6d9'],['Jue','Leer o escribir','#ffb3d9'],['Vie','Repasar tarjetas','#9fd0ff'],['Sáb','Una serie en inglés','#ffc48a'],['Dom','Descanso 😴','#e9dcb4']].map(d=>'<div style="background:'+d[2]+'"><b>'+d[0]+'</b>'+d[1]+'</div>').join('')+
-'</div></div>'+foot(1)+'</div>';
+timeBox(k)+
+'<div class="tip" style="margin-top:16px"><b>🖼️ Truco palabra-imagen:</b> '+l.t+'</div>'+foot(1)+'</div>';
 const rows=Q.map((d,n)=>{const ok=done[n],pk=d.o[tpicks[n]];
 return '<div class="rr '+(ok?'ok':'no')+'"><b>'+(n+1)+'</b><div>'+d.q.replace('___','<u>'+pk+'</u>')+(ok?'':'<small>Tu respuesta: '+pk+' · Correcta: '+d.o[d.a]+'</small>')+'</div><span class="tag">'+(ok?'✅':'❌')+'</span></div>'}).join('');
 const p2='<div class="pg"><div class="rh sm" style="background-image:url('+hdr+')"><div class="logo">'+logo+'</div><div class="sub">Revisa tus respuestas</div></div>'+rows+
 '<div class="tip" style="margin-top:20px"><b>👉 Migo dice:</b> practica el método palabra-imagen en Migo y repite el test en un mes para ver cuánto avanzaste.</div>'+foot(2)+'</div>';
-return p1+p2}
+const V=VOC[k],pal=['#e0338a','#4a90d9','#ffc400','#9bc53d','#8b1a7e','#f5821f'];
+const card=(x,n)=>'<div style="--c:'+pal[n%6]+'"><i>'+x[1]+'</i><p style="margin:0"><b>'+x[0]+'</b><span>'+x[2]+'</span></p></div>';
+const p3='<div class="pg"><div class="rh sm" style="background-image:url('+hdr+')"><div class="logo">'+logo+'</div><div class="sub">'+vocTitle(k)+'</div></div>'+
+'<p class="note" style="margin-top:14px;font-size:15px;opacity:1">'+vocNote+'</p>'+
+'<div class="vg2">'+V.w.slice(0,12).map((x,n)=>card(x,n)).join('')+'</div>'+
+'<div class="plan" style="margin-top:20px"><div style="--c:#e0338a"><h3>Cómo estudiarlas</h3><ol><li>Mira la imagen y adivina la palabra.</li><li>Lee la frase en voz alta 3 veces.</li><li>Escribe una frase tuya con la palabra.</li></ol></div>'+
+'<div style="--c:#4a90d9"><h3>Tu meta</h3><ul><li>6 palabras por semana</li><li>Repaso cada domingo</li><li>Después, sigue con la lista Oxford</li></ul></div></div>'+foot(3)+'</div>';
+const p4='<div class="pg"><div class="rh sm" style="background-image:url('+hdr+')"><div class="logo">'+logo+'</div><div class="sub">Más palabras clave y tu semana de práctica</div></div>'+
+'<div class="vg2">'+V.w.slice(12).map((x,n)=>card(x,n+12)).join('')+'</div>'+
+'<div class="wk"><h3>Tu semana de práctica</h3><div class="days">'+
+[['Lun','Palabras con imagen','#ffe21f'],['Mar','Escuchar 15 min','#9bc53d'],['Mié','Hablar en voz alta','#c9b6d9'],['Jue','Leer o escribir','#ffb3d9'],['Vie','Repasar tarjetas','#9fd0ff'],['Sáb','Una serie en inglés','#ffc48a'],['Dom','Descanso 😴','#e9dcb4']].map(d=>'<div style="background:'+d[2]+'"><b>'+d[0]+'</b>'+d[1]+'</div>').join('')+
+'</div></div>'+foot(4)+'</div>';
+return p1+p2+p3+p4}
 async function makePDF(btn){
 const old=btn.textContent,rep=$('rep');btn.disabled=true;btn.textContent='Creando PDF…';
 let keep=false;
@@ -522,17 +618,50 @@ addEventListener('afterprint',()=>{$('rep').innerHTML=''});
 
 /* ---------- Test ---------- */
 const LV=['A1','A2','B1','B2','C1'];
-const Q=[
-{lv:0,q:"She ___ a student.",o:["am","is","are","be"],a:1,w:"student",e:"🧑‍🎓"},
-{lv:0,q:"We eat soup with a ___.",o:["spoon","shoe","pillow","window"],a:0,w:"spoon",e:"🥄"},
-{lv:1,q:"Yesterday I ___ to the market.",o:["go","going","went","gone"],a:2,w:"market",e:"🛒"},
-{lv:1,q:"There aren’t ___ apples in the basket.",o:["some","any","a","much"],a:1,w:"basket",e:"🧺"},
-{lv:2,q:"If it rains, we ___ at home.",o:["stayed","staying","will stay","would stayed"],a:2,w:"rains",e:"🌧️"},
-{lv:2,q:"I have lived here ___ 2015.",o:["for","since","from","during"],a:1,w:"lived",e:"🏠"},
-{lv:3,q:"By the time we arrived, the film ___.",o:["started","had started","has started","was starting"],a:1,w:"film",e:"🎬"},
-{lv:3,q:"If I had known, I ___ come.",o:["will","would have","had","would"],a:1,w:"known",e:"💡"},
-{lv:4,q:"Not only ___ late, but he also forgot the documents.",o:["he arrived","arrived he","did he arrive","he did arrive"],a:2,w:"documents",e:"📄"},
-{lv:4,q:"The new law should ___ the effects of pollution.",o:["meditate","mitigate","militate","motivate"],a:1,w:"mitigate",e:"🛡️"}];
+const QB=[
+[{q:"She ___ a student.",o:["am","is","are","be"],a:1},
+{q:"We eat soup with a ___.",o:["spoon","shoe","pillow","window"],a:0},
+{q:"I ___ coffee every morning.",o:["drink","drinks","am drink","drinking"],a:0},
+{q:"My brother ___ two cats.",o:["has","have","is","are"],a:0},
+{q:"___ is your name?",o:["What","Where","Who","Why"],a:0},
+{q:"There ___ three books on the table.",o:["is","are","am","be"],a:1},
+{q:"I ___ from Mexico.",o:["am","is","are","be"],a:0},
+{q:"This is ___ apple.",o:["a","an","any","two"],a:1},
+{q:"Monday comes after ___.",o:["Sunday","Tuesday","Friday","Saturday"],a:0}],
+[{q:"Yesterday I ___ to the market.",o:["go","going","went","gone"],a:2},
+{q:"There aren’t ___ apples in the basket.",o:["some","any","a","much"],a:1},
+{q:"She is ___ than her sister.",o:["tall","taller","tallest","more tall"],a:1},
+{q:"I’m going to visit my grandmother ___ Sunday.",o:["in","at","on","by"],a:2},
+{q:"We were ___ TV when the phone rang.",o:["watching","watch","watched","to watch"],a:0},
+{q:"How ___ water do you drink a day?",o:["many","much","lot","few"],a:1},
+{q:"He can’t come ___ he is sick.",o:["because","so","but","or"],a:0},
+{q:"I have ___ finished my homework.",o:["already","yet","ago","since"],a:0}],
+[{q:"If it rains, we ___ at home.",o:["stayed","staying","will stay","would stayed"],a:2},
+{q:"I have lived here ___ 2015.",o:["for","since","from","during"],a:1},
+{q:"You ___ smoke here. It’s forbidden.",o:["mustn’t","don’t have to","can","might"],a:0},
+{q:"The book ___ by millions of people.",o:["is read","reads","is reading","has reading"],a:0},
+{q:"I’m not used to ___ up early.",o:["get","getting","got","gets"],a:1},
+{q:"If I ___ you, I would take the job.",o:["were","am","will be","be"],a:0},
+{q:"She enjoys ___ novels in her free time.",o:["to read","reading","read","reads"],a:1},
+{q:"He didn’t go out ___ the rain.",o:["because","because of","although","so"],a:1}],
+[{q:"By the time we arrived, the film ___.",o:["started","had started","has started","was starting"],a:1},
+{q:"If I had known, I ___ come.",o:["will","would have","had","would"],a:1},
+{q:"I wish I ___ more time to study.",o:["have","had","would have","will have"],a:1},
+{q:"She suggested ___ a taxi.",o:["to take","taking","take","took"],a:1},
+{q:"The meeting was ___ because of the strike.",o:["called off","called out","called up","called in"],a:0},
+{q:"Hardly had he arrived ___ the phone rang.",o:["than","then","when","as"],a:2},
+{q:"He is said ___ the richest man in town.",o:["be","to be","being","been"],a:1},
+{q:"I’d rather you ___ smoke here.",o:["don’t","didn’t","won’t","not"],a:1}],
+[{q:"Not only ___ late, but he also forgot the documents.",o:["he arrived","arrived he","did he arrive","he did arrive"],a:2},
+{q:"The new law should ___ the effects of pollution.",o:["meditate","mitigate","militate","motivate"],a:1},
+{q:"Had I known about the delay, I ___ earlier.",o:["would leave","would have left","will leave","had left"],a:1},
+{q:"She was ___ to admit her mistake.",o:["reluctant","reluctance","reluctantly","reluct"],a:0},
+{q:"The results were ___ with what we expected.",o:["consistent","consisted","consistency","consisting"],a:0},
+{q:"Under no circumstances ___ the door open.",o:["you should leave","should you leave","you leave should","leave you should"],a:1},
+{q:"His argument, ___ persuasive, was based on false data.",o:["albeit","whereas","hence","unless"],a:0},
+{q:"It is high time we ___ action.",o:["take","took","will take","have taken"],a:1}]];
+let Q=[];
+const buildQ=()=>QB.reduce((acc,qs,lv)=>acc.concat(shuf(qs).slice(0,2).map(q=>{const o=shuf(q.o.map((t,k)=>({t:t,ok:k===q.a})));return{lv:lv,q:q.q,o:o.map(x=>x.t),a:o.findIndex(x=>x.ok)}})),[]);
 const L=[
 {n:"A1",name:"Principiante",c:"linear-gradient(#e8281e,#f5821f)",m:["Aprende 5 palabras nuevas al día, solo objetos y animales.","Pon etiquetas con imagen en tu casa: 🚪 door, 🪑 chair.","Repite frases de 3 palabras en voz alta: “I see a dog”.","Mira dibujos animados en inglés 10 minutos."],t:"Una palabra, una imagen. Nunca escribas la traducción: dibuja o busca el dibujo."},
 {n:"A2",name:"Básico",c:"linear-gradient(#ffe21f,#9bc53d)",m:["10 palabras nuevas por semana, agrupadas por imagen (comida, ropa, casa).","Escribe 3 frases al día sobre lo que hiciste ayer.","Lee cuentos infantiles con dibujos.","Habla 5 minutos solo, describiendo tu cuarto."],t:"Haz tarjetas con la imagen delante y la palabra detrás. Adivina antes de voltear."},
@@ -540,22 +669,22 @@ const L=[
 {n:"B2",name:"Intermedio alto",c:"linear-gradient(#4a90d9,#8b1a7e)",m:["Escucha un podcast y anota 5 expresiones nuevas por episodio.","Escribe resúmenes de 100 palabras.","Aprende verbos con preposición (give up, look for) con una escena dibujada.","Debate en inglés un tema por semana."],t:"Convierte cada expresión en una mini escena: dibújala y cuéntala en voz alta."},
 {n:"C1",name:"Avanzado",c:"linear-gradient(#8b1a7e,#e0338a)",m:["Lee novelas y noticias sin diccionario.","Escribe ensayos y pide corrección.","Aprende matices: persistent, stubborn, determined, con imágenes de cada uno.","Da una charla corta en inglés cada mes."],t:"Compara palabras parecidas con dos imágenes lado a lado y escribe cuál usarías y por qué."}];
 let i=0,done=[],locked=false,tsel=null,tpicks=[];
-function show(b,e,g){const n=b.parentElement.querySelector('.slot');n.innerHTML=n.innerHTML?'':'<span class="pic">'+e+'</span>'+(g?'<span class="gl">= '+g+'</span>':'')}
+function show(b,e,g){const n=b.parentElement.querySelector('.slot');if(!n.innerHTML)speak(b.textContent,true);n.innerHTML=n.innerHTML?'':'<span class="pic">'+e+'</span>'+(g?'<span class="gl">= '+g+'</span>':'')}
 function view(v){['home','method','test','result'].forEach(x=>$(x).hidden=x!=v);window.scrollTo(0,0);document.querySelector('.pal').hidden=v!='home';if(v=='home')paintAll()}
 const topts=()=>document.querySelectorAll('#quiz .sheet:not(.out) .opt');
-function start(){i=0;done=[];tpicks=[];view('test');const q=$('quiz');q.className='qcard';q.innerHTML=shellHTML('nx','nbtn()','I’m Migo. Test time!','No help this time 💪');render(true)}
+function start(){Q=buildQ();i=0;done=[];tpicks=[];view('test');const q=$('quiz');q.className='qcard';q.innerHTML=shellHTML('nx','nbtn()','I’m Migo. Test time!','No help this time 💪');render(true)}
 function render(first){
 const d=Q[i];locked=false;tsel=null;
 updBar($('quiz'),10,i,done);
 $('quiz').querySelector('.cnt').textContent='Pregunta '+(i+1)+' de 10';
-slide($('quiz'),'<div class="q">'+(i+1)+'. '+d.q+'</div>'+
+slide($('quiz'),'<div class="q">'+(i+1)+'. '+d.q+' <button class="spk" data-t="'+d.q.replace('___','blank')+'" onclick="speak(this.dataset.t)" aria-label="Escuchar la frase">🔊</button></div>'+
 '<div class="opts">'+d.o.map((t,k)=>'<button class="opt" onclick="pick('+k+',this)">'+t+'</button>').join('')+'</div>');
 setBtn('nx','Verificar',false);
 if(!first)mood('idle',pickR(NEXTQ),'No help this time 💪')}
 function pick(k,b){
 if(locked)return;tsel=k;
 topts().forEach(x=>x.classList.remove('sel'));
-b.classList.add('sel');setBtn('nx','Verificar',true)}
+b.classList.add('sel');setBtn('nx','Verificar',true);speak(Q[i].o[k],true)}
 function nbtn(){
 if(locked){next();return}
 if(tsel===null)return;
@@ -565,6 +694,7 @@ const bs=topts();
 bs.forEach(o=>{o.disabled=true;o.classList.remove('sel')});
 bs[tsel].classList.add(ok?'good':'bad');bs[d.a].classList.add('good');
 if(ok){mood('happy',pickR(GOOD));burst()}else mood('sad',pickR(BAD),'The answer: '+d.o[d.a]);
+speak(d.q.replace('___',d.o[d.a]),true);
 setBtn('nx',i==9?'Ver mi nivel':'Siguiente',true)}
 function next(){i++;i<10?render():result()}
 function level(){
@@ -573,17 +703,20 @@ let best=0,cum=0;
 cnt.forEach((c,l)=>{cum+=c;if(c==2&&cum>=2*(l+1)-1)best=l});
 return{k:best,cnt}}
 function result(){
-const {k,cnt}=level(),l=L[k],s=done.filter(Boolean).length;
+const lv=level(),k=lv.k,cnt=lv.cnt,l=L[k],s=done.filter(Boolean).length;
 view('result');
-$('res').innerHTML='<div class="card"><div class="coach" style="justify-content:center"><div class="figwrap">'+fig('happy')+'</div></div>'+
-'<h2 style="font-size:32px;margin-bottom:8px">¡Terminaste! '+s+' de 10 🎉</h2>'+
-'<p style="margin:0 0 14px">Tu nivel estimado es:</p>'+
-'<div class="lvl" style="background:'+l.c+'">'+l.n+'<small>'+l.name+'</small></div>'+
-'<div class="chips">'+cnt.map((c,j)=>'<span class="'+(c==2?'f':'')+'">'+LV[j]+': '+c+'/2</span>').join('')+'</div>'+
-'<div class="plan"><div style="--c:var(--pink)"><h3>Tu método de estudio</h3><ol>'+l.m.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
+$('res').innerHTML='<div class="card"><div class="coach" style="justify-content:center;min-height:0"><div class="figwrap">'+fig('happy')+'</div></div>'+
+'<h2 style="font-size:30px;margin-bottom:4px">¡Terminaste! '+s+' de 10 🎉</h2>'+
+'<div class="lvrow2"><div class="lvl sm" style="background:'+l.c+'">'+l.n+'<small>'+l.name+'</small></div>'+
+'<div class="lvinfo"><p class="k">Tu nivel estimado</p><p class="nm2">'+l.name+'</p><div class="chips">'+cnt.map((c,j)=>'<span class="'+(c==2?'f':'')+'">'+LV[j]+': '+c+'/2</span>').join('')+'</div></div></div>'+
+'<p style="margin:0 0 4px"><button class="btn" id="pdfb" onclick="makePDF(this)">📄 Descargar mi plan en PDF</button></p>'+
+'<h2 class="sec">Tu plan de estudio · '+l.n+'</h2>'+
+'<div class="plan" style="margin-top:8px"><div style="--c:var(--pink)"><h3>Tu método de estudio</h3><ol>'+l.m.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
 '<div style="--c:var(--sky)"><h3>Cada día</h3><ul><li>10 min: palabras con imagen</li><li>10 min: escuchar</li><li>10 min: hablar o escribir</li></ul></div></div>'+
+timeBox(k)+
+'<h2 class="sec">'+vocTitle(k)+'</h2><p class="note2">Toca cada palabra para ver su imagen y escuchar la frase. '+vocNote+'</p>'+vocScreen(k)+
 '<div class="tip"><b>🖼️ Truco palabra-imagen:</b> '+l.t+'</div>'+
-'<p><button class="btn" id="pdfb" onclick="makePDF(this)">📄 Descargar mi PDF</button></p><p><button class="btn pink" onclick="startMethod()">Practicar palabras</button> <button class="hint" onclick="start()">Repetir el test</button> <button class="hint" onclick="view(\'home\')">Inicio</button></p></div>';
+'<p style="margin-top:18px"><button class="btn pink" onclick="startMethod()">Practicar palabras</button> <button class="hint" onclick="start()">Repetir el test</button> <button class="hint" onclick="view(\'home\')">Inicio</button></p></div>';
 setTimeout(burst,300)}
 </script>
 </body>
