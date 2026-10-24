@@ -240,6 +240,32 @@ section.view{min-height:100dvh;display:grid;align-content:center}
 #rep .vg2 i{flex:none;width:72px;text-align:center;font-style:normal;font-size:24px;line-height:1.1;white-space:nowrap}
 #rep .vg2 b{display:block;font-size:17px;line-height:1.1}
 #rep .vg2 span{font-size:14.5px;line-height:1.25}
+/* offer bar, offer card, email modal */
+.promo{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;background:var(--sun);color:#2a1a14;padding:8px 14px;font-weight:700;font-size:15px;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.promo button{font:inherit;font-weight:700;font-size:14px;border:0;border-radius:999px;background:var(--pink);color:#fff;padding:4px 14px;cursor:pointer}
+.promo:empty{display:none}
+.cta.offer{text-align:center;margin-top:24px}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(20,10,30,.62);display:grid;place-items:center;padding:16px}
+.mbox{position:relative;width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--card);color:var(--ink);border-radius:26px;padding:24px 20px 18px;box-shadow:0 8px 0 var(--pink);animation:pop .3s}
+.mx{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:0;background:var(--lilac);color:#2a1a14;font-size:16px;cursor:pointer;padding:0}
+.mbox h3{font-size:26px;margin:0 36px 8px 0;line-height:1.1}
+.mbox p{margin:0 0 12px}
+.mbox label.lb{font-weight:700;display:block;margin-bottom:4px}
+.mbox input[type=email]{width:100%;font:inherit;font-size:18px;padding:12px 14px;border-radius:14px;border:3px solid #2a1a14;background:#fff;color:#2a1a14}
+.mbox .chk{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:14px;margin:12px 0;line-height:1.35}
+.mbox .chk input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:var(--pink)}
+.mbox .err{color:#b3001b;font-weight:700;font-size:14px;margin:0 0 10px}
+@media (prefers-color-scheme:dark){.mbox .err{color:#ffb4ab}}
+.mbox .btn{width:100%}
+.mbox .fine{font-size:12.5px;opacity:.8;margin:10px 0 0}
+.mbox .big-em{font-size:48px;line-height:1;margin-bottom:6px}
+#priv{z-index:60}
+.mbox h4{font-size:17px;margin:14px 0 4px}
+.mbox .meta{font-size:13px;opacity:.75;margin:0 0 4px}
+.mbox a{color:inherit;font-weight:700;text-decoration:underline}
+.ptxt p{font-size:15px;margin:0 0 8px;line-height:1.4}
+mark.todo{background:#fff3a0;color:#2a1a14;padding:0 4px;border-radius:4px}
+footer a{color:inherit;text-decoration:underline}
 /* palette picker */
 .pal{position:fixed;right:12px;bottom:12px;z-index:5;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.85);padding:6px 10px;border-radius:999px;box-shadow:0 3px 0 rgba(0,0,0,.2);font-size:14px;font-weight:700;color:#2a1a14}
 .pal button{width:28px;height:28px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 0 0 2px #2a1a14;padding:0}
@@ -331,6 +357,7 @@ html{-webkit-text-size-adjust:100%}
 <button data-p="atardecer" style="background:#f06a3a" aria-label="Naranja atardecer"></button></div>
 
 <div id="home">
+<div class="promo" id="promo"></div>
 <header class="hero">
 <div class="hero-in">
 <div class="sun" aria-hidden="true">☺</div>
@@ -354,13 +381,22 @@ html{-webkit-text-size-adjust:100%}
 <div class="pill p2"><div class="em">🎈</div><h3>Elige el significado</h3><p>Opciones en inglés, sin traducir.</p></div>
 <div class="pill p3"><div class="em">🗺️</div><h3>Tu plan de estudio</h3><p>Test de 10 preguntas: tu nivel, un plan y tus primeras palabras clave.</p></div>
 </div>
+<div id="offerHome"></div>
 </section>
 
-<footer>Hecho con colores de cuento 🌈</footer>
+<footer>Hecho con colores de cuento 🌈 · <a href="#" onclick="openPriv(event)">Aviso de privacidad</a></footer>
 </div>
 <section id="method" class="view" hidden><div id="mq" class="card"></div></section>
 <section id="test" class="view" hidden><div id="quiz"></div></section>
 <section id="result" class="view" hidden><div id="res" class="res"></div></section>
+
+<div id="lead" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="leadT" onclick="if(event.target===this)closeLead()">
+<div class="mbox"><button class="mx" onclick="closeLead()" aria-label="Cerrar">✕</button><div id="leadBody"></div></div>
+</div>
+
+<div id="priv" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="privT" onclick="if(event.target===this)closePriv()">
+<div class="mbox"><button class="mx" onclick="closePriv()" aria-label="Cerrar">✕</button><div id="privBody"></div></div>
+</div>
 
 <script>
 /* ---------- Crayon background (random strokes, no pattern) ---------- */
@@ -564,6 +600,90 @@ function timeBox(k){return '<div class="tbox"><h3>⏱️ ¿En cuánto tiempo lle
 SCEN.map(x=>'<div class="tc"><b>'+fmtT(HRS[k],x[1])+'</b><span>'+x[0]+'</span></div>').join('')+'</div>'+
 '<p>'+HNOTE[k]+' Es una guía, no una garantía: depende de tu idioma, tu edad y cuánto inglés escuchas fuera del estudio.</p></div>'}
 
+/* ---------- Offer + email capture ---------- */
+/* >>> Pega aquí la URL donde se guardan los correos (Formspree, Google Apps Script, tu servidor...). Vacío = no se envía a ningún lado. */
+const LEAD_ENDPOINT='';
+const APP_URL='';          // enlace de la app (opcional, sale en el PDF)
+const GATE=true;           // true = pedir correo antes de descargar el PDF
+const APP_LIVE=false;       // pon true cuando la app ya esté disponible
+/* >>> Datos del responsable para el Aviso de privacidad (complétalos antes de publicar) */
+const PRIVACY={owner:'',address:'',email:'',provider:''};
+const PRIV_DATE='23 de octubre de 2026';
+const OFFER=APP_LIVE?{
+bar:'🎁 <b>Primera semana gratis</b> en la app Migo English',barBtn:'Quiero la mía',
+title:'Primera semana gratis',text:'Aplica este plan de estudio en la app Migo English. ¡La primera semana es gratis!',btn:'Quiero mi semana gratis',
+pdf:'Aplica este plan en la app Migo English: ¡primera semana gratis!',ask:'Déjanos tu correo y te avisamos.',
+thanks:'Te escribiremos pronto para activar tu primera semana gratis en la app Migo English.',consent:'avisarme cuando pueda activar mi primera semana gratis en la app Migo English'}:{
+bar:'🎁 Sé de los primeros: <b>primera semana gratis</b> cuando salga la app Migo English',barBtn:'Apuntarme',
+title:'Lista de espera: 1ª semana gratis',text:'Estamos preparando la app Migo English para aplicar este plan. Quienes se apunten tendrán la primera semana gratis cuando salga.',btn:'Unirme a la lista de espera',
+pdf:'La app Migo English viene en camino: apúntate a la lista de espera y tendrás tu primera semana gratis cuando salga.',ask:'Déjanos tu correo y te escribimos cuando esté lista.',
+thanks:'Estás en la lista de espera. Te escribiremos cuando la app Migo English esté lista, con tu primera semana gratis.',consent:'avisarme cuando la app Migo English esté lista'};
+const offerCard=()=>'<div class="cta offer"><h3>🎁 '+OFFER.title+'</h3><p>'+OFFER.text+'</p><button class="btn pink" onclick="openLead(\'offer\')">'+OFFER.btn+'</button></div>';
+function initOffer(){$('promo').innerHTML='<span>'+OFFER.bar+'</span><button onclick="openLead(\'offer\')">'+OFFER.barBtn+'</button>';$('offerHome').innerHTML=offerCard()}
+let leadMode='offer',leadBtn=null,flushing=false;
+const savedEmail=()=>{try{return localStorage.getItem('mg-lead')||''}catch(e){return ''}};
+function pdfGate(btn){if(!GATE||savedEmail())makePDF(btn);else openLead('pdf',btn)}
+function leadHTML(mode){
+const pdf=mode=='pdf';
+return '<h3 id="leadT">'+(pdf?'Descarga tu plan en PDF':'🎁 '+OFFER.title)+'</h3>'+
+'<p>'+(pdf?'Déjanos tu correo para descargar tu plan. '+OFFER.pdf:OFFER.text+' '+OFFER.ask)+'</p>'+
+'<form id="leadF" onsubmit="return submitLead(event)" novalidate>'+
+'<label class="lb" for="leadE">Tu correo</label>'+
+'<input id="leadE" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" required>'+
+'<label class="chk"><input id="leadC" type="checkbox"><span>He leído el <a href="#" onclick="openPriv(event)">Aviso de privacidad</a> y acepto que usen mi correo para enviarme mi plan y '+OFFER.consent+'.</span></label>'+
+'<label class="chk"><input id="leadM" type="checkbox"><span>(Opcional) Quiero recibir también novedades y promociones de Migo English.</span></label>'+
+'<p class="err" id="leadErr" role="alert" hidden></p>'+
+'<button class="btn pink" type="submit">'+(pdf?'Descargar mi PDF':OFFER.btn)+'</button>'+
+'<p class="fine">Tu correo se usa solo para lo que aceptaste arriba. Puedes darte de baja cuando quieras.</p></form>'}
+function thanksHTML(email){return '<div class="big-em">🎉</div><h3 id="leadT">¡Listo!</h3><p>Anotamos '+email.replace(/[<>&"]/g,'')+'. '+OFFER.thanks+'</p><button class="btn" onclick="closeLead()">Seguir en Migo</button>'}
+function openLead(mode,btn){
+leadMode=mode;leadBtn=btn||null;
+const em=savedEmail();
+$('leadBody').innerHTML=(mode=='offer'&&em)?thanksHTML(em):leadHTML(mode);
+$('lead').hidden=false;syncLock();
+setTimeout(()=>{const e=$('leadE');if(e)e.focus()},60)}
+const syncLock=()=>{document.body.style.overflow=(!$('lead').hidden||!$('priv').hidden)?'hidden':''};
+function closeLead(){$('lead').hidden=true;syncLock()}
+const esc=t=>String(t).replace(/[<>&"]/g,'');
+const pv=(v,ph)=>v?esc(v):'<mark class="todo">['+ph+']</mark>';
+function privHTML(){
+if(!PRIVACY.owner||!PRIVACY.address||!PRIVACY.email)console.warn('Aviso de privacidad: completa PRIVACY (owner, address, email, provider) antes de publicar.');
+return '<h3 id="privT">Aviso de privacidad</h3><p class="meta">Última actualización: '+PRIV_DATE+'</p><div class="ptxt">'+
+'<h4>1. ¿Quién es responsable de tus datos?</h4><p>'+pv(PRIVACY.owner,'nombre o razón social')+', con domicilio en '+pv(PRIVACY.address,'domicilio')+', es responsable del tratamiento de tus datos personales. Contacto: '+pv(PRIVACY.email,'correo de contacto')+'.</p>'+
+'<h4>2. ¿Qué datos recabamos?</h4><p>Tu correo electrónico y, si hiciste el test, tu nivel de inglés estimado y tu puntaje. También guardamos la fecha y desde dónde te registraste (por ejemplo, al descargar el PDF o en la lista de espera). No pedimos datos sensibles ni financieros.</p>'+
+'<h4>3. ¿Para qué los usamos?</h4><p><b>Finalidades necesarias:</b> enviarte tu plan de estudio, avisarte cuando la app Migo English esté lista, activar tu primera semana gratis y atender tus dudas.</p><p><b>Finalidad adicional</b> (solo si marcas la casilla opcional): enviarte novedades y promociones. Si no la marcas, no pasa nada: tu plan y tu lugar en la lista de espera siguen igual.</p>'+
+'<h4>4. ¿Con quién compartimos tus datos?</h4><p>No vendemos tus datos. Para guardarlos usamos el servicio de '+pv(PRIVACY.provider,'proveedor que guarda los correos')+', que los trata por nuestra cuenta. No los transferimos a otras personas o empresas, salvo que la ley lo exija.</p>'+
+'<h4>5. Tus derechos</h4><p>Puedes acceder a tus datos, rectificarlos, cancelarlos u oponerte a su uso (derechos ARCO), y también retirar tu consentimiento o darte de baja de los correos cuando quieras. Escribe a '+pv(PRIVACY.email,'correo de contacto')+' desde el correo con el que te registraste y dinos qué quieres hacer; responderemos en los plazos que marca la ley.</p>'+
+'<h4>6. Lo que se guarda en tu dispositivo</h4><p>Esta página guarda en tu navegador (almacenamiento local) tu correo, tu paleta de colores y tu preferencia de sonido, para no pedírtelos de nuevo. No usamos cookies de publicidad ni de seguimiento.</p>'+
+'<h4>7. Menores de edad</h4><p>Si eres menor de edad, usa este sitio con permiso de tu madre, padre o tutor.</p>'+
+'<h4>8. Cambios y autoridad</h4><p>Si cambiamos este aviso, lo publicaremos aquí. Si consideras que se vulneró tu derecho a la protección de datos, puedes acudir a la Secretaría Anticorrupción y Buen Gobierno, autoridad en la materia conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.</p></div>'+
+'<button class="btn" onclick="closePriv()">Entendido</button>'}
+function openPriv(e){if(e)e.preventDefault();$('privBody').innerHTML=privHTML();$('priv').hidden=false;syncLock();$('priv').querySelector('.mbox').scrollTop=0}
+function closePriv(){$('priv').hidden=true;syncLock()}
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('priv').hidden)closePriv();else if(!$('lead').hidden)closeLead()});
+function leadErr(t){const e=$('leadErr');e.textContent=t;e.hidden=false}
+function submitLead(ev){
+ev.preventDefault();
+const email=$('leadE').value.trim();
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){leadErr('Escribe un correo válido, por ejemplo tu@correo.com');$('leadE').focus();return false}
+if(!$('leadC').checked){leadErr('Marca la casilla para continuar.');return false}
+const fin=done.length==10;
+const rec={email:email,consent:true,marketing:$('leadM').checked,source:leadMode,level:fin?L[level().k].n:'',score:fin?done.filter(Boolean).length:null,ts:new Date().toISOString()};
+try{localStorage.setItem('mg-lead',email)}catch(e){}
+queueLead(rec);flushLeads();
+if(leadMode=='pdf'){const b=leadBtn||$('pdfb');closeLead();makePDF(b)}
+else $('leadBody').innerHTML=thanksHTML(email);
+return false}
+function queueLead(r){try{const q=JSON.parse(localStorage.getItem('mg-leads')||'[]');q.push(r);localStorage.setItem('mg-leads',JSON.stringify(q))}catch(e){}}
+async function flushLeads(){
+if(!LEAD_ENDPOINT||flushing)return;flushing=true;
+let q=[];try{q=JSON.parse(localStorage.getItem('mg-leads')||'[]')}catch(e){}
+const left=[];
+for(const r of q){try{const res=await fetch(LEAD_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(r)});if(!res.ok)left.push(r)}catch(e){left.push(r)}}
+try{localStorage.setItem('mg-leads',JSON.stringify(left))}catch(e){}
+flushing=false}
+addEventListener('load',()=>{initOffer();flushLeads()});
+
 /* ---------- PDF report ---------- */
 function reportHTML(){
 const lv=level(),k=lv.k,cnt=lv.cnt,l=L[k],s=done.filter(Boolean).length,T=THEMES[cur];
@@ -596,7 +716,8 @@ const p4='<div class="pg"><div class="rh sm" style="background-image:url('+hdr+'
 '<div class="vg2">'+V.w.slice(12).map((x,n)=>card(x,n+12)).join('')+'</div>'+
 '<div class="wk"><h3>Tu semana de práctica</h3><div class="days">'+
 [['Lun','Palabras con imagen','#ffe21f'],['Mar','Escuchar 15 min','#9bc53d'],['Mié','Hablar en voz alta','#c9b6d9'],['Jue','Leer o escribir','#ffb3d9'],['Vie','Repasar tarjetas','#9fd0ff'],['Sáb','Una serie en inglés','#ffc48a'],['Dom','Descanso 😴','#e9dcb4']].map(d=>'<div style="background:'+d[2]+'"><b>'+d[0]+'</b>'+d[1]+'</div>').join('')+
-'</div></div>'+foot(4)+'</div>';
+'</div></div>'+
+'<div class="tip" style="margin-top:26px"><b>🎁 '+OFFER.pdf+'</b>'+(APP_URL?' '+APP_URL:'')+'</div>'+foot(4)+'</div>';
 return p1+p2+p3+p4}
 async function makePDF(btn){
 const old=btn.textContent,rep=$('rep');btn.disabled=true;btn.textContent='Creando PDF…';
@@ -709,7 +830,7 @@ $('res').innerHTML='<div class="card"><div class="coach" style="justify-content:
 '<h2 style="font-size:30px;margin-bottom:4px">¡Terminaste! '+s+' de 10 🎉</h2>'+
 '<div class="lvrow2"><div class="lvl sm" style="background:'+l.c+'">'+l.n+'<small>'+l.name+'</small></div>'+
 '<div class="lvinfo"><p class="k">Tu nivel estimado</p><p class="nm2">'+l.name+'</p><div class="chips">'+cnt.map((c,j)=>'<span class="'+(c==2?'f':'')+'">'+LV[j]+': '+c+'/2</span>').join('')+'</div></div></div>'+
-'<p style="margin:0 0 4px"><button class="btn" id="pdfb" onclick="makePDF(this)">📄 Descargar mi plan en PDF</button></p>'+
+'<p style="margin:0 0 4px"><button class="btn" id="pdfb" onclick="pdfGate(this)">📄 Descargar mi plan en PDF</button></p>'+offerCard()+
 '<h2 class="sec">Tu plan de estudio · '+l.n+'</h2>'+
 '<div class="plan" style="margin-top:8px"><div style="--c:var(--pink)"><h3>Tu método de estudio</h3><ol>'+l.m.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
 '<div style="--c:var(--sky)"><h3>Cada día</h3><ul><li>10 min: palabras con imagen</li><li>10 min: escuchar</li><li>10 min: hablar o escribir</li></ul></div></div>'+
