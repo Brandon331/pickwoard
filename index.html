@@ -391,6 +391,14 @@ html{-webkit-text-size-adjust:100%}
 .sun .figwrap{width:60px}
 .hero-in{padding-top:92px}
 }
+/* ---------- Features enlazadas (zigzag) ---------- */
+#features .mfg{position:relative;grid-template-columns:1fr;gap:54px;padding:6px 0}
+#features .mfg>.mfc{position:relative;z-index:1;width:min(560px,100%)}
+#features .mfg>.mfc:nth-child(odd){justify-self:start}
+#features .mfg>.mfc:nth-child(even){justify-self:end}
+#features .mfc.wide{grid-column:auto}
+.mfl{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}
+@media(max-width:700px){#features .mfg{gap:44px}#features .mfg>.mfc{width:84%}}
 </style>
 </head>
 <body>
@@ -1005,6 +1013,28 @@ else if(h=='reto'){const e=$('reto');if(e)e.scrollIntoView()}}
 addEventListener('load',route);
 addEventListener('hashchange',route);
 document.querySelector('.sun').innerHTML='<div class="figwrap">'+fig('idle')+'</div>';
+/* ---------- Líneas de crayón entre features ---------- */
+function mfLines(){
+const g=document.querySelector('#features .mfg');if(!g)return;
+const NS='http://www.w3.org/2000/svg';
+let s=g.querySelector('.mfl');
+if(!s){s=document.createElementNS(NS,'svg');s.setAttribute('class','mfl');s.setAttribute('aria-hidden','true');g.appendChild(s)}
+s.innerHTML='';
+const cs=[].slice.call(g.querySelectorAll('.mfc')),col=['#e8281e','#4a90d9','#0f6b2b','#8b1a7e','#f5821f','#e0338a'];
+for(let k=0;k<cs.length-1;k++){
+const a=cs[k],b=cs[k+1];
+const x1=a.offsetLeft+a.offsetWidth/2,y1=a.offsetTop+a.offsetHeight-8;
+const x2=b.offsetLeft+b.offsetWidth/2,y2=b.offsetTop+8;
+const d=(y2-y1)*.55,xm=(x1+x2)/2+(k%2?-18:18),ym=(y1+y2)/2;
+const p=document.createElementNS(NS,'path');
+p.setAttribute('d','M'+x1+' '+y1+'C'+x1+' '+(y1+d)+' '+(xm+30)+' '+(ym-d/2)+' '+xm+' '+ym+'S'+x2+' '+(y2-d)+' '+x2+' '+y2);
+p.setAttribute('fill','none');p.setAttribute('stroke',col[k%col.length]);
+p.setAttribute('stroke-width','7');p.setAttribute('stroke-linecap','round');
+p.setAttribute('filter','url(#cr)');
+s.appendChild(p)}}
+addEventListener('load',mfLines);
+addEventListener('resize',mfLines);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(mfLines);
 </script>
 </body>
 </html>
