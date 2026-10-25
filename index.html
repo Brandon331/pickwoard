@@ -338,6 +338,10 @@ html{-webkit-text-size-adjust:100%}
 .qcard .row>span{width:auto;font-size:15px}
 .qcard .row .btn{width:auto;padding:10px 26px;font-size:18px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+.try .scene{font-size:44px;letter-spacing:6px;text-align:center;margin:8px 0}
+.try .opts{margin:10px 0}
+.try .fb{font-weight:700;margin:8px 0 0;min-height:1.5em}
+.try .reveal{font-weight:700}
 /* ---------- Features de Migo English ---------- */
 .mf{max-width:980px;margin:0 auto;padding:56px 20px 24px}
 .mf .kick{display:block;width:max-content;margin:0 auto 12px;background:var(--sun);color:#2a1a14;border-radius:999px;padding:2px 16px;font-weight:700;font-size:16px}
@@ -379,6 +383,14 @@ html{-webkit-text-size-adjust:100%}
 .mfcta{text-align:center;margin-top:26px}
 @media(max-width:480px){.mf{padding:36px 16px 16px}.skl div{grid-template-columns:78px 1fr 36px}}
 @media (prefers-color-scheme:dark){.mf .kick,.quote{color:#2a1a14}.mfc .ic{color:#2a1a14}}
+.sun{background:none;animation:none;border-radius:0;width:auto;height:auto;display:block;top:0}
+.sun .figwrap{width:120px}
+@media(max-width:700px){.sun .figwrap{width:84px}}
+.sun .nm{display:none}
+@media(max-width:700px){
+.sun .figwrap{width:60px}
+.hero-in{padding-top:92px}
+}
 </style>
 </head>
 <body>
@@ -398,10 +410,9 @@ html{-webkit-text-size-adjust:100%}
 <button data-p="atardecer" style="background:#f06a3a" aria-label="Naranja atardecer"></button></div>
 
 <div id="home">
-<div class="promo" id="promo"></div>
 <header class="hero">
 <div class="hero-in">
-<div class="sun" aria-hidden="true">☺</div>
+<div class="sun" aria-hidden="true"></div>
 <h1 class="big" aria-label="Migo"><span>M</span><span>I</span><span>G</span><span>O</span></h1>
 <p class="lead">Aprende inglés sin traducir. Si no entiendes una palabra, <b>mírala</b> en una imagen.</p>
 <div class="ctas"><button class="btn" onclick="startMethod()">Iniciar método</button><button class="btn ghost" onclick="start()">Obtén tu plan de estudio</button></div>
@@ -473,7 +484,34 @@ html{-webkit-text-size-adjust:100%}
  
 <div class="mfcta"><button class="btn pink" onclick="openLead('offer')">Unirme a la lista de espera 🎁</button></div>
 </section>
- 
+ <section class="mf try" id="reto">
+<span class="kick">🧪 Pruébalo ahora</span>
+<h2 class="t">¿Puedes entender esto sin traducir?</h2>
+<p class="sub">Dos mini experimentos de Migo. No tienes que creernos: lo vives.</p>
+<div class="mfg">
+
+<div class="mfc" style="--c:var(--orange)">
+<h3>What does “awkward” mean?</h3>
+<div class="scene" style="font-size:72px;letter-spacing:0" role="img" aria-label="A face feeling uncomfortable">😬</div>
+<p style="text-align:center">“Nobody spoke. It was a very <b>awkward</b> moment.”</p>
+<div class="opts" id="aq">
+<button class="opt" onclick="aq(0,this)">very happy and excited</button>
+<button class="opt" onclick="aq(1,this)">uncomfortable and not sure what to do</button>
+<button class="opt" onclick="aq(2,this)">very tired and sleepy</button></div>
+<p class="fb" id="afb" aria-live="polite"></p></div>
+
+<div class="mfc" style="--c:var(--sky)">
+<div class="ic">🎯</div><h3>¿Qué nivel tienes realmente?</h3>
+<p><b>If I ___ enough money, I would travel more.</b></p>
+<div class="opts" id="lq">
+<button class="opt" onclick="lq(0,this)">have</button>
+<button class="opt" onclick="lq(1,this)">had</button>
+<button class="opt" onclick="lq(2,this)">would have</button></div>
+<p class="fb" id="lfb" aria-live="polite"></p></div>
+
+</div>
+<div class="mfcta"><button class="btn pink" onclick="start()">Haz el test completo de Migo</button></div>
+</section>
 <section id="how">
 <div class="book">
 <div class="l"><h2>Así funciona</h2><p>Toca la palabra amarilla. En lugar de su traducción verás una imagen y su significado en inglés sencillo. Tu cerebro une la palabra con la imagen, igual que cuando eras niño.</p></div>
@@ -725,8 +763,8 @@ title:'Lista de espera: 1ª semana gratis',text:'Estamos preparando la app Migo 
 pdf:'La app Migo English viene en camino: apúntate a la lista de espera y tendrás tu primera semana gratis cuando salga.',ask:'Déjanos tu correo y te escribimos cuando esté lista.',
 thanks:'Estás en la lista de espera. Te escribiremos cuando la app Migo English esté lista, con tu primera semana gratis.',consent:'avisarme cuando la app Migo English esté lista'};
 const offerCard=()=>'<div class="cta offer"><h3>🎁 '+OFFER.title+'</h3><p>'+OFFER.text+'</p><button class="btn pink" onclick="openLead(\'offer\')">'+OFFER.btn+'</button></div>';
-function initOffer(){$('promo').innerHTML='<span>'+OFFER.bar+'</span><button onclick="openLead(\'offer\')">'+OFFER.barBtn+'</button>';$('offerHome').innerHTML=offerCard()}
-let leadMode='offer',leadBtn=null,flushing=false;
+const pathCard=()=>'<div class="cta offer"><h3>🗺️ Guarda tu camino Migo</h3><p>Recibe tu plan por correo y entra a la lista de espera con la <b>primera semana gratis</b>.</p><button class="btn pink" onclick="openLead(\'offer\')">Guardar mi camino</button></div>';
+function initOffer(){$('offerHome').innerHTML=offerCard()}let leadMode='offer',leadBtn=null,flushing=false;
 const savedEmail=()=>{try{return localStorage.getItem('mg-lead')||''}catch(e){return ''}};
 function pdfGate(btn){if(!GATE||savedEmail())makePDF(btn);else openLead('pdf',btn)}
 function leadHTML(mode){
@@ -945,6 +983,28 @@ timeBox(k)+
 '<div class="tip"><b>🖼️ Truco palabra-imagen:</b> '+l.t+'</div>'+
 '<p style="margin-top:18px"><button class="btn pink" onclick="startMethod()">Practicar palabras</button> <button class="hint" onclick="start()">Repetir el test</button> <button class="hint" onclick="view(\'home\')">Inicio</button></p></div>';
 setTimeout(burst,300)}
+function aq(k,b){
+const fb=$('afb');
+if(k==1){
+document.querySelectorAll('#aq .opt').forEach((o,j)=>{o.disabled=true;if(j==1)o.classList.add('good')});
+fb.innerHTML='🎉 Great job! <b>Awkward</b> = uncomfortable, not sure what to do. You got it from the situation, no translation needed.';
+speak('awkward',true)}
+else{
+b.disabled=true;b.classList.add('bad');
+fb.textContent='Oops! Look at the faces 😐😐😐 and try again.'}}
+/* ---------- Experimento de nivel + enlaces directos para reels ---------- */
+function lq(k,b){
+document.querySelectorAll('#lq .opt').forEach((o,j)=>{o.disabled=true;if(j==1)o.classList.add('good')});
+if(k!=1)b.classList.add('bad');
+$('lfb').innerHTML=(k==1?'¡Correcto! ':'Era “had”. ')+'Esta pregunta es de nivel B1/B2. <a href="#test" style="font-weight:700">¿Quieres saber tu nivel? Haz el test →</a>'}
+function route(){
+const h=location.hash.slice(1);
+if(h=='metodo')startMethod();
+else if(h=='test')start();
+else if(h=='reto'){const e=$('reto');if(e)e.scrollIntoView()}}
+addEventListener('load',route);
+addEventListener('hashchange',route);
+document.querySelector('.sun').innerHTML='<div class="figwrap">'+fig('idle')+'</div>';
 </script>
 </body>
 </html>
