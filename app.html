@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Migo – Tu compañero de inglés</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;700&display=swap">
+<style>
+:root{--sun:#ffe21f;--pink:#e0338a;--sky:#4a90d9;--lime:#9bc53d;--plum:#8b1a7e;--lilac:#c9b6d9;--green:#0f6b2b;--orange:#f5821f;--red:#e8281e;--ink:#2a1a14;--card:#fffaf0;--bg:#fdeef3;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--ink:#fff3dc;--card:#3a2a4a;--bg:#2a1d38}}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font:500 18px/1.5 "Baloo 2","Trebuchet MS",sans-serif;background:transparent}
+#bgc{position:fixed;inset:0;width:100%;height:100%;z-index:-1}
+h1,h2,h3,.logo{font-family:"Bagel Fat One",Impact,sans-serif;font-weight:400;line-height:1.05;margin:0}
+main{max-width:720px;margin:0 auto;padding:12px 14px calc(40px + env(safe-area-inset-bottom,0px));padding-top:calc(12px + env(safe-area-inset-top,0px))}
+[hidden]{display:none!important}
+.tb{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.logo{font-size:34px;text-decoration:none;display:flex}
+.logo span:nth-child(1){color:#e8281e}.logo span:nth-child(2){color:#f5a000}.logo span:nth-child(3){color:#e0338a}.logo span:nth-child(4){color:#4a90d9}
+#who{font-weight:700;font-size:15px;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{font:inherit;font-weight:700;font-size:19px;border:0;border-radius:999px;padding:12px 28px;cursor:pointer;background:var(--sun);color:#2a1a14;box-shadow:0 6px 0 #c9a800}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c9a800}
+.btn.pink{background:var(--pink);color:#fff;box-shadow:0 6px 0 #9c1f62}
+.btn:disabled{opacity:.55;cursor:wait}
+.hint,.back{font:inherit;font-weight:700;font-size:16px;border-radius:999px;padding:6px 16px;cursor:pointer;color:var(--ink)}
+.hint{background:none;border:3px dashed var(--sky)}
+.back{background:var(--lilac);color:#2a1a14;border:0;padding:3px 14px;font-size:15px}
+:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+.coach{display:flex;align-items:center;gap:10px;margin:8px 0}
+.figwrap{flex:none;width:96px}
+.nm{display:block;width:max-content;margin:2px auto 0;background:var(--sun);color:#2a1a14;border-radius:999px;padding:0 12px;font-weight:700;font-size:14px;line-height:1.5}
+.say{position:relative;background:#fff;color:#2a1a14;border:4px solid #2a1a14;border-radius:22px;padding:8px 16px;font-weight:700;font-size:20px;line-height:1.2;flex:1}
+.say::before{content:"";position:absolute;left:-18px;top:50%;margin-top:-10px;border:10px solid transparent;border-right:14px solid #2a1a14;border-left:0}
+.say::after{content:"";position:absolute;left:-9px;top:50%;margin-top:-6px;border:6px solid transparent;border-right:9px solid #fff;border-left:0}
+.say.good{background:var(--sun)}.say.bad{background:var(--lilac)}
+.say small{display:block;font-size:15px;font-weight:500;margin-top:2px}
+.card{background:var(--card);border-radius:26px;padding:20px 18px;box-shadow:0 7px 0 var(--pink);margin-top:10px;animation:pop .3s}
+.card+.card{margin-top:22px;box-shadow:0 7px 0 var(--sky)}
+@keyframes pop{from{transform:scale(.96);opacity:0}}
+.card h2{font-size:26px;margin-bottom:8px}
+.q{font-size:clamp(20px,4.5vw,28px);margin:6px 0 10px}
+label{display:block;font-weight:700;margin:10px 0 4px}
+input,textarea,select{width:100%;font:inherit;font-size:18px;padding:10px 14px;border-radius:14px;border:3px solid #2a1a14;background:#fff;color:#2a1a14}
+textarea{resize:vertical}
+.tabs{display:flex;gap:8px;margin-bottom:6px}
+.tabs button{flex:1;font:inherit;font-weight:700;border:3px solid #2a1a14;border-radius:999px;padding:6px;background:#fff;color:#2a1a14;cursor:pointer}
+.tabs button.on{background:var(--pink);color:#fff;border-color:var(--plum)}
+.err{color:#b3001b;font-weight:700;margin:8px 0}
+@media(prefers-color-scheme:dark){.err{color:#ffb4ab}}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+.chips span{background:var(--lilac);color:#2a1a14;border-radius:999px;padding:1px 12px;font-weight:700;font-size:14px}
+.meta{font-size:15px;opacity:.85;margin:0 0 6px}
+.tip{background:var(--sun);color:#2a1a14;border-radius:20px 20px 20px 4px;padding:10px 16px;margin-top:10px;font-size:17px}
+.br{display:grid;grid-template-columns:118px 1fr 44px;gap:8px;align-items:center;font-weight:700;font-size:15px;margin:6px 0}
+.prog{height:14px;border-radius:99px;background:var(--lilac);overflow:hidden}
+.prog i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--lime))}
+ol,ul{margin:6px 0;padding-left:22px}
+.rate{display:flex;gap:8px;flex-wrap:wrap}
+.rate label{display:flex;gap:6px;align-items:center;margin:0;font-weight:700;font-size:15px;background:var(--bg);border-radius:999px;padding:4px 12px}
+.rate input{width:auto}
+.chk{display:flex;gap:8px;align-items:center;font-weight:500;font-size:15px}
+.chk input{width:20px;height:20px;accent-color:var(--pink)}
+.chat{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}
+.bub{max-width:86%;padding:8px 14px;border-radius:18px;font-weight:700;font-size:16px}
+.bub.me{justify-self:end;background:var(--sky);color:#fff;border-bottom-right-radius:4px}
+.bub.mg{justify-self:start;background:var(--sun);color:#2a1a14;border-bottom-left-radius:4px}
+.fig *{transform-box:view-box}
+.fig{width:100%;height:auto;display:block;overflow:visible}
+.fig .body-g{transform-origin:60px 170px}.fig .head-g{transform-origin:60px 58px}
+.fig .armL,.fig .armR{transform-origin:60px 72px}.fig .legL,.fig .legR{transform-origin:60px 108px}
+.fig .eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.fig .m-sad,.fig .m-big{display:none}
+.fig.idle .body-g{animation:sway 2.6s ease-in-out infinite}
+.fig.idle .armL{animation:swL 2.6s ease-in-out infinite}.fig.idle .armR{animation:swR 2.6s ease-in-out infinite}
+@keyframes sway{50%{transform:translateY(-4px) rotate(2deg)}}@keyframes swL{50%{transform:rotate(14deg)}}@keyframes swR{50%{transform:rotate(-14deg)}}
+.fig.happy .m-smile{display:none}.fig.happy .m-big{display:inline}
+.fig.happy .body-g{animation:jump .55s ease-in-out 4}
+.fig.happy .armL{transform:rotate(85deg)}.fig.happy .armR{transform:rotate(-85deg)}
+@keyframes jump{0%,100%{transform:translateY(0)}45%{transform:translateY(-22px)}}
+.fig.sad .m-smile{display:none}.fig.sad .m-sad{display:inline}
+.fig.sad .body-g{transform:translateY(5px)}.fig.sad .armL{transform:rotate(-38deg)}.fig.sad .armR{transform:rotate(38deg)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+@media(max-width:480px){.figwrap{width:72px}.say{font-size:17px}.br{grid-template-columns:96px 1fr 40px}.row .btn{width:100%}}
+</style>
+</head>
+<body>
+<canvas id="bgc" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="cr" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 4 0 0 -1.05" result="m"/><feComposite in="d" in2="m" operator="in"/></filter></defs></svg>
+<main>
+<header class="tb"><a class="logo" href="index.html" aria-label="Migo, volver al inicio"><span>M</span><span>I</span><span>G</span><span>O</span></a><span id="who"></span><button class="back" id="out" onclick="logout()" hidden>Salir</button></header>
+<div class="coach"><div class="figwrap" id="fw"></div><div class="say" id="say" aria-live="polite"></div></div>
+<div id="view"></div>
+</main>
+<script>
+const $=s=>document.querySelector(s),V=h=>{$('#view').innerHTML=h;scrollTo(0,0)};
+const API=localStorage.getItem('migo-api')||'http://localhost:8000';
+let S={};try{S=JSON.parse(localStorage.getItem('migo')||'{}')}catch(e){}
+const save=()=>localStorage.setItem('migo',JSON.stringify(S));
+const E=s=>String(s??'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const NAMES={comprehension:'Comprensión',production:'Producción',vocabulary:'Vocabulario',translation_independence:'Sin traducir'};
+const RULES={bottleneck:'Tu punto débil',recurring_error:'Error que se repite',reduce_hints:'Menos pistas',advance:'Subir de nivel',change_strategy:'Nueva estrategia'};
+const NICE={translation_independence:'pensar en inglés sin traducir',comprehension:'comprensión',production:'expresión',vocabulary:'vocabulario'};
+const hum=s=>E(s).replace(/translation_independence|comprehension|production|vocabulary/g,k=>NICE[k]);
+const pct=x=>Math.round((x||0)*100);
+async function api(p,m='GET',b){
+ let r;try{r=await fetch(API+p,{method:m,headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:b?JSON.stringify(b):undefined})}
+ catch(e){throw new Error('No puedo hablar con el servidor ('+API+'). ¿Está corriendo uvicorn?')}
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'Revisa los datos e inténtalo de nuevo');
+ return j}
+/* ---- Migo ---- */
+$('#fw').innerHTML=`<svg class="fig idle" viewBox="0 0 120 170" aria-hidden="true"><g filter="url(#cr)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><g class="body-g"><g class="head-g"><path d="M46 22L40 8M60 18L60 3M74 22L80 8" stroke="#e8281e" stroke-width="6"/><circle cx="60" cy="40" r="20" stroke="#f5821f"/><circle class="eye" cx="52" cy="35" r="2.8" fill="#2a1a14" stroke="none"/><circle class="eye" cx="68" cy="35" r="2.8" fill="#2a1a14" stroke="none"/><path class="m-smile" d="M51 46Q60 54 69 46" stroke="#e0338a" stroke-width="5"/><path class="m-big" d="M48 44Q60 64 72 44Z" stroke="#e0338a" stroke-width="4" fill="#e0338a"/><path class="m-sad" d="M51 52Q60 43 69 52" stroke="#e0338a" stroke-width="5"/></g><path d="M60 61L60 108" stroke="#4a90d9"/><g class="armL"><path d="M60 72L32 96" stroke="#8b1a7e"/></g><g class="armR"><path d="M60 72L88 96" stroke="#8b1a7e"/></g><g class="legL"><path d="M60 108L40 148" stroke="#0f6b2b"/></g><g class="legR"><path d="M60 108L80 148" stroke="#0f6b2b"/></g></g></g></svg><span class="nm">Migo</span>`;
+function migo(m,t,s){$('#fw .fig').setAttribute('class','fig '+m);const b=$('#say');b.className='say '+(m=='happy'?'good':m=='sad'?'bad':'');b.innerHTML=t+(s?'<small>'+s+'</small>':'')}
+const err=m=>{const e=$('#err');if(e){e.textContent=m;e.hidden=false}migo('sad','Ups…',E(m))};
+let busy=false;
+async function act(b,fn){if(busy)return;busy=true;if(b)b.disabled=true;try{await fn()}catch(e){if(/Sesión/.test(e.message)){logout();return}err(e.message)}finally{busy=false;if(b)b.disabled=false}}
+/* ---- Auth + redirección ---- */
+let mode=location.hash=='#registro'?'reg':'login';
+function vLogin(){
+ $('#who').textContent='';$('#out').hidden=true;
+ migo('idle','¡Hola! Soy Migo 👋','Entra para seguir tu camino');
+ V(`<div class="card"><div class="tabs"><button class="${mode=='login'?'on':''}" onclick="mode='login';vLogin()">Entrar</button><button class="${mode=='reg'?'on':''}" onclick="mode='reg';vLogin()">Crear cuenta</button></div>
+ <form onsubmit="return doAuth(event)">${mode=='reg'?'<label for="nm">Tu nombre</label><input id="nm" autocomplete="name" required>':''}
+ <label for="em">Correo</label><input id="em" type="email" autocomplete="email" required>
+ <label for="pw">Contraseña</label><input id="pw" type="password" minlength="6" autocomplete="${mode=='reg'?'new-password':'current-password'}" required>
+ <p class="err" id="err" hidden></p><div class="row"><button class="btn pink" type="submit">${mode=='reg'?'Crear mi cuenta':'Entrar'}</button></div></form></div>`)}
+function doAuth(e){e.preventDefault();const b=e.target.querySelector('[type=submit]');
+ act(b,async()=>{const body={email:$('#em').value,password:$('#pw').value};if(mode=='reg')body.name=$('#nm').value;
+  S=await api('/auth/'+(mode=='reg'?'register':'login'),'POST',body);save();history.replaceState(null,'',location.pathname);await route()});return false}
+function logout(){S={};save();vLogin()}
+async function route(){
+ if(!S.token)return vLogin();
+ $('#who').textContent=S.name||S.email;$('#out').hidden=false;
+ try{
+  if(!S.user_id)return vOnb();
+  const p=await api('/users/'+S.user_id+'/profile');
+  return p.stage!='diagnosed'?vDiag():vHome(p)
+ }catch(e){if(/Sesión/.test(e.message))return logout();vLogin();err(e.message)}}
+/* ---- Onboarding ---- */
+function vOnb(){
+ migo('idle','Cuéntame a dónde quieres llegar','Cuanto más concreto, mejor te acompaño');
+ V(`<div class="card"><h2>Tu objetivo</h2><form onsubmit="return doOnb(event)">
+ <label for="g">¿Qué quieres lograr con el inglés?</label><textarea id="g" rows="2" placeholder="Ej.: Conversar con confianza en una entrevista de trabajo" required></textarea>
+ <label for="s">¿En qué situación concreta lo necesitas?</label><input id="s" placeholder="Ej.: job interview for a marketing role" required>
+ <label for="c">Contexto (opcional)</label><input id="c" placeholder="Ej.: trabajo en ventas, estudio de noche">
+ <label for="m">¿Cuántos minutos al día tienes?</label><select id="m"><option>10</option><option selected>15</option><option>30</option><option>45</option></select>
+ <p class="err" id="err" hidden></p><div class="row"><button class="btn pink" type="submit">Continuar</button></div></form></div>`)}
+function doOnb(e){e.preventDefault();act(e.target.querySelector('[type=submit]'),async()=>{
+ const r=await api('/users','POST',{name:S.name||'Amigo',goal:$('#g').value,situation:$('#s').value,context:$('#c').value,minutes_per_day:+$('#m').value});
+ await api('/auth/link','POST',{user_id:r.user_id});S.user_id=r.user_id;save();await route()});return false}
+/* ---- Diagnóstico ---- */
+let DG={};
+async function vDiag(){const r=await api('/users/'+S.user_id+'/diagnostic');DG={tasks:r.tasks,i:0,res:[]};dStep()}
+function dStep(){
+ const t=DG.tasks[DG.i],last=DG.i==DG.tasks.length-1;
+ migo('idle','Tarea '+(DG.i+1)+' de '+DG.tasks.length,'Quiero ver lo que haces, no lo que dices 🙂');
+ V(`<div class="card"><h2 class="q">${E(t.prompt)}</h2><textarea id="ans" rows="4" placeholder="Write here…"></textarea>
+ <label>¿Podrías hacerlo sin ayuda?</label><div class="rate"><label><input type="radio" name="r" value="1">Necesitaría ayuda</label><label><input type="radio" name="r" value="2" checked>Con esfuerzo</label><label><input type="radio" name="r" value="3">Fácil</label></div>
+ <p><label class="chk"><input type="checkbox" id="tr"> Tradujiste en tu cabeza desde el español</label></p>
+ <p class="err" id="err" hidden></p><div class="row"><span class="meta">Sin traductor ni trampas</span><button class="btn pink" onclick="dNext(this)">${last?'Ver mi perfil':'Siguiente'}</button></div></div>`)}
+function dNext(b){const a=$('#ans').value.trim();if(!a)return err('Escribe algo, aunque sea corto.');
+ DG.res.push({task_id:DG.tasks[DG.i].id,answer:a,self_rating:+document.querySelector('[name=r]:checked').value,translated_first:$('#tr').checked});
+ if(++DG.i<DG.tasks.length)return dStep();
+ act(b,async()=>{const r=await api('/users/'+S.user_id+'/diagnostic','POST',{responses:DG.res});vProfile(r)})}
+function vProfile(r){
+ migo('happy','Ya te conozco un poco 🎉','Esto es lo que observé');
+ V(`<div class="card"><h2>Tu perfil</h2><p>${E(r.profile.summary)}</p>
+ <div class="chips">${r.profile.bottlenecks.map(c=>'<span>Prioridad: '+(NAMES[c]||c)+'</span>').join('')}</div>
+ ${r.profile.overclaimed.length?'<div class="tip">Creías poder más de lo que demostraste en: '+r.profile.overclaimed.map(c=>NAMES[c]||c).join(', ')+'. Lo trabajamos.</div>':''}
+ <h2 style="margin-top:16px">Tu plan corto</h2><ol>${r.plan.steps.map(s=>'<li>'+E(s)+'</li>').join('')}</ol>
+ <div class="row"><span></span><button class="btn pink" onclick="route()">Ir a mi inicio</button></div></div>`)}
+/* ---- Inicio ---- */
+async function vHome(p){
+ const [pr,nx]=await Promise.all([api('/users/'+S.user_id+'/progress'),api('/users/'+S.user_id+'/next')]);
+ migo('idle','Hola, '+E(S.name)+' 👋',E(nx.reentry_note||'Tengo un plan para hoy'));
+ V(`<div class="card"><h2>Hoy te propongo</h2><div class="chips"><span>${RULES[nx.rule]||nx.rule}</span><span>Dificultad ${nx.difficulty}/5</span><span>Ayuda máx. ${nx.help_allowed}</span></div>
+ <p><b>${hum(nx.objective)}</b></p><p class="meta">${hum(nx.why)}</p>
+ <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>
+ <div class="card"><h2>Tu autonomía sin ayuda</h2>${Object.entries(pr.by_competency).map(([k,v])=>`<div class="br"><span>${NAMES[k]||k}</span><div class="prog"><i style="width:${pct(v.current_autonomy)}%"></i></div><b>${pct(v.current_autonomy)}%</b></div>`).join('')}
+ <p class="meta">${pr.sessions_closed} sesiones cerradas · ${pr.independent_successes_in_new_contexts} aciertos solo/a en contextos nuevos.<br>${E(pr.note)}</p></div>
+ <div class="card"><h2>Tu plan</h2><ol>${((p.plan||{}).steps||[]).map(s=>'<li>'+E(s)+'</li>').join('')}</ol></div>`)}
+/* ---- Sesión ---- */
+let SS=null,phase='try';
+function startSession(b){act(b,async()=>{SS=await api('/users/'+S.user_id+'/sessions','POST');phase='try';vSession()})}
+function vSession(){
+ const d=SS.decision;migo('idle',hum(d.why),d.reentry_note?E(d.reentry_note):'Inténtalo tú primero 💪');
+ V(`<div class="card"><div class="chips"><span>${RULES[d.rule]||d.rule}</span><span>Dificultad ${d.difficulty}/5</span><span>Ayuda máx. ${d.help_allowed}</span></div>
+ <p class="meta">Éxito: resolverlo con poca ayuda y luego repetirlo solo/a en un contexto nuevo</p><h2 class="q" id="pr">${E(SS.activity.prompt)}</h2>
+ <textarea id="ans" rows="4" placeholder="Write in English…"></textarea><div id="helps"></div><div id="fb"></div><p class="err" id="err" hidden></p>
+ <div class="row" id="acts"><span><button class="hint" onclick="help(this,false)">💡 Ayuda</button> <button class="hint" onclick="help(this,true)">😵 Estoy bloqueado</button></span><button class="btn pink" onclick="send(this)">Enviar</button></div>
+ <p><button class="back" onclick="leave()">Salir sin culpa</button></p></div>`)}
+function help(b,bl){act(b,async()=>{const r=await api('/sessions/'+SS.session_id+'/help','POST',{blocked:bl});
+ $('#helps').insertAdjacentHTML('beforeend','<div class="tip">'+(r.granted?'<b>'+({hint:'Pista',guiding_question:'Pregunta',example:'Ejemplo',full_explanation:'Explicación'}[r.kind])+':</b> '+E(r.content):E(r.message))+'</div>')})}
+function send(b){const a=$('#ans').value.trim();if(!a)return err('Escribe tu respuesta.');
+ act(b,async()=>{
+  if(phase=='rec'){const r=await api('/sessions/'+SS.session_id+'/recovery','POST',{answer:a});return vDone(r)}
+  const r=await api('/sessions/'+SS.session_id+'/attempt','POST',{answer:a});
+  migo(r.passed?'happy':'sad',r.passed?'¡Bien hecho!':'Casi…',E(r.feedback));
+  if(r.recovery_task){phase='rec';$('#pr').textContent=r.recovery_task;$('#ans').value='';$('#helps').innerHTML='';
+   $('#fb').innerHTML='<div class="tip"><b>Última prueba, sin ayuda y en un contexto nuevo.</b> Así vemos si ya lo dominas solo/a.</div>';$('#acts span').hidden=true}
+  else $('#fb').innerHTML='<div class="tip">'+E(r.feedback)+' '+E(r.next||'')+'</div>'})}
+function leave(){act(null,async()=>{await api('/sessions/'+SS.session_id+'/abandon','POST');route()})}
+function vDone(r){
+ const ok=r.recovery_score>=.7;migo(ok?'happy':'sad',ok?'¡Lo hiciste sin ayuda! 🎉':'Aún nos falta un poco',E(r.recovery_feedback));
+ V(`<div class="card"><h2>Lo que mejoró hoy</h2><div class="br"><span>${NAMES[r.competency]||r.competency}</span><div class="prog"><i style="width:${pct(r.after.autonomy)}%"></i></div><b>${pct(r.after.autonomy)}%</b></div>
+ <p>Autonomía: ${pct(r.before.autonomy)}% → <b>${pct(r.after.autonomy)}%</b>${r.error_resolved?'<br>✅ Error superado: '+E(r.error_resolved):''}</p><p class="meta">${E(r.honest_note)}</p>
+ <div class="tip"><b>Siguiente paso:</b> ${hum(r.next_step.objective)}</div><div class="row"><span></span><button class="btn pink" onclick="route()">Volver al inicio</button></div></div>`)}
+/* ---- Chat ---- */
+let MSG=[];
+function vChat(){
+ migo('idle','Pregúntame lo que quieras','Lo conecto con tu plan');
+ V(`<div class="card"><h2>Habla con Migo</h2><div class="chat" id="ch">${MSG.map(m=>`<div class="bub ${m.r}">${E(m.t)}</div>`).join('')||'<p class="meta">Pregunta, cuéntame si algo te frustra o si quieres cambiar de objetivo.</p>'}</div>
+ <form onsubmit="return chat(event)" class="row"><input id="cm" placeholder="Escribe aquí…" style="flex:1" autocomplete="off"><button class="btn pink" type="submit">Enviar</button></form><p class="err" id="err" hidden></p><p><button class="back" onclick="route()">← Inicio</button></p></div>`);
+ $('#ch').scrollTop=1e5}
+function chat(e){e.preventDefault();const t=$('#cm').value.trim();if(!t)return false;
+ act(e.target.querySelector('[type=submit]'),async()=>{MSG.push({r:'me',t});const r=await api('/users/'+S.user_id+'/chat','POST',{message:t});
+  MSG.push({r:'mg',t:r.reply});vChat();if(r.memory_updates.length)$('#ch').insertAdjacentHTML('beforeend','<div class="chips"><span>🧠 Anotado: '+E(r.memory_updates.join(' · '))+'</span></div>')});return false}
+/* ---- Fondo crayón ---- */
+function bg(){const c=$('#bgc'),w=c.width=innerWidth>>1,h=c.height=innerHeight>>1,x=c.getContext('2d');
+ const dk=matchMedia('(prefers-color-scheme:dark)').matches;x.fillStyle=dk?'#2a1d38':'#fdeef3';x.fillRect(0,0,w,h);x.lineCap='round';
+ const cols=dk?['#33244a','#221630','#3d2c55']:['#fadde7','#fff6f9','#f6d0df','#ffffff'];let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+ for(let k=0;k<w*h/500;k++){const px=r()*w,py=r()*h,a=((px/90|0)*7+(py/90|0)*13)%6*.5+r()*.4,l=30+r()*70;
+  x.strokeStyle=cols[r()*cols.length|0];x.globalAlpha=.1+r()*.25;x.lineWidth=3+r()*5;x.beginPath();x.moveTo(px,py);x.lineTo(px+Math.cos(a)*l,py+Math.sin(a)*l);x.stroke()}}
+bg();let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(bg,250)});
+route();
+</script>
+</body>
+</html>
