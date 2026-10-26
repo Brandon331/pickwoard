@@ -97,7 +97,7 @@ ol,ul{margin:6px 0;padding-left:22px}
 </main>
 <script>
 const $=s=>document.querySelector(s),V=h=>{$('#view').innerHTML=h;scrollTo(0,0)};
-const API=localStorage.getItem('migo-api')||'http://localhost:8000';
+const API=localStorage.getItem('migo-api')||'https://migo-english-back.onrender.com';
 let S={};try{S=JSON.parse(localStorage.getItem('migo')||'{}')}catch(e){}
 const save=()=>localStorage.setItem('migo',JSON.stringify(S));
 const E=s=>String(s??'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
