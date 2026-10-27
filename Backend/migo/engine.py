@@ -42,7 +42,7 @@ def record_errors(uid, comp, errs):
 
 def record_strengths(uid, items):
     for s in items:
-        db.run("insert into strengths(user_id,item) values(?,?) on conflict(user_id,item) do update set times_ok=times_ok+1",
+        db.run("insert into strengths(user_id,item) values(?,?) on conflict(user_id,item) do update set times_ok=strengths.times_ok+1",
                (uid, s), write=True)
 
 def add_evidence(uid, sid, comp, score, help_level, kind, note=""):
@@ -87,14 +87,14 @@ def heuristic(task, answer, lang="es"):
     return {"score": round(score, 2), "errors": errs, "strengths": [], "translated": ratio > 0.2,
             "feedback": fb, "evaluator": "heuristic"}
 
-def evaluate(user, task, answer):
+def evaluate(user, task, answer, secs=None):
     known = [e["pattern"] for e in db.run("select pattern from errors where user_id=?", (user["id"],))]
     r = llm.ask_json(
         "You are a strict but kind English assessor for a Spanish speaker. Judge ONLY observable evidence in the answer. "
         "Return {\"score\":0-1,\"errors\":[{\"pattern\":snake_case_label,\"example\":str}],\"strengths\":[str],"
         "\"translated\":bool (answer shows mental translation from Spanish),\"feedback\":\"1-2 sentences, language: " + i18n.llm_lang(user["id"]) + "\"}. "
-        "Reuse these known error labels when they apply: " + J(known),
-        J({"situation": user["situation"], "task": task["prompt"], "competency": task["competency"], "answer": answer}))
+        "If competency is translation_independence, judge how direct and natural the reply is (literal calques, L1 interference); seconds_taken is only context. Reuse these known error labels when they apply: " + J(known),
+        J({"situation": user["situation"], "task": task["prompt"], "competency": task["competency"], "answer": answer, "seconds_taken": secs}))
     if r and isinstance(r.get("score"), (int, float)):
         r.update(score=clamp(float(r["score"])), evaluator="llm")
         r.setdefault("errors", []); r.setdefault("strengths", []); r.setdefault("feedback", ""); r.setdefault("translated", False)
@@ -102,33 +102,59 @@ def evaluate(user, task, answer):
     if task["competency"] == "translation_independence" and r["translated"]: r["score"] = round(r["score"] * 0.6, 2)
     return r
 
+# ---------- vocabulario con imágenes ----------
+def record_vocab(user, items, kind="vocab"):
+    """first = acertó a la primera; peek = vio la imagen. nivel = aciertos a la primera; autonomía = a la primera SIN ver la imagen."""
+    uid = user["id"]; n = len(items)
+    if not n: return None
+    first = sum(1 for x in items if x["first"]); good = [x["w"] for x in items if x["first"] and not x["peek"]]
+    bump(uid, "vocabulary", first / n, len(good) / n)
+    record_strengths(uid, ["w:" + w for w in good])
+    note = i18n.t(i18n.tk(i18n.lang(uid)), "v_note", a=first, n=n, b=len(good))
+    add_evidence(uid, None, "vocabulary", len(good) / n, 0, kind, note)
+    return {"first_try": first, "unaided": len(good), "n": n, "note": note, "words_mastered": words_mastered(uid)}
+
+def words_mastered(uid):
+    return db.run("select count(*) n from strengths where user_id=? and substr(item,1,2)='w:'", (uid,), one=True)["n"]
+
 # ---------- diagnóstico ----------
 def diagnostic_tasks(user):
     if user["diag_json"]: return L(user["diag_json"])
-    s = user["situation"]; tasks = None
-    r = llm.ask_json("Design 4 practical English diagnostic tasks for a Spanish speaker, one per competency in this order: "
-                     + ", ".join(COMPS) + ". Each requires ACTION (write/answer), never multiple choice. Text-only: there is NO audio, no images and no microphone, so never ask the learner to listen, record or look at anything. Every task must be answered by typing. Calibrate difficulty to the learner's estimated_cefr_level (A1 = very simple). "
-                     "Return {\"tasks\":[{\"id\":\"d1\",\"competency\":...,\"prompt\":...,\"keywords\":[]}]}",
-                     J({"goal": user["goal"], "situation": s, "estimated_cefr_level": levels.LV[levels.estimate(user["id"])["k"]]}))
-    if r and isinstance(r.get("tasks"), list) and len(r["tasks"]) >= 3 and all(t.get("competency") in COMPS for t in r["tasks"]):
-        tasks = r["tasks"]
-    if not tasks:
-        tasks = [
-            {"id": "d1", "competency": "comprehension", "keywords": ["late", "20", "twenty", "reschedule", "minutes", "tarde", "retras", "reprogram", "veinte"],
-             "prompt": f"Situation: {s}. Someone says: 'Sorry, we're running about twenty minutes late. Is that okay, or would you prefer to reschedule?' In your own words (English or Spanish): what are they asking you?"},
-            {"id": "d2", "competency": "production", "prompt": f"Situation: {s}. Introduce yourself and say what you need, in 2-3 English sentences. No translator."},
-            {"id": "d3", "competency": "vocabulary", "prompt": f"List 5 English words/phrases you'd need in this situation: {s}. Then use two of them in sentences."},
-            {"id": "d4", "competency": "translation_independence", "prompt": "Someone says: 'Could you spell that for me, please?' Reply in English right now, as if live."}]
+    s = user["situation"]; k = levels.estimate(user["id"])["k"]; tasks = None
+    r = llm.ask_json("Design 3 short English diagnostic tasks for a Spanish speaker, in this order: "
+                     "1) comprehension: a short message or email (length and difficulty by estimated_cefr_level) plus ONE question about its content; the learner may answer in Spanish or English. "
+                     "2) production: a writing prompt tied to the learner's situation, 2-5 sentences, difficulty by level. "
+                     "3) translation_independence: a short chat message that needs a QUICK natural reply (60 seconds). "
+                     "Never ask the learner to list words, spell, listen, record or look at images (vocabulary is tested elsewhere). All tasks are text-only and answered by typing. "
+                     "Return {\"tasks\":[{\"id\":\"d1\",\"competency\":...,\"prompt\":...,\"keywords\":[]}]}; keywords only for comprehension (words a correct answer contains, in English and Spanish).",
+                     J({"goal": user["goal"], "situation": s, "estimated_cefr_level": levels.LV[k]}))
+    ok = {"comprehension", "production", "translation_independence"}
+    if r and isinstance(r.get("tasks"), list) and len(r["tasks"]) >= 3 and all(t.get("competency") in ok for t in r["tasks"][:3]): tasks = r["tasks"][:3]
+    if not tasks:   # respaldo sin LLM: 3 niveles de dificultad
+        b = 0 if k <= 1 else 1 if k == 2 else 2
+        C = [("Message from your host: 'Hi! The class starts at 9:30 tomorrow. Please bring your passport and a pen. The room is on the second floor.' What time is the class, and what do you need to bring?", ["9:30", "nine thirty", "nueve y media", "passport", "pasaporte", "pen", "pluma", "bolígrafo", "lápiz"]),
+             ("Email: 'Thanks for your application. Unfortunately the position has been filled, but we would like to keep your CV and contact you if something similar opens up in the next six months.' Did they offer you the job? What will they do with your CV?", ["filled", "ocupad", "no ", "cv", "six months", "seis meses", "contact"]),
+             ("'Although the new policy was meant to reduce commuting costs, many employees say it made their days longer, since the shuttle only runs twice in the morning. Management insists the data show a net saving.' What is the disagreement about, and why do employees complain?", ["shuttle", "twice", "longer", "saving", "management", "employees", "dos veces", "más largo", "ahorro"])]
+        P = [f"Situation: {s}. Write 2 simple sentences: say who you are and one thing you want.",
+             f"Situation: {s}. Introduce yourself and say what you need, in 2-3 sentences.",
+             f"Situation: {s}. Something went wrong yesterday. Write 3-4 sentences: what happened and what you did about it.",
+             f"Situation: {s}. Give your opinion: is it better to prepare a lot or to improvise? Write 4-5 sentences with a reason and an example."]
+        R = ["A friend texts you: 'Hey! Are you free this weekend? Let's do something!' Reply right now, as if live.",
+             "Your manager writes in chat: 'Can you send me the report by 5 pm, or is that a problem?' Reply naturally.",
+             "A colleague says: 'Honestly, I think the deadline is unrealistic. What's your take?' Reply with your opinion."]
+        tasks = [{"id": "d1", "competency": "comprehension", "prompt": C[b][0], "keywords": C[b][1]},
+                 {"id": "d2", "competency": "production", "prompt": P[min(k, 3)]},
+                 {"id": "d3", "competency": "translation_independence", "prompt": R[b]}]
     for i, t in enumerate(tasks): t["id"] = t.get("id") or f"d{i+1}"
     db.run("update users set diag_json=? where id=?", (J(tasks), user["id"]), write=True)
     return tasks
 
-def run_diagnostic(user, responses):
+def run_diagnostic(user, responses, vocab=None):
     uid = user["id"]; tasks = {t["id"]: t for t in diagnostic_tasks(user)}; results = []
     for r in responses:
         t = tasks.get(r["task_id"])
         if not t: continue
-        ev = evaluate(user, t, r["answer"]); score = ev["score"]
+        ev = evaluate(user, t, r["answer"], r.get("seconds")); score = ev["score"]
         if t["competency"] == "translation_independence" and r.get("translated_first"): score = round(score * 0.6, 2)
         bump(uid, t["competency"], score, score)  # sin ayuda: nivel = autonomía
         record_errors(uid, t["competency"], ev["errors"]); record_strengths(uid, ev["strengths"])
@@ -136,6 +162,9 @@ def run_diagnostic(user, responses):
         claimed = (r["self_rating"] - 1) / 2 if r.get("self_rating") else None
         results.append({"task_id": t["id"], "competency": t["competency"], "claimed": claimed, "demonstrated": score,
                         "overclaimed": claimed is not None and claimed - score >= 0.4, "feedback": ev["feedback"], "evaluator": ev["evaluator"]})
+    if vocab:
+        v = record_vocab(user, vocab, "diagnostic")
+        if v: results.append({"task_id": "vocab", "competency": "vocabulary", "claimed": None, "demonstrated": v["unaided"] / v["n"], "overclaimed": False, "feedback": v["note"], "evaluator": "auto"})
     profile = build_profile(user, results); plan = make_plan(user, profile)
     db.run("update users set stage='diagnosed',profile_json=?,plan_json=? where id=?", (J(profile), J(plan), uid), write=True)
     return {"profile": profile, "plan": plan}
@@ -324,7 +353,7 @@ def progress(user):
         out[c] = {"baseline_unaided": b, "current_autonomy": v["autonomy"], "delta": None if b is None else round(v["autonomy"] - b, 2),
                   "observations": v["evidence"], "confidence": "low" if v["evidence"] < 3 else "medium"}
     ind = db.run("select count(*) n from evidence where user_id=? and kind='recovery' and score>=? and help_level=0", (uid, PASS), one=True)["n"]
-    return {"by_competency": out, "independent_successes_in_new_contexts": ind,
+    return {"by_competency": out, "independent_successes_in_new_contexts": ind, "words_mastered": words_mastered(uid),
             "sessions_closed": db.run("select count(*) n from sessions where user_id=? and status='closed'", (uid,), one=True)["n"],
             "recent_evidence": db.run("select competency,score,help_level,kind,note from evidence where user_id=? order by id desc limit 10", (uid,)),
             "note": i18n.t(i18n.tk(i18n.lang(uid)), "pnote")}

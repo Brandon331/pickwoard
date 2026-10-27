@@ -53,6 +53,7 @@ T = {"es": {
  "p_over": " Ojo: en «{c}» creías poder más de lo que demostraste.",
  "s_prac": "Practicar «{c}» en situaciones reales de: {s}", "s_fix": "Corregir «{p}» en un contexto nuevo",
  "s_new": "Repetir lo practicado en una situación distinta, con menos ayuda",
+ "v_note": "Palabras con imagen: {a} de {n} a la primera, {b} sin ver la imagen.",
  "s_lvl": "Meta «{a}» → «{b}»: {m} min al día durante ~{t}",
  "pnote": "El progreso se mide con tareas sin ayuda en contextos nuevos, no con puntos o rachas.",
  "m_frus": "frustrado=1 (baja la dificultad en la próxima sesión)"},
@@ -82,6 +83,7 @@ T = {"es": {
  "p_over": " Heads up: in «{c}» you thought you could do more than you showed.",
  "s_prac": "Practice «{c}» in real situations: {s}", "s_fix": "Fix «{p}» in a new context",
  "s_new": "Repeat what you practiced in a different situation, with less help",
+ "v_note": "Words with pictures: {a} of {n} on the first try, {b} without peeking at the picture.",
  "s_lvl": "Goal «{a}» → «{b}»: {m} min a day for ~{t}",
  "pnote": "Progress is measured with unaided tasks in new contexts, not points or streaks.",
  "m_frus": "frustrated=1 (lower difficulty next session)"}}

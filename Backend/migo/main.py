@@ -22,8 +22,16 @@ class Resp(BaseModel):
     answer: str
     self_rating: Optional[int] = None      # 1-3: "¿podría hacerlo sin ayuda?" (declarado vs demostrado)
     translated_first: Optional[bool] = None
+    seconds: Optional[float] = None
 
-class DiagIn(BaseModel): responses: List[Resp]
+class VocabItem(BaseModel):
+    w: str
+    first: bool
+    peek: bool = False
+class VocabIn(BaseModel): items: List[VocabItem]
+class DiagIn(BaseModel):
+    responses: List[Resp]
+    vocab: Optional[VocabIn] = None
 class AnswerIn(BaseModel): answer: str
 class HelpIn(BaseModel): blocked: bool = False
 class ChatIn(BaseModel): message: str
@@ -50,7 +58,7 @@ def get_diag(uid: int): return {"tasks": E.diagnostic_tasks(U(uid))}
 def post_diag(uid: int, b: DiagIn):
     u = U(uid)
     if not u["diag_json"]: raise HTTPException(409, "request the diagnostic first")
-    return E.run_diagnostic(u, [r.model_dump() for r in b.responses])
+    return E.run_diagnostic(u, [r.model_dump() for r in b.responses], [x.model_dump() for x in b.vocab.items] if b.vocab else None)
 
 @app.get("/users/{uid}/profile")
 def profile(uid: int):
@@ -127,3 +135,9 @@ def set_placement(uid: int, b: PlIn):
 
 @app.get("/users/{uid}/path")
 def get_path(uid: int): U(uid); return levels.path(uid)
+
+@app.post("/users/{uid}/vocab")
+def post_vocab(uid: int, b: VocabIn):
+    u = U(uid)
+    if not b.items: raise HTTPException(422, "sin palabras")
+    return E.record_vocab(u, [x.model_dump() for x in b.items], "vocab")

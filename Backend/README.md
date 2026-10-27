@@ -30,6 +30,9 @@ Auth básica + idioma de ayuda por nivel (migo/i18n.py) (migo/auth.py: cuentas +
 ## Nivel (landing → app)
 La landing (con migo-test.js, test adaptativo de 12 preguntas) envía nivel, rango y confianza a app.html?lvl=A2&conf=alta&lo=A2&hi=B1...; la app lo guarda en POST /users/{id}/placement. migo/levels.py calcula nivel estimado y tiempo a la siguiente etapa.
 
+## Diagnóstico
+Tareas por nivel (comprensión, expresión, respuesta rápida de 60 s) + mini-juego «palabras con imagen» (POST /users/{id}/vocab). Ya no hay lista de 5 palabras ni deletreo.
+
 ## Frontend
 Abre `app.html` (mismo directorio que tu landing). Por defecto llama a http://localhost:8000; cambia con localStorage "migo-api".
 

@@ -119,6 +119,11 @@ textarea::placeholder{color:#8a96b8;font-style:italic}
 .lvb{flex:none;width:76px;height:96px;border-radius:40px;display:grid;place-items:center;font:400 36px "Bagel Fat One",sans-serif;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.28);border:4px solid var(--card)}
 .lvt{margin:0;font-size:19px;font-weight:600;line-height:1.35}
 .chips.sc span{background:var(--lilac);color:#2a1a14;font-size:13.5px}.chips.sc span.me{background:var(--green);color:#fff}
+.vopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+.vopt{font:600 19px "Baloo 2",sans-serif;padding:12px;border-radius:16px;border:3px solid var(--sky);background:#fff;color:var(--tx);cursor:pointer;box-shadow:0 4px 0 var(--lilac)}
+.vopt:hover:not(:disabled){background:var(--sun)}.vopt.good{background:var(--green);color:#fff;border-color:#0b5a28}.vopt.bad{background:#ffb4ab;border-color:#9a1010;color:#5a0a0a;animation:shk .4s}
+@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.vpic{display:flex;gap:12px;align-items:center;min-height:64px}#pic{font-size:52px;line-height:1}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}.ld::after,#ld i{animation:rot 1.6s linear infinite!important}}
 @media(max-width:480px){.figwrap{width:72px}.say{font-size:17px}.br{grid-template-columns:104px 1fr 42px}.row .btn{width:100%}}
 </style>
@@ -164,12 +169,12 @@ const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],[
 ["Éxito: ","Goal: "],["Inténtalo tú primero 💪","Try it yourself first 💪"],["💡 Ayuda","💡 Help"],["😵 Estoy bloqueado","😵 I’m stuck"],["Enviar","Send"],["<b>Pista:</b>","<b>Hint:</b>"],["<b>Pregunta:</b>","<b>Question:</b>"],["<b>Ejemplo:</b>","<b>Example:</b>"],["<b>Explicación:</b>","<b>Explanation:</b>"],["Intenta de nuevo o pide una ayuda.","Try again or ask for help."],["Esta sesión trabaja con menos ayuda. Intenta otra vez; si estás bloqueado, avísalo (blocked=true) y cambio la estrategia.","This session uses fewer hints. Try again; if you’re stuck, say so and I’ll change the strategy."],
 ["¡Bien hecho!","Well done!"],["Casi…","Almost…"],["Última prueba, sin ayuda y en un contexto nuevo.","Last check: no help, new context."],[" Así vemos si ya lo dominas solo/a."," This shows if you can do it on your own."],["Lo que mejoró hoy","What improved today"],["Autonomía: ","Autonomy: "],["✅ Error superado: ","✅ Error overcome: "],["Volver al inicio","Back home"],["¡Lo hiciste sin ayuda! 🎉","You did it without help! 🎉"],["Aún nos falta un poco","We’re not quite there yet"],["🎯 Hoy trabajamos: ","🎯 Today we work on: "],
 ["Pregúntame lo que quieras","Ask me anything"],["Lo conecto con tu plan","I’ll connect it to your plan"],["Pregunta, cuéntame si algo te frustra o si quieres cambiar de objetivo.","Ask, or tell me if something frustrates you or you want to change your goal."],["← Inicio","← Home"],["🧠 Anotado: ","🧠 Noted: "],["Escribe tu respuesta.","Write your answer."],["Ups…","Oops…"],["Migo está pensando…","Migo is thinking…"],
-["Tu nivel","Your level"],[" · confianza "," · confidence "],[" · Confianza del test: "," · Test confidence: "],["<b>alta</b>","<b>high</b>"],["<b>media</b>","<b>medium</b>"],["<b>baja</b>","<b>low</b>"],[" · Probablemente entre <b>"," · Probably between <b>"],["</b> y <b>","</b> and <b>"],["Dedicando <b>","Spending <b>"],[" min al día</b>"," min a day</b>"],["</b> llegarás a <b>","</b> you will reach <b>"],["</b> en ~<b>","</b> in ~<b>"],[" min/día → "," min/day → "],
+["Tu nivel","Your level"],["Palabras con imagen","Words with pictures"],["Practicar 8 palabras","Practice 8 words"],["Otras 8 palabras","8 more words"],["Elige la palabra que completa la frase","Choose the word that completes the sentence"],["🖼️ Mira la frase, elige la palabra","🖼️ Read the sentence, pick the word"],["👁️ Ver imagen","👁️ See picture"],["Mira la imagen 👀","Look at the picture 👀"],["Siguiente palabra","Next word"],["Terminar","Finish"],["¡Bien hecho!","Well done!"],["¡Ahí está!","There it is!"],["¡Listo! 🎉","All done! 🎉"],["Así se aprende: imagen + frase, sin traducir","This is how you learn: picture + sentence, no translating"],["⏱️ Responde rápido: ","⏱️ Reply fast: "],[" s · No tiene que ser perfecta; reacciona como en la vida real."," s · It doesn’t have to be perfect; react like in real life."],["⏱️ ¡Tiempo! Termina tu idea y envía.","⏱️ Time! Finish your thought and send."],["Acertaste <b>","You got <b>"],[" a la primera, y <b>"," on the first try, and <b>"],["</b> sin ver la imagen.","</b> without peeking."],[" · confianza "," · confidence "],[" · Confianza del test: "," · Test confidence: "],["<b>alta</b>","<b>high</b>"],["<b>media</b>","<b>medium</b>"],["<b>baja</b>","<b>low</b>"],[" · Probablemente entre <b>"," · Probably between <b>"],["</b> y <b>","</b> and <b>"],["Dedicando <b>","Spending <b>"],[" min al día</b>"," min a day</b>"],["</b> llegarás a <b>","</b> you will reach <b>"],["</b> en ~<b>","</b> in ~<b>"],[" min/día → "," min/day → "],
 ["Basado en tu test y tu diagnóstico práctico","Based on your test and practical diagnostic"],["Basado en tu test","Based on your test"],["Basado en tu diagnóstico práctico","Based on your practical diagnostic"],["Aún es una estimación","Still an estimate"],
 [". Estudiando todos los días; es una guía basada en horas de estudio de Cambridge, no una garantía.",". Studying every day; a guide based on Cambridge study hours, not a guarantee."],["Haz el test →","Take the test →"],["¡Estás en el nivel más alto de la escala!","You’re at the top of the scale!"],
 ["🎯 Tu test: nivel ","🎯 Your test: level "],[". Lo confirmamos con tu diagnóstico práctico.",". We’ll confirm it with your practical diagnostic."]
 ].sort((a,b)=>b[0].length-a[0].length);
-function tr(h){if(LANG=='es')return h;h=h.replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
+function tr(h){if(LANG=='es')return h;h=h.replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2').replace(/Palabra (\d+) de (\d+)/g,'Word $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
 function setLang(l){LANG=l||'es';try{localStorage.setItem('migo-lang',LANG)}catch(e){}document.documentElement.lang=LANG=='en'?'en':'es';$('#out').textContent=tr('Salir');$('#ldt').textContent=tr('Migo está pensando…')}
 const _iah=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(p,h){_iah.call(this,p,tr(h))};
 /* ---- API con círculo de carga ---- */
@@ -226,23 +231,82 @@ function vOnb(){
 function doOnb(e){e.preventDefault();act(e.target.querySelector('[type=submit]'),async()=>{
  const r=await api('/users','POST',{name:S.name||'Amigo',goal:$('#g').value,situation:$('#s').value,context:$('#c').value,minutes_per_day:+$('#m').value});
  await api('/auth/link','POST',{user_id:r.user_id});S.user_id=r.user_id;save();await route()});return false}
+/* ---- Vocabulario con imágenes (método «Iniciar método»: frase → imagen → palabra) ---- */
+const LVS=['A1','A2','B1','B2','C1','C2'];
+const shuf=a=>{a=a.slice();for(let k=a.length;k>1;k--){const j=Math.random()*k|0;[a[k-1],a[j]]=[a[j],a[k-1]]}return a};
+function speak(t){try{if(!('speechSynthesis' in window)||!t)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+const VOC=[
+["house|🏠|My house is big and blue.","kitchen|🍳|She cooks in the kitchen.","bed|🛏️|I sleep in my bed.","door|🚪|Please close the door.","bread|🍞|I eat bread for breakfast.","water|💧|Drink water every day.","milk|🥛|The baby drinks milk.","apple|🍎|He eats a red apple.","chicken|🍗|We have chicken for dinner.","rice|🍚|I like rice with beans.","friend|🧑‍🤝‍🧑|Ana is my best friend.","teacher|🧑‍🏫|The teacher is very kind.","school|🏫|The children go to school.","market|🛒|We buy fruit at the market.","street|🛣️|The street is very busy.","morning|🌅|I run in the morning.","tomorrow|📅|I work tomorrow.","buy|🛍️|I want to buy shoes.","eat|🍽️|We eat at seven.","drink|🥤|What do you want to drink?","work|💼|I work in an office.","play|⚽|The boys play football.","want|🙋|I want a glass of water.","like|👍|I like music."],
+["ticket|🎫|I need a ticket for the train.","passport|🛂|Show your passport, please.","airport|✈️|The airport is far from here.","luggage|🧳|Your luggage is very heavy.","hotel|🏨|We stayed in a small hotel.","doctor|🩺|I have an appointment with the doctor.","medicine|💊|Take this medicine twice a day.","headache|🤕|I have a terrible headache.","weather|⛅|The weather is nice today.","price|🏷️|The price is too high.","cheap|💸|This shirt is very cheap.","expensive|💎|That watch is too expensive.","borrow|🤲|Can I borrow your pen?","forget|🤔|Don’t forget your keys.","remember|🧠|I remember my first day at school.","arrive|🛬|The plane arrives at nine.","invite|💌|I want to invite you to my party.","decide|✅|We must decide today.","enjoy|😄|I enjoy cooking.","improve|📈|I want to improve my English.","advice|💡|Thanks for your advice.","however|🌧️🚶|It rained; however, we went out.","because|🌧️☂️|I take an umbrella because it rains.","although|😴💼|Although I was tired, I kept working."],
+["experience|🎓|She has ten years of experience.","opportunity|🚪✨|This job is a great opportunity.","environment|🌳|We must protect the environment.","career|💼📈|He started his career as a nurse.","salary|💰|My salary goes up in January.","deadline|⏰|The deadline is Friday at noon.","achieve|🏆|She worked hard to achieve her goal.","manage|🗂️|He manages a team of five.","suggest|💬|I suggest we leave early.","require|📋|This job requires good English.","avoid|🚫|Try to avoid sugar.","increase|📈|Prices increase every year.","reduce|📉|We must reduce plastic.","affect|🌧️🌾|Rain can affect the harvest.","depend on|🌦️🤷|It depends on the weather.","compare|⚖️|Let’s compare the two phones.","support|🤝|My family supports me.","challenge|🧗|Learning Chinese is a big challenge.","despite|🌧️⚽|We played despite the rain.","whereas|🍎🍊|I like apples, whereas she likes oranges.","nevertheless|😓🏁|It was hard; nevertheless, he finished.","instead of|🍬➡️🍎|I ate fruit instead of candy.","as long as|🕙🏠|You can go as long as you come back early.","in fact|🧓❗|He looks young; in fact, he is fifty."],
+["reluctant|😬|He was reluctant to speak.","thorough|🔍|She did a thorough investigation.","overwhelming|🌊😵|The workload was overwhelming.","subtle|🔍🎨|There is a subtle difference.","controversial|🔥|It is a controversial decision.","sustainable|♻️|We need sustainable energy.","implement|🛠️|The company will implement a new system.","elaborate|🗣️➕|Could you elaborate on that idea?","undermine|⛏️|Rumours undermine trust.","enhance|✨|These tools enhance our work.","mitigate|🛡️|Trees help mitigate climate change.","foster|🌱|Teachers foster creativity.","rely on|🤝|You can rely on me.","cope with|😰💪|She copes with stress by running.","bring up|🗣️⬆️|Don’t bring up that topic.","turn out|🎁❓|It turned out to be easy.","out of the blue|⚡|He called me out of the blue.","on the other hand|⚖️|On the other hand, it is cheaper.","to some extent|📏|To some extent, you are right.","by and large|🌍|By and large, people are friendly.","namely|👉|Two students, namely Ana and Leo, won.","hence|🕛➡️🏠|It was late, hence we left.","albeit|👍💸|A good, albeit expensive, choice."],
+["meticulous|🔬|She is meticulous about details.","ubiquitous|🌐|Smartphones are ubiquitous today.","ambiguous|❓|The answer was ambiguous.","resilient|💪|Children are often resilient.","pragmatic|🧰|He took a pragmatic approach.","inevitable|⏳|Change is inevitable.","plausible|🤔|That sounds plausible.","arbitrary|🎲|The rule seems arbitrary.","tangible|✋|We need tangible results.","profound|🌊|It had a profound effect.","scrutiny|🔎|The plan came under scrutiny.","leverage|🛠️💪|Use your skills as leverage.","coherent|🧩|Her argument is clear and coherent.","notion|💭|The notion is absurd.","nonetheless|😓🏁|It was hard; nonetheless, we won.","notwithstanding|🌧️🎉|Notwithstanding the rain, we celebrated.","hinder|🚧|Bad weather hinders progress.","alleviate|🩹|This cream alleviates pain.","exacerbate|🔥😖|Stress can exacerbate pain.","ephemeral|🫧|Fame is often ephemeral."]
+].map(l=>l.map(x=>{const [w,e,s]=x.split('|');return{w,e,s}}));
+const rxw=w=>new RegExp('\\b'+w.split(' ').map(t=>t+'\\w*').join('\\s+'),'i');
+VOC.forEach(l=>l.forEach(x=>{const m=x.s.match(rxw(x.w));x.c=m?x.s.replace(m[0],'_____'):null}));   // frase con hueco (null = no sirve)
+/* parts = [[nivel,cantidad],…]; known = palabras ya dominadas ('w:house') que se saltan */
+function vocItems(parts,known){const used=new Set(),out=[];
+ for(const [lv,n] of parts){const lst=VOC[Math.max(0,Math.min(4,lv))];
+  for(const x of shuf(lst.filter(y=>y.c&&!used.has(y.w)&&!(known&&known.has('w:'+y.w)))).slice(0,n)){used.add(x.w);
+   const i=lst.indexOf(x),far=lst.filter((y,j)=>y!==x&&Math.abs(j-i)>=5),near=lst.filter((y,j)=>y!==x&&Math.abs(j-i)<5);
+   out.push({...x,d:shuf(far).concat(shuf(near)).slice(0,3).map(y=>y.w)})}}
+ return shuf(out)}
+let VR=null;
+function vrStart(items,title,done){VR={items,i:0,res:[],title,done};vrStep()}
+function vrStep(){
+ const x=VR.items[VR.i];VR.wrong=0;VR.peek=false;VR.ok=false;
+ migo('idle',VR.title,'Elige la palabra que completa la frase');
+ V(`<div class="card"><div class="chips"><span>Palabra ${VR.i+1} de ${VR.items.length}</span></div><span class="ln">🖼️ Mira la frase, elige la palabra</span>
+ <h2 class="q" style="font-family:inherit">${E(x.c)} <button class="hint" onclick="speak(VR.items[VR.i].s)" aria-label="Escuchar">🔊</button></h2>
+ <div class="vpic"><button class="hint o" id="pk" onclick="vrPeek()">👁️ Ver imagen</button><span id="pic"></span></div>
+ <div class="vopts">${shuf([x.w].concat(x.d)).map(o=>`<button class="vopt" data-w="${E(o)}" onclick="vrPick(this)">${E(o)}</button>`).join('')}</div><div id="vf"></div></div>`)}
+function vrPeek(){const x=VR.items[VR.i];VR.peek=true;$('#pic').textContent=x.e;$('#pk').disabled=true}
+function vrPick(b){
+ if(VR.ok)return;const x=VR.items[VR.i];
+ if(b.dataset.w==x.w){VR.ok=true;VR.res.push({w:x.w,first:VR.wrong==0,peek:VR.peek});
+  document.querySelectorAll('.vopt').forEach(o=>o.disabled=true);b.classList.add('good');$('#pic').textContent=x.e;
+  migo('happy',VR.wrong?'¡Ahí está!':'¡Bien hecho!');speak(x.w+'. '+x.s);
+  $('#vf').innerHTML=`<div class="tip green"><b>${E(x.w)}</b> ${x.e}<br>${E(x.s)}</div><div class="row"><span></span><button class="btn pink" onclick="vrNext()">${VR.i==VR.items.length-1?'Terminar':'Siguiente palabra'}</button></div>`}
+ else{VR.wrong++;b.disabled=true;b.classList.add('bad');migo('sad','Casi…','Mira la imagen 👀')}}
+function vrNext(){VR.i++;VR.i<VR.items.length?vrStep():VR.done(VR.res)}
+let CUR=null;
+function vocabPractice(b){act(b,async()=>{
+ const m=await api('/users/'+S.user_id+'/memory'),known=new Set(m.strengths.map(x=>x.item)),k=Math.max(0,LVS.indexOf(CUR.level));
+ let it=vocItems([[k,8],[k+1,4]],known).slice(0,8);if(it.length<4)it=vocItems([[k,8]]).slice(0,8);
+ vrStart(it,'Palabras con imagen',res=>act(null,async()=>{const v=await api('/users/'+S.user_id+'/vocab','POST',{items:res});vVocabDone(v,res)}))})}
+function vVocabDone(v,res){
+ migo('happy','¡Listo! 🎉','Así se aprende: imagen + frase, sin traducir');
+ V(`<div class="card"><h2>Palabras con imagen</h2><p>Acertaste <b>${v.first_try} de ${v.n}</b> a la primera, y <b>${v.unaided}</b> sin ver la imagen.</p>
+ <div class="chips sc">${res.map(r=>`<span class="${r.first&&!r.peek?'me':''}">${E(r.w)}</span>`).join('')}</div>
+ <p class="meta">${v.words_mastered} palabras dominadas en total (las verdes cuentan). Repite mañana las que fallaste.</p>
+ <div class="row"><button class="hint" onclick="route()">← Inicio</button><button class="btn blue" onclick="vocabPractice(this)">Otras 8 palabras</button></div></div>`)}
 /* ---- Diagnóstico ---- */
 let DG={};
 const pf=p=>E(p).replace(/^Situation:([^.]*)\./,'<span class="sit">📍$1</span><br>');
-async function vDiag(){const r=await api('/users/'+S.user_id+'/diagnostic');DG={tasks:r.tasks,i:0,res:[]};dStep()}
+async function vDiag(){
+ const [r,pp]=await Promise.all([api('/users/'+S.user_id+'/diagnostic'),api('/users/'+S.user_id+'/profile')]);
+ const t=r.tasks.slice();t.splice(2,0,{vocab:1});   // comprensión, expresión, PALABRAS CON IMAGEN, respuesta rápida
+ DG={seq:t,i:0,res:[],vocab:null,k:Math.max(0,LVS.indexOf((pp.path||{}).level))};dStep()}
 function dStep(){
- const t=DG.tasks[DG.i],last=DG.i==DG.tasks.length-1,any=t.competency=='comprehension';
- migo('idle','Tarea '+(DG.i+1)+' de '+DG.tasks.length,'Quiero ver lo que haces, no lo que dices 🙂');
+ clearInterval(DG.tm);const t=DG.seq[DG.i],N=DG.seq.length,hdr='Tarea '+(DG.i+1)+' de '+N;
+ if(t.vocab)return vrStart(vocItems([[DG.k-1,3],[DG.k,3],[DG.k+1,2]]),hdr,res=>{DG.vocab=res;DG.i++;DG.i<N?dStep():dSubmit(null)});
+ const last=DG.i==N-1,any=t.competency=='comprehension',fast=t.competency=='translation_independence';
+ migo('idle',hdr,'Quiero ver lo que haces, no lo que dices 🙂');
  V(`<div class="card"><span class="ln ${any?'any':''}">${any?'💬 Puedes responder en español o en inglés':'✍️ Escribe tu respuesta en inglés'}</span>
+ ${fast?'<div class="tip" id="tmw">⏱️ Responde rápido: <b id="tmv">60</b> s · No tiene que ser perfecta; reacciona como en la vida real.</div>':''}
  <h2 class="q" style="font-family:inherit">${pf(t.prompt)}</h2>
  <label for="ans">✍️ Tu respuesta</label><textarea id="ans" maxlength="800" placeholder="${any?'Escribe aquí…':'Write your answer here…'}"></textarea>
  <label>¿Podrías hacerlo sin ayuda?</label><div class="rate"><label><input type="radio" name="r" value="1">Necesitaría ayuda</label><label><input type="radio" name="r" value="2" checked>Con esfuerzo</label><label><input type="radio" name="r" value="3">Fácil</label></div>
  <p><label class="chk"><input type="checkbox" id="tr"> 🧠 Pensé primero en español y luego traduje</label></p>
- <p class="err" id="err" hidden></p><div class="row"><span class="meta">Sin traductor ni trampas</span><button class="btn pink" onclick="dNext(this)">${last?'Ver mi perfil':'Siguiente'}</button></div></div>`)}
-function dNext(b){const a=$('#ans').value.trim();if(!a)return err('Escribe algo, aunque sea corto.');
- DG.res.push({task_id:DG.tasks[DG.i].id,answer:a,self_rating:+document.querySelector('[name=r]:checked').value,translated_first:$('#tr').checked});
- if(++DG.i<DG.tasks.length)return dStep();
- act(b,async()=>{const r=await api('/users/'+S.user_id+'/diagnostic','POST',{responses:DG.res});const p=await api('/users/'+S.user_id+'/profile');setLang(p.lang);vProfile(r,p.path)})}
+ <p class="err" id="err" hidden></p><div class="row"><span class="meta">Sin traductor ni trampas</span><button class="btn pink" onclick="dNext(this)">${last?'Ver mi perfil':'Siguiente'}</button></div></div>`);
+ DG.t0=Date.now();
+ if(fast){let s=60;DG.tm=setInterval(()=>{s--;const e=$('#tmv');if(!e){clearInterval(DG.tm);return}if(s>=0)e.textContent=s;else{$('#tmw').textContent=tr('⏱️ ¡Tiempo! Termina tu idea y envía.');clearInterval(DG.tm)}},1000)}}
+function dNext(b){const a=$('#ans').value.trim();if(!a)return err('Escribe algo, aunque sea corto.');clearInterval(DG.tm);
+ DG.res.push({task_id:DG.seq[DG.i].id,answer:a,self_rating:+document.querySelector('[name=r]:checked').value,translated_first:$('#tr').checked,seconds:Math.round((Date.now()-DG.t0)/1000)});
+ DG.i++;DG.i<DG.seq.length?dStep():dSubmit(b)}
+function dSubmit(b){act(b,async()=>{
+ const r=await api('/users/'+S.user_id+'/diagnostic','POST',{responses:DG.res,vocab:DG.vocab&&DG.vocab.length?{items:DG.vocab}:null});
+ const p=await api('/users/'+S.user_id+'/profile');setLang(p.lang);vProfile(r,p.path)})}
 const bars=c=>Object.entries(c).map(([k,v])=>`<div class="br"><span>${NAMES[k]||k}<em>${DESC[k]||''}</em></span><div class="prog"><i style="width:${pct(v.autonomy)}%"></i></div><b>${pct(v.autonomy)}%</b></div>`).join('');
 const steps=a=>'<div class="steps">'+a.map((s,i)=>`<div style="--c:${COL[i%5]}"><b>${i+1}</b><span>${hl(s)}</span></div>`).join('')+'</div>';
 const LVC={A1:['#e8281e','#f5821f'],A2:['#e0a800','#7fb02a'],B1:['#7fb02a','#0f6b2b'],B2:['#4a90d9','#8b1a7e'],C1:['#8b1a7e','#e0338a'],C2:['#e0338a','#e8741a']};
@@ -263,7 +327,7 @@ function vProfile(r,pth){
  ${P.overclaimed.length?'<div class="tip">Creías poder más de lo que demostraste en: '+P.overclaimed.map(c=>'<b>'+(NAMES[c]||c)+'</b>').join(', ')+'. Lo trabajamos.</div>':''}</div>
  <div class="card"><h2>Tu plan corto</h2>${steps(r.plan.steps)}<div class="row"><span></span><button class="btn pink" onclick="route()">Ir a mi inicio</button></div></div>`)}
 /* ---- Inicio ---- */
-async function vHome(p){
+async function vHome(p){CUR=p.path;
  const [pr,nx,st]=await Promise.all([api('/users/'+S.user_id+'/progress'),api('/users/'+S.user_id+'/next'),api('/users/'+S.user_id+'/settings')]);
  migo('idle','Hola, '+E(S.name)+' 👋',hl(nx.reentry_note||'Tengo un plan para hoy'));
  const c=Object.fromEntries(Object.entries(pr.by_competency).map(([k,v])=>[k,{autonomy:v.current_autonomy}]));
@@ -271,6 +335,7 @@ async function vHome(p){
  <p><b>${hl(nx.objective)}</b></p><p class="meta">${hl(nx.why)}</p>
  <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>
  <div class="card"><h2>Tu autonomía sin ayuda</h2>${bars(c)}${LEGEND}<p class="meta">${pr.sessions_closed} sesiones cerradas · ${pr.independent_successes_in_new_contexts} aciertos solo/a en contextos nuevos.</p></div>
+ <div class="card"><h2>Palabras con imagen</h2><p class="meta">8 palabras de tu nivel (${p.path.level}${p.path.next?' → '+p.path.next:''}): ves la frase, eliges la palabra y, si dudas, miras la imagen. Sin traducir.</p><p class="meta">🌟 <b>${pr.words_mastered}</b> palabras dominadas sin ver la imagen</p><div class="row"><span></span><button class="btn blue" onclick="vocabPractice(this)">Practicar 8 palabras</button></div></div>
  <div class="card"><h2>Tu plan</h2>${steps(((p.plan||{}).steps)||[])}</div>
  <div class="card"><h2>Idioma de ayuda</h2><p class="meta">Tus ejercicios siempre son en inglés. Aquí eliges en qué idioma te explico.</p>
  <select id="hl" onchange="setHL(this.value)" aria-label="Idioma de ayuda"><option value="auto">Automático (según tu nivel)</option><option value="es">Español</option><option value="mixed">Mixto</option><option value="en">English</option></select><p class="meta" id="hlnow"></p></div>`);
