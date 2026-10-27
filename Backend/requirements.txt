@@ -4,3 +4,4 @@ httpx
 psycopg[binary,pool]
 anthropic
 python-dotenv
+openai
