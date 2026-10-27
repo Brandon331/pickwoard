@@ -25,4 +25,10 @@ con `ANTHROPIC_API_KEY` el LLM genera diagnóstico/actividades y evalúa evidenc
 - Métricas §12: tablas `sessions`, `decisions`, `evidence` permiten calcular activación, retención y progreso.
 
 ## Límites conocidos
-Sin autenticación; heurística de fallback muy básica; el pase de la sesión usa umbral fijo (0.7); sin tests de absentismo (>=3 días).
+Auth básica + idioma de ayuda por nivel (migo/i18n.py) (migo/auth.py: cuentas + token), pero los demás endpoints aún no exigen el token; heurística de fallback muy básica; el pase de la sesión usa umbral fijo (0.7); sin tests de absentismo (>=3 días).
+
+## Nivel (landing → app)
+La landing (con migo-test.js, test adaptativo de 12 preguntas) envía nivel, rango y confianza a app.html?lvl=A2&conf=alta&lo=A2&hi=B1...; la app lo guarda en POST /users/{id}/placement. migo/levels.py calcula nivel estimado y tiempo a la siguiente etapa.
+
+## Frontend
+Abre `app.html` (mismo directorio que tu landing). Por defecto llama a http://localhost:8000; cambia con localStorage "migo-api".

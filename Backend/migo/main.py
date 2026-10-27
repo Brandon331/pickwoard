@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from . import db, engine as E, llm, auth
+from fastapi.middleware.cors import CORSMiddleware
+from . import db, engine as E, llm, auth, i18n, levels
 
 db.init()
 app = FastAPI(title="Migo English Companion (prototype backend)")
@@ -11,8 +11,8 @@ app.include_router(auth.router)
 
 class UserIn(BaseModel):
     name: str
-    goal: str
-    situation: str
+    goal: str                       # ej. "Mantener una conversación funcional en una entrevista de trabajo"
+    situation: str                  # situación concreta que define "progreso"
     context: str = ""
     minutes_per_day: int = 15
     native_lang: str = "es"
@@ -20,7 +20,7 @@ class UserIn(BaseModel):
 class Resp(BaseModel):
     task_id: str
     answer: str
-    self_rating: Optional[int] = None
+    self_rating: Optional[int] = None      # 1-3: "¿podría hacerlo sin ayuda?" (declarado vs demostrado)
     translated_first: Optional[bool] = None
 
 class DiagIn(BaseModel): responses: List[Resp]
@@ -55,7 +55,7 @@ def post_diag(uid: int, b: DiagIn):
 @app.get("/users/{uid}/profile")
 def profile(uid: int):
     u = U(uid)
-    return {"stage": u["stage"], "goal": u["goal"], "situation": u["situation"], "profile": E.L(u["profile_json"]), "plan": E.L(u["plan_json"])}
+    return {"stage": u["stage"], "goal": u["goal"], "situation": u["situation"], "profile": E.L(u["profile_json"]), "plan": E.L(u["plan_json"]), "lang": i18n.lang(uid), "path": levels.path(uid)}
 
 @app.post("/users/{uid}/sessions")
 def new_session(uid: int):
@@ -95,4 +95,35 @@ def progress(uid: int): return E.progress(U(uid))
 def memory(uid: int): U(uid); return E.memory(uid)
 
 @app.get("/users/{uid}/next")
-def next_decision(uid: int): return E.decide(U(uid))
+def next_decision(uid: int): return E.decide(U(uid))   # preview: "¿qué haría Migo contigo ahora?"
+
+class SetIn(BaseModel): help_lang: str
+
+@app.get("/users/{uid}/settings")
+def get_settings(uid: int):
+    U(uid); return {"help_lang": i18n.pref(uid), "effective": i18n.lang(uid)}
+
+@app.post("/users/{uid}/settings")
+def set_settings(uid: int, b: SetIn):
+    U(uid)
+    if b.help_lang not in ("auto", "es", "mixed", "en"): raise HTTPException(422, "help_lang inválido")
+    E.set_pref(uid, "help_lang", b.help_lang); return {"help_lang": b.help_lang, "effective": i18n.lang(uid)}
+
+class PlIn(BaseModel):
+    level: str
+    score: int = 0
+    counts: List[int] = []
+    n: int = 10
+    conf: str = ""
+    lo: str = ""
+    hi: str = ""
+
+@app.post("/users/{uid}/placement")
+def set_placement(uid: int, b: PlIn):
+    U(uid)
+    if b.level not in levels.LV[:5]: raise HTTPException(422, "nivel inválido")
+    E.set_pref(uid, "placement", E.J({"k": levels.LV.index(b.level), "level": b.level, "score": b.score, "counts": b.counts, "n": b.n, "conf": b.conf if b.conf in ("alta", "media", "baja") else "", "lo": b.lo if b.lo in levels.LV else "", "hi": b.hi if b.hi in levels.LV else ""}))
+    return levels.path(uid)
+
+@app.get("/users/{uid}/path")
+def get_path(uid: int): U(uid); return levels.path(uid)

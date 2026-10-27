@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Migo – Tu compañero de inglés</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;600;700&display=swap">
 <style>
-:root{--sun:#ffe21f;--pink:#e0338a;--sky:#4a90d9;--lime:#9bc53d;--plum:#8b1a7e;--lilac:#c9b6d9;--green:#0f6b2b;--orange:#f5821f;--red:#e8281e;--ink:#2a1a14;--card:#fffaf0;--bg:#fdeef3;color-scheme:light dark}
-@media(prefers-color-scheme:dark){:root{--ink:#fff3dc;--card:#3a2a4a;--bg:#2a1d38}}
+:root{--sun:#ffe21f;--pink:#e0338a;--sky:#2f7fd8;--lime:#9bc53d;--plum:#8b1a7e;--lilac:#c9b6d9;--green:#0f8a3c;--orange:#e8741a;--red:#e8281e;--ink:#2a1a14;--soft:#5b4a6b;--card:#fffaf0;--bg:#fdeef3;--tx:#2a2a5a;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--ink:#fff3dc;--soft:#d9c8ee;--card:#3a2a4a;--bg:#2a1d38;--plum:#ff9be0;--sky:#7ab8ff;--green:#6fdc8c;--pink:#ff6fb0;--orange:#ffa45c}}
 *{box-sizing:border-box}
 html{background:var(--bg)}
 body{margin:0;color:var(--ink);font:500 18px/1.5 "Baloo 2","Trebuchet MS",sans-serif;background:transparent}
@@ -16,52 +16,84 @@ body{margin:0;color:var(--ink);font:500 18px/1.5 "Baloo 2","Trebuchet MS",sans-s
 h1,h2,h3,.logo{font-family:"Bagel Fat One",Impact,sans-serif;font-weight:400;line-height:1.05;margin:0}
 main{max-width:720px;margin:0 auto;padding:12px 14px calc(40px + env(safe-area-inset-bottom,0px));padding-top:calc(12px + env(safe-area-inset-top,0px))}
 [hidden]{display:none!important}
+b,strong{color:var(--plum);font-weight:700}
 .tb{display:flex;align-items:center;gap:10px;justify-content:space-between}
 .logo{font-size:34px;text-decoration:none;display:flex}
 .logo span:nth-child(1){color:#e8281e}.logo span:nth-child(2){color:#f5a000}.logo span:nth-child(3){color:#e0338a}.logo span:nth-child(4){color:#4a90d9}
-#who{font-weight:700;font-size:15px;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.btn{font:inherit;font-weight:700;font-size:19px;border:0;border-radius:999px;padding:12px 28px;cursor:pointer;background:var(--sun);color:#2a1a14;box-shadow:0 6px 0 #c9a800}
+#who{font-weight:700;font-size:15px;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sky)}
+.btn{font:inherit;font-weight:700;font-size:19px;border:0;border-radius:999px;padding:12px 28px;cursor:pointer;background:var(--sun);color:#2a1a14;box-shadow:0 6px 0 #c9a800;--spc:#2a1a14}
 .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c9a800}
-.btn.pink{background:var(--pink);color:#fff;box-shadow:0 6px 0 #9c1f62}
-.btn:disabled{opacity:.55;cursor:wait}
-.hint,.back{font:inherit;font-weight:700;font-size:16px;border-radius:999px;padding:6px 16px;cursor:pointer;color:var(--ink)}
-.hint{background:none;border:3px dashed var(--sky)}
-.back{background:var(--lilac);color:#2a1a14;border:0;padding:3px 14px;font-size:15px}
+.btn.pink{background:var(--pink);color:#fff;box-shadow:0 6px 0 #9c1f62;--spc:#fff}
+.btn.blue{background:var(--sky);color:#fff;box-shadow:0 6px 0 #1c569b;--spc:#fff}
+.btn:disabled,.hint:disabled,.back:disabled{opacity:.7;cursor:wait}
+.hint,.back{font:inherit;font-weight:700;font-size:16px;border-radius:999px;padding:6px 16px;cursor:pointer;--spc:var(--sky)}
+.hint{background:none;border:3px dashed var(--sky);color:var(--sky)}
+.hint.o{border-color:var(--orange);color:var(--orange);--spc:var(--orange)}
+.back{background:var(--lilac);color:#2a1a14;border:0;padding:3px 14px;font-size:15px;--spc:#2a1a14}
 :focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+/* spinner: botones + pantalla */
+@keyframes rot{to{transform:rotate(360deg)}}
+.ld{position:relative;color:transparent!important}
+.ld::after{content:"";position:absolute;inset:0;margin:auto;width:22px;height:22px;border:4px solid var(--spc,#2a1a14);border-top-color:transparent;border-radius:50%;animation:rot .7s linear infinite}
+#ld{position:fixed;inset:0;z-index:30;display:grid;place-content:center;justify-items:center;gap:10px;background:rgba(253,238,243,.6);backdrop-filter:blur(2px)}
+@media(prefers-color-scheme:dark){#ld{background:rgba(42,29,56,.65)}}
+#ld i{width:62px;height:62px;border-radius:50%;border:9px solid var(--lilac);border-top-color:var(--pink);border-right-color:var(--sun);border-bottom-color:var(--sky);animation:rot .8s linear infinite}
+#ld span{font-weight:700;color:var(--plum)}
 .coach{display:flex;align-items:center;gap:10px;margin:8px 0}
 .figwrap{flex:none;width:96px}
 .nm{display:block;width:max-content;margin:2px auto 0;background:var(--sun);color:#2a1a14;border-radius:999px;padding:0 12px;font-weight:700;font-size:14px;line-height:1.5}
 .say{position:relative;background:#fff;color:#2a1a14;border:4px solid #2a1a14;border-radius:22px;padding:8px 16px;font-weight:700;font-size:20px;line-height:1.2;flex:1}
+.say b{color:var(--plum)}
 .say::before{content:"";position:absolute;left:-18px;top:50%;margin-top:-10px;border:10px solid transparent;border-right:14px solid #2a1a14;border-left:0}
 .say::after{content:"";position:absolute;left:-9px;top:50%;margin-top:-6px;border:6px solid transparent;border-right:9px solid #fff;border-left:0}
 .say.good{background:var(--sun)}.say.bad{background:var(--lilac)}
-.say small{display:block;font-size:15px;font-weight:500;margin-top:2px}
+.say small{display:block;font-size:15px;font-weight:500;margin-top:2px;color:#5b2a6b}
 .card{background:var(--card);border-radius:26px;padding:20px 18px;box-shadow:0 7px 0 var(--pink);margin-top:10px;animation:pop .3s}
-.card+.card{margin-top:22px;box-shadow:0 7px 0 var(--sky)}
+.card h2{font-size:26px;margin-bottom:8px;color:var(--pink)}
+.card+.card{margin-top:22px;box-shadow:0 7px 0 var(--sky)}.card+.card h2{color:var(--sky)}
+.card+.card+.card{box-shadow:0 7px 0 var(--green)}.card+.card+.card h2{color:var(--green)}
+.card+.card+.card+.card{box-shadow:0 7px 0 var(--orange)}.card+.card+.card+.card h2{color:var(--orange)}
 @keyframes pop{from{transform:scale(.96);opacity:0}}
-.card h2{font-size:26px;margin-bottom:8px}
-.q{font-size:clamp(20px,4.5vw,28px);margin:6px 0 10px}
-label{display:block;font-weight:700;margin:10px 0 4px}
-input,textarea,select{width:100%;font:inherit;font-size:18px;padding:10px 14px;border-radius:14px;border:3px solid #2a1a14;background:#fff;color:#2a1a14}
-textarea{resize:vertical}
+/* tareas: texto más fino y con color */
+.q{font:600 clamp(19px,4.2vw,23px)/1.4 "Baloo 2",sans-serif;margin:8px 0 12px;color:var(--ink)}
+.sit{display:inline-block;background:var(--sky);color:#fff;border-radius:12px;padding:0 12px;margin-bottom:6px;font-weight:600;font-size:.9em}
+.hl{color:var(--plum);background:linear-gradient(transparent 58%,rgba(255,226,31,.55) 58%);padding:0 2px;font-weight:700}
+.ln{display:inline-block;border-radius:999px;padding:1px 14px;font-weight:700;font-size:15px;color:#fff;background:var(--sky);margin:0 0 4px}
+.ln.any{background:var(--green)}
+label{display:block;font-weight:700;margin:12px 0 4px;color:var(--sky)}
+input,select{width:100%;font:inherit;font-size:18px;padding:10px 14px;border-radius:14px;border:3px solid var(--lilac);background:#fff;color:var(--tx)}
+input:focus,select:focus{border-color:var(--pink);outline:none}
+textarea{width:100%;font:500 18px/32px "Baloo 2",sans-serif;color:var(--tx);padding:8px 16px 8px 24px;border-radius:18px;border:3px solid var(--sky);resize:vertical;min-height:132px;background:repeating-linear-gradient(#fffdf6 0 31px,#cfe3f5 31px 32px);background-attachment:local;box-shadow:inset 6px 0 0 var(--pink),0 5px 0 var(--lilac);transition:box-shadow .2s,border-color .2s}
+textarea:focus{outline:none;border-color:var(--pink);box-shadow:inset 6px 0 0 var(--pink),0 0 0 5px rgba(224,51,138,.25),0 5px 0 var(--pink)}
+textarea::placeholder{color:#8a96b8;font-style:italic}
 .tabs{display:flex;gap:8px;margin-bottom:6px}
-.tabs button{flex:1;font:inherit;font-weight:700;border:3px solid #2a1a14;border-radius:999px;padding:6px;background:#fff;color:#2a1a14;cursor:pointer}
+.tabs button{flex:1;font:inherit;font-weight:700;border:3px solid var(--lilac);border-radius:999px;padding:6px;background:#fff;color:var(--soft);cursor:pointer}
 .tabs button.on{background:var(--pink);color:#fff;border-color:var(--plum)}
 .err{color:#b3001b;font-weight:700;margin:8px 0}
 @media(prefers-color-scheme:dark){.err{color:#ffb4ab}}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:14px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
-.chips span{background:var(--lilac);color:#2a1a14;border-radius:999px;padding:1px 12px;font-weight:700;font-size:14px}
-.meta{font-size:15px;opacity:.85;margin:0 0 6px}
+.chips span{border-radius:999px;padding:1px 12px;font-weight:700;font-size:14px;color:#fff;background:var(--sky)}
+.chips span:nth-child(2){background:var(--orange)}.chips span:nth-child(3){background:var(--green)}.chips span:nth-child(1){background:var(--pink)}
+.meta{font-size:15px;color:var(--soft);margin:0 0 6px}
 .tip{background:var(--sun);color:#2a1a14;border-radius:20px 20px 20px 4px;padding:10px 16px;margin-top:10px;font-size:17px}
-.br{display:grid;grid-template-columns:118px 1fr 44px;gap:8px;align-items:center;font-weight:700;font-size:15px;margin:6px 0}
-.prog{height:14px;border-radius:99px;background:var(--lilac);overflow:hidden}
-.prog i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--lime))}
-ol,ul{margin:6px 0;padding-left:22px}
+.tip b{color:#8b1a7e}
+.tip.blue{background:#dcecff;color:#14335f;border-left:8px solid var(--sky)}.tip.blue b{color:#1c569b}
+.tip.green{background:#e3f6d6;color:#17421f;border-left:8px solid var(--green)}.tip.green b{color:#0b5a28}
+.br{display:grid;grid-template-columns:128px 1fr 46px;gap:8px;align-items:center;font-weight:700;font-size:15px;margin:8px 0}
+.br span{color:var(--sky)}.br em{display:block;font-style:normal;font-weight:500;font-size:12.5px;color:var(--soft);line-height:1.1}
+.br b{color:var(--green)}
+.prog{height:16px;border-radius:99px;background:var(--lilac);overflow:hidden}
+.prog i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--orange),var(--lime),var(--green))}
+.steps{display:grid;gap:8px;margin-top:6px}
+.steps div{display:flex;gap:10px;align-items:center;border-left:8px solid var(--c);border-radius:14px;padding:6px 12px 6px 8px;background:var(--bg)}
+.steps b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-size:15px}
+.pc{border-radius:18px;padding:10px 14px;margin:8px 0;border-left:10px solid var(--c);background:var(--bg)}
+.pc h3{font-size:20px;color:var(--c);margin-bottom:2px}.pc p{margin:2px 0;font-size:16px}.pc .d{color:var(--soft);font-size:14px}
 .rate{display:flex;gap:8px;flex-wrap:wrap}
-.rate label{display:flex;gap:6px;align-items:center;margin:0;font-weight:700;font-size:15px;background:var(--bg);border-radius:999px;padding:4px 12px}
+.rate label{display:flex;gap:6px;align-items:center;margin:0;font-weight:700;font-size:15px;background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 12px;border:2px solid var(--lilac)}
 .rate input{width:auto}
-.chk{display:flex;gap:8px;align-items:center;font-weight:500;font-size:15px}
+.chk{display:flex;gap:8px;align-items:center;font-weight:600;font-size:15px;color:var(--orange)}
 .chk input{width:20px;height:20px;accent-color:var(--pink)}
 .chat{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}
 .bub{max-width:86%;padding:8px 14px;border-radius:18px;font-weight:700;font-size:16px}
@@ -83,41 +115,81 @@ ol,ul{margin:6px 0;padding-left:22px}
 @keyframes jump{0%,100%{transform:translateY(0)}45%{transform:translateY(-22px)}}
 .fig.sad .m-smile{display:none}.fig.sad .m-sad{display:inline}
 .fig.sad .body-g{transform:translateY(5px)}.fig.sad .armL{transform:rotate(-38deg)}.fig.sad .armR{transform:rotate(38deg)}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}}
-@media(max-width:480px){.figwrap{width:72px}.say{font-size:17px}.br{grid-template-columns:96px 1fr 40px}.row .btn{width:100%}}
+.lvrow{display:flex;gap:14px;align-items:center}
+.lvb{flex:none;width:76px;height:96px;border-radius:40px;display:grid;place-items:center;font:400 36px "Bagel Fat One",sans-serif;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.28);border:4px solid var(--card)}
+.lvt{margin:0;font-size:19px;font-weight:600;line-height:1.35}
+.chips.sc span{background:var(--lilac);color:#2a1a14;font-size:13.5px}.chips.sc span.me{background:var(--green);color:#fff}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.ld::after,#ld i{animation:rot 1.6s linear infinite!important}}
+@media(max-width:480px){.figwrap{width:72px}.say{font-size:17px}.br{grid-template-columns:104px 1fr 42px}.row .btn{width:100%}}
 </style>
 </head>
 <body>
 <canvas id="bgc" aria-hidden="true"></canvas>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="cr" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 4 0 0 -1.05" result="m"/><feComposite in="d" in2="m" operator="in"/></filter></defs></svg>
+<div id="ld" hidden role="status" aria-live="polite"><i></i><span id="ldt">Migo está pensando…</span></div>
 <main>
 <header class="tb"><a class="logo" href="index.html" aria-label="Migo, volver al inicio"><span>M</span><span>I</span><span>G</span><span>O</span></a><span id="who"></span><button class="back" id="out" onclick="logout()" hidden>Salir</button></header>
 <div class="coach"><div class="figwrap" id="fw"></div><div class="say" id="say" aria-live="polite"></div></div>
 <div id="view"></div>
 </main>
 <script>
-const $=s=>document.querySelector(s),V=h=>{$('#view').innerHTML=h;scrollTo(0,0)};
-const API=localStorage.getItem('migo-api')||'https://migo-english-back.onrender.com';
+const $=s=>document.querySelector(s);
+const API=localStorage.getItem('migo-api')||'http://localhost:8000';
 let S={};try{S=JSON.parse(localStorage.getItem('migo')||'{}')}catch(e){}
 const save=()=>localStorage.setItem('migo',JSON.stringify(S));
+let PL=null;try{PL=JSON.parse(localStorage.getItem('migo-pl')||'null')}catch(e){}
+(function(){const q=new URLSearchParams(location.search),l=q.get('lvl');
+ if(['A1','A2','B1','B2','C1'].includes(l)){PL={level:l,score:+q.get('s')||0,counts:(q.get('c')||'').split(',').map(Number).filter(n=>!isNaN(n)),n:+q.get('n')||10,conf:q.get('conf')||'',lo:q.get('lo')||'',hi:q.get('hi')||''};
+  try{localStorage.setItem('migo-pl',JSON.stringify(PL))}catch(e){}history.replaceState(null,'',location.pathname+location.hash)}})();
 const E=s=>String(s??'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
-const NAMES={comprehension:'Comprensión',production:'Producción',vocabulary:'Vocabulario',translation_independence:'Sin traducir'};
-const RULES={bottleneck:'Tu punto débil',recurring_error:'Error que se repite',reduce_hints:'Menos pistas',advance:'Subir de nivel',change_strategy:'Nueva estrategia'};
-const NICE={translation_independence:'pensar en inglés sin traducir',comprehension:'comprensión',production:'expresión',vocabulary:'vocabulario'};
-const hum=s=>E(s).replace(/translation_independence|comprehension|production|vocabulary/g,k=>NICE[k]);
+const hl=s=>E(s).replace(/«([^»]+)»/g,'<span class="hl">$1</span>');   // «palabra» = resaltada
 const pct=x=>Math.round((x||0)*100);
+const NAMES={comprehension:'Comprensión',production:'Expresión',vocabulary:'Vocabulario',translation_independence:'Sin traducir'};
+const DESC={comprehension:'Entender lo que te dicen',production:'Decir lo que quieres',vocabulary:'Tener las palabras que necesitas',translation_independence:'Pensar directo en inglés'};
+const RULES={bottleneck:'Tu punto débil',recurring_error:'Error que se repite',reduce_hints:'Menos pistas',advance:'Subir de nivel',change_strategy:'Nueva estrategia'};
+const COL=['var(--pink)','var(--sky)','var(--green)','var(--orange)','var(--plum)'];
+/* ---- Idioma de la interfaz (es = español · mixed/en = botones y títulos en inglés) ---- */
+let LANG='es';try{LANG=localStorage.getItem('migo-lang')||'es'}catch(e){}
+const V=h=>{$('#view').innerHTML=tr(h);scrollTo(0,0)};
+const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],["Vocabulario","Vocabulary"],["Sin traducir","No translating"],
+["Entender lo que te dicen","Understanding what people say"],["Decir lo que quieres","Saying what you want"],["Tener las palabras que necesitas","Having the words you need"],["Pensar directo en inglés","Thinking directly in English"],
+["Tu punto débil","Your weak spot"],["Error que se repite","Recurring error"],["Menos pistas","Fewer hints"],["Subir de nivel","Level up"],["Nueva estrategia","New strategy"],
+["¡Hola! Soy Migo 👋","Hi! I’m Migo 👋"],["Entra para seguir tu camino","Log in to keep going"],["Entrar","Log in"],["Crear mi cuenta","Create my account"],["Crear cuenta","Sign up"],["Tu nombre","Your name"],["Correo","Email"],["Contraseña","Password"],["Salir sin culpa","Leave, no guilt"],["Salir","Log out"],
+["Cuéntame a dónde quieres llegar","Tell me where you want to get to"],["Cuanto más concreto, mejor te acompaño","The more specific, the better I can help"],["Tu objetivo","Your goal"],["¿Qué quieres lograr con el inglés?","What do you want to achieve with English?"],["¿En qué situación concreta lo necesitas?","In what specific situation do you need it?"],["Contexto (opcional)","Context (optional)"],["¿Cuántos minutos al día tienes?","How many minutes a day do you have?"],["Continuar","Continue"],
+["Quiero ver lo que haces, no lo que dices 🙂","I want to see what you do, not what you say 🙂"],["✍️ Tu respuesta","✍️ Your answer"],["✍️ Escribe tu respuesta en inglés","✍️ Write your answer in English"],["💬 Puedes responder en español o en inglés","💬 You can answer in Spanish or English"],["¿Podrías hacerlo sin ayuda?","Could you do it without help?"],["Necesitaría ayuda","I’d need help"],["Con esfuerzo","With effort"],["Fácil","Easy"],["🧠 Pensé primero en español y luego traduje","🧠 I thought in Spanish first, then translated"],["Sin traductor ni trampas","No translator, no tricks"],["Ver mi perfil","See my profile"],["Siguiente paso:","Next step:"],["Siguiente","Next"],["Escribe algo, aunque sea corto.","Write something, even if short."],
+["Ya te conozco un poco 🎉","I already know you a bit 🎉"],["Esto es lo que observé","Here’s what I noticed"],["Tu perfil","Your profile"],["Qué practicar primero","What to practice first"],["👀 Lo que vi: ","👀 What I saw: "],["🎯 Error a trabajar","🎯 Error to work on"],["Ejemplo tuyo: ","Your example: "],["Creías poder más de lo que demostraste en: ","You thought you could do more than you showed in: "],[". Lo trabajamos.",". We’ll work on it."],["Tu plan corto","Your short plan"],["Ir a mi inicio","Go to my home"],
+["🎯 <b>Autonomía</b> = qué tanto lo haces solo/a, sin ayuda. <b>100% = lo dominas.</b> Más alto es mejor; empezamos desde donde estás.","🎯 <b>Autonomy</b> = how much you do on your own, no help. <b>100% = you’ve mastered it.</b> Higher is better; we start from where you are."],
+["Hola, ","Hi, "],["Tengo un plan para hoy","I have a plan for today"],["Hoy te propongo","Today I suggest"],["Dificultad ","Difficulty "],["Ayuda máx. ","Max help "],["Hablar con Migo","Talk to Migo"],["Habla con Migo","Talk to Migo"],["Empezar sesión","Start session"],["Tu autonomía sin ayuda","Your unaided autonomy"],[" sesiones cerradas · "," sessions done · "],[" aciertos solo/a en contextos nuevos."," solo successes in new contexts."],["Tu plan","Your plan"],
+["Idioma de ayuda","Help language"],["Tus ejercicios siempre son en inglés. Aquí eliges en qué idioma te explico.","Your exercises are always in English. Here you choose the language I explain in."],["Automático (según tu nivel)","Automatic (by your level)"],["Español","Spanish"],["Mixto","Mixed"],["Ahora: español","Now: Spanish"],["Ahora: mixto","Now: mixed"],["Ahora: English","Now: English"],
+["Éxito: ","Goal: "],["Inténtalo tú primero 💪","Try it yourself first 💪"],["💡 Ayuda","💡 Help"],["😵 Estoy bloqueado","😵 I’m stuck"],["Enviar","Send"],["<b>Pista:</b>","<b>Hint:</b>"],["<b>Pregunta:</b>","<b>Question:</b>"],["<b>Ejemplo:</b>","<b>Example:</b>"],["<b>Explicación:</b>","<b>Explanation:</b>"],["Intenta de nuevo o pide una ayuda.","Try again or ask for help."],["Esta sesión trabaja con menos ayuda. Intenta otra vez; si estás bloqueado, avísalo (blocked=true) y cambio la estrategia.","This session uses fewer hints. Try again; if you’re stuck, say so and I’ll change the strategy."],
+["¡Bien hecho!","Well done!"],["Casi…","Almost…"],["Última prueba, sin ayuda y en un contexto nuevo.","Last check: no help, new context."],[" Así vemos si ya lo dominas solo/a."," This shows if you can do it on your own."],["Lo que mejoró hoy","What improved today"],["Autonomía: ","Autonomy: "],["✅ Error superado: ","✅ Error overcome: "],["Volver al inicio","Back home"],["¡Lo hiciste sin ayuda! 🎉","You did it without help! 🎉"],["Aún nos falta un poco","We’re not quite there yet"],["🎯 Hoy trabajamos: ","🎯 Today we work on: "],
+["Pregúntame lo que quieras","Ask me anything"],["Lo conecto con tu plan","I’ll connect it to your plan"],["Pregunta, cuéntame si algo te frustra o si quieres cambiar de objetivo.","Ask, or tell me if something frustrates you or you want to change your goal."],["← Inicio","← Home"],["🧠 Anotado: ","🧠 Noted: "],["Escribe tu respuesta.","Write your answer."],["Ups…","Oops…"],["Migo está pensando…","Migo is thinking…"],
+["Tu nivel","Your level"],[" · confianza "," · confidence "],[" · Confianza del test: "," · Test confidence: "],["<b>alta</b>","<b>high</b>"],["<b>media</b>","<b>medium</b>"],["<b>baja</b>","<b>low</b>"],[" · Probablemente entre <b>"," · Probably between <b>"],["</b> y <b>","</b> and <b>"],["Dedicando <b>","Spending <b>"],[" min al día</b>"," min a day</b>"],["</b> llegarás a <b>","</b> you will reach <b>"],["</b> en ~<b>","</b> in ~<b>"],[" min/día → "," min/day → "],
+["Basado en tu test y tu diagnóstico práctico","Based on your test and practical diagnostic"],["Basado en tu test","Based on your test"],["Basado en tu diagnóstico práctico","Based on your practical diagnostic"],["Aún es una estimación","Still an estimate"],
+[". Estudiando todos los días; es una guía basada en horas de estudio de Cambridge, no una garantía.",". Studying every day; a guide based on Cambridge study hours, not a guarantee."],["Haz el test →","Take the test →"],["¡Estás en el nivel más alto de la escala!","You’re at the top of the scale!"],
+["🎯 Tu test: nivel ","🎯 Your test: level "],[". Lo confirmamos con tu diagnóstico práctico.",". We’ll confirm it with your practical diagnostic."]
+].sort((a,b)=>b[0].length-a[0].length);
+function tr(h){if(LANG=='es')return h;h=h.replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
+function setLang(l){LANG=l||'es';try{localStorage.setItem('migo-lang',LANG)}catch(e){}document.documentElement.lang=LANG=='en'?'en':'es';$('#out').textContent=tr('Salir');$('#ldt').textContent=tr('Migo está pensando…')}
+const _iah=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(p,h){_iah.call(this,p,tr(h))};
+/* ---- API con círculo de carga ---- */
+let inflight=0,ldT;
+function ld(d){inflight+=d;clearTimeout(ldT);if(inflight>0)ldT=setTimeout(()=>{$('#ld').hidden=false},250);else $('#ld').hidden=true}
 async function api(p,m='GET',b){
- let r;try{r=await fetch(API+p,{method:m,headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:b?JSON.stringify(b):undefined})}
+ let r;ld(1);
+ try{try{r=await fetch(API+p,{method:m,headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:b?JSON.stringify(b):undefined})}
  catch(e){throw new Error('No puedo hablar con el servidor ('+API+'). ¿Está corriendo uvicorn?')}
  const j=await r.json().catch(()=>({}));
  if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'Revisa los datos e inténtalo de nuevo');
- return j}
+ return j}finally{ld(-1)}}
 /* ---- Migo ---- */
 $('#fw').innerHTML=`<svg class="fig idle" viewBox="0 0 120 170" aria-hidden="true"><g filter="url(#cr)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><g class="body-g"><g class="head-g"><path d="M46 22L40 8M60 18L60 3M74 22L80 8" stroke="#e8281e" stroke-width="6"/><circle cx="60" cy="40" r="20" stroke="#f5821f"/><circle class="eye" cx="52" cy="35" r="2.8" fill="#2a1a14" stroke="none"/><circle class="eye" cx="68" cy="35" r="2.8" fill="#2a1a14" stroke="none"/><path class="m-smile" d="M51 46Q60 54 69 46" stroke="#e0338a" stroke-width="5"/><path class="m-big" d="M48 44Q60 64 72 44Z" stroke="#e0338a" stroke-width="4" fill="#e0338a"/><path class="m-sad" d="M51 52Q60 43 69 52" stroke="#e0338a" stroke-width="5"/></g><path d="M60 61L60 108" stroke="#4a90d9"/><g class="armL"><path d="M60 72L32 96" stroke="#8b1a7e"/></g><g class="armR"><path d="M60 72L88 96" stroke="#8b1a7e"/></g><g class="legL"><path d="M60 108L40 148" stroke="#0f6b2b"/></g><g class="legR"><path d="M60 108L80 148" stroke="#0f6b2b"/></g></g></g></svg><span class="nm">Migo</span>`;
-function migo(m,t,s){$('#fw .fig').setAttribute('class','fig '+m);const b=$('#say');b.className='say '+(m=='happy'?'good':m=='sad'?'bad':'');b.innerHTML=t+(s?'<small>'+s+'</small>':'')}
-const err=m=>{const e=$('#err');if(e){e.textContent=m;e.hidden=false}migo('sad','Ups…',E(m))};
+function migo(m,t,s,raw){$('#fw .fig').setAttribute('class','fig '+m);const b=$('#say');b.className='say '+(m=='happy'?'good':m=='sad'?'bad':'');b.innerHTML=tr(t)+(s?'<small>'+(raw?s:tr(s))+'</small>':'')}
+const err=m=>{const e=$('#err');if(e){e.textContent=m;e.hidden=false}migo('sad','Ups…',E(m),1)};
 let busy=false;
-async function act(b,fn){if(busy)return;busy=true;if(b)b.disabled=true;try{await fn()}catch(e){if(/Sesión/.test(e.message)){logout();return}err(e.message)}finally{busy=false;if(b)b.disabled=false}}
+async function act(b,fn){if(busy)return;busy=true;if(b){b.disabled=true;b.classList.add('ld')}
+ try{await fn()}catch(e){if(/Sesión/.test(e.message)){logout();return}err(e.message)}
+ finally{busy=false;if(b){b.disabled=false;b.classList.remove('ld')}}}
 /* ---- Auth + redirección ---- */
 let mode=location.hash=='#registro'?'reg':'login';
 function vLogin(){
@@ -127,7 +199,7 @@ function vLogin(){
  <form onsubmit="return doAuth(event)">${mode=='reg'?'<label for="nm">Tu nombre</label><input id="nm" autocomplete="name" required>':''}
  <label for="em">Correo</label><input id="em" type="email" autocomplete="email" required>
  <label for="pw">Contraseña</label><input id="pw" type="password" minlength="6" autocomplete="${mode=='reg'?'new-password':'current-password'}" required>
- <p class="err" id="err" hidden></p><div class="row"><button class="btn pink" type="submit">${mode=='reg'?'Crear mi cuenta':'Entrar'}</button></div></form></div>`)}
+ <p class="err" id="err" hidden></p><div class="row"><span></span><button class="btn pink" type="submit">${mode=='reg'?'Crear mi cuenta':'Entrar'}</button></div></form></div>`)}
 function doAuth(e){e.preventDefault();const b=e.target.querySelector('[type=submit]');
  act(b,async()=>{const body={email:$('#em').value,password:$('#pw').value};if(mode=='reg')body.name=$('#nm').value;
   S=await api('/auth/'+(mode=='reg'?'register':'login'),'POST',body);save();history.replaceState(null,'',location.pathname);await route()});return false}
@@ -137,78 +209,101 @@ async function route(){
  $('#who').textContent=S.name||S.email;$('#out').hidden=false;
  try{
   if(!S.user_id)return vOnb();
+  if(PL){await api('/users/'+S.user_id+'/placement','POST',PL);PL=null;try{localStorage.removeItem('migo-pl')}catch(e){}}
   const p=await api('/users/'+S.user_id+'/profile');
+  setLang(p.lang);
   return p.stage!='diagnosed'?vDiag():vHome(p)
  }catch(e){if(/Sesión/.test(e.message))return logout();vLogin();err(e.message)}}
 /* ---- Onboarding ---- */
 function vOnb(){
  migo('idle','Cuéntame a dónde quieres llegar','Cuanto más concreto, mejor te acompaño');
- V(`<div class="card"><h2>Tu objetivo</h2><form onsubmit="return doOnb(event)">
+ V(`<div class="card"><h2>Tu objetivo</h2>${PL?`<div class="tip green">🎯 Tu test: nivel <b>${PL.level}</b> (${PL.score}/${PL.n||10})${PL.conf?' · confianza <b>'+PL.conf+'</b>':''}. Lo confirmamos con tu diagnóstico práctico.</div>`:''}<form onsubmit="return doOnb(event)">
  <label for="g">¿Qué quieres lograr con el inglés?</label><textarea id="g" rows="2" placeholder="Ej.: Conversar con confianza en una entrevista de trabajo" required></textarea>
  <label for="s">¿En qué situación concreta lo necesitas?</label><input id="s" placeholder="Ej.: job interview for a marketing role" required>
  <label for="c">Contexto (opcional)</label><input id="c" placeholder="Ej.: trabajo en ventas, estudio de noche">
- <label for="m">¿Cuántos minutos al día tienes?</label><select id="m"><option>10</option><option selected>15</option><option>30</option><option>45</option></select>
- <p class="err" id="err" hidden></p><div class="row"><button class="btn pink" type="submit">Continuar</button></div></form></div>`)}
+ <label for="m">¿Cuántos minutos al día tienes?</label><select id="m"><option>10</option><option selected>15</option><option>30</option><option>45</option><option>60</option></select>
+ <p class="err" id="err" hidden></p><div class="row"><span></span><button class="btn pink" type="submit">Continuar</button></div></form></div>`)}
 function doOnb(e){e.preventDefault();act(e.target.querySelector('[type=submit]'),async()=>{
  const r=await api('/users','POST',{name:S.name||'Amigo',goal:$('#g').value,situation:$('#s').value,context:$('#c').value,minutes_per_day:+$('#m').value});
  await api('/auth/link','POST',{user_id:r.user_id});S.user_id=r.user_id;save();await route()});return false}
 /* ---- Diagnóstico ---- */
 let DG={};
+const pf=p=>E(p).replace(/^Situation:([^.]*)\./,'<span class="sit">📍$1</span><br>');
 async function vDiag(){const r=await api('/users/'+S.user_id+'/diagnostic');DG={tasks:r.tasks,i:0,res:[]};dStep()}
 function dStep(){
- const t=DG.tasks[DG.i],last=DG.i==DG.tasks.length-1;
+ const t=DG.tasks[DG.i],last=DG.i==DG.tasks.length-1,any=t.competency=='comprehension';
  migo('idle','Tarea '+(DG.i+1)+' de '+DG.tasks.length,'Quiero ver lo que haces, no lo que dices 🙂');
- V(`<div class="card"><h2 class="q">${E(t.prompt)}</h2><textarea id="ans" rows="4" placeholder="Write here…"></textarea>
+ V(`<div class="card"><span class="ln ${any?'any':''}">${any?'💬 Puedes responder en español o en inglés':'✍️ Escribe tu respuesta en inglés'}</span>
+ <h2 class="q" style="font-family:inherit">${pf(t.prompt)}</h2>
+ <label for="ans">✍️ Tu respuesta</label><textarea id="ans" maxlength="800" placeholder="${any?'Escribe aquí…':'Write your answer here…'}"></textarea>
  <label>¿Podrías hacerlo sin ayuda?</label><div class="rate"><label><input type="radio" name="r" value="1">Necesitaría ayuda</label><label><input type="radio" name="r" value="2" checked>Con esfuerzo</label><label><input type="radio" name="r" value="3">Fácil</label></div>
- <p><label class="chk"><input type="checkbox" id="tr"> Tradujiste en tu cabeza desde el español</label></p>
+ <p><label class="chk"><input type="checkbox" id="tr"> 🧠 Pensé primero en español y luego traduje</label></p>
  <p class="err" id="err" hidden></p><div class="row"><span class="meta">Sin traductor ni trampas</span><button class="btn pink" onclick="dNext(this)">${last?'Ver mi perfil':'Siguiente'}</button></div></div>`)}
 function dNext(b){const a=$('#ans').value.trim();if(!a)return err('Escribe algo, aunque sea corto.');
  DG.res.push({task_id:DG.tasks[DG.i].id,answer:a,self_rating:+document.querySelector('[name=r]:checked').value,translated_first:$('#tr').checked});
  if(++DG.i<DG.tasks.length)return dStep();
- act(b,async()=>{const r=await api('/users/'+S.user_id+'/diagnostic','POST',{responses:DG.res});vProfile(r)})}
-function vProfile(r){
+ act(b,async()=>{const r=await api('/users/'+S.user_id+'/diagnostic','POST',{responses:DG.res});const p=await api('/users/'+S.user_id+'/profile');setLang(p.lang);vProfile(r,p.path)})}
+const bars=c=>Object.entries(c).map(([k,v])=>`<div class="br"><span>${NAMES[k]||k}<em>${DESC[k]||''}</em></span><div class="prog"><i style="width:${pct(v.autonomy)}%"></i></div><b>${pct(v.autonomy)}%</b></div>`).join('');
+const steps=a=>'<div class="steps">'+a.map((s,i)=>`<div style="--c:${COL[i%5]}"><b>${i+1}</b><span>${hl(s)}</span></div>`).join('')+'</div>';
+const LVC={A1:['#e8281e','#f5821f'],A2:['#e0a800','#7fb02a'],B1:['#7fb02a','#0f6b2b'],B2:['#4a90d9','#8b1a7e'],C1:['#8b1a7e','#e0338a'],C2:['#e0338a','#e8741a']};
+function lvlCard(P){
+ if(!P)return'';const en=LANG!='es',eta=en?P.eta_en:P.eta_es,c=LVC[P.level];
+ const src={test:'Basado en tu test','test+practice':'Basado en tu test y tu diagnóstico práctico',practice:'Basado en tu diagnóstico práctico',default:'Aún es una estimación'}[P.source];
+ return `<div class="card"><h2>Tu nivel</h2><div class="lvrow"><div class="lvb" style="background:linear-gradient(${c[0]},${c[1]})">${P.level}</div>
+ ${P.next?`<p class="lvt">Dedicando <b>${P.minutes_per_day} min al día</b> llegarás a <b>${P.next}</b> en ~<b>${eta}</b></p>`:'<p class="lvt">¡Estás en el nivel más alto de la escala!</p>'}</div>
+ ${P.next?'<div class="chips sc">'+P.scenarios.map(x=>`<span class="${x.min==P.minutes_per_day?'me':''}">${x.min} min/día → ${en?x.t_en:x.t_es}</span>`).join('')+'</div>':''}
+ <p class="meta">${src}${P.conf?' · Confianza del test: <b>'+P.conf+'</b>':''}${P.lo&&P.hi&&P.lo!=P.hi?' · Probablemente entre <b>'+P.lo+'</b> y <b>'+P.hi+'</b>':''}. Estudiando todos los días; es una guía basada en horas de estudio de Cambridge, no una garantía.${P.source=='default'?' <a href="index.html#test">Haz el test →</a>':''}</p></div>`}
+const LEGEND='<div class="tip blue">🎯 <b>Autonomía</b> = qué tanto lo haces solo/a, sin ayuda. <b>100% = lo dominas.</b> Más alto es mejor; empezamos desde donde estás.</div>';
+function vProfile(r,pth){
+ const P=r.profile,e=P.top_errors[0];
  migo('happy','Ya te conozco un poco 🎉','Esto es lo que observé');
- V(`<div class="card"><h2>Tu perfil</h2><p>${E(r.profile.summary)}</p>
- <div class="chips">${r.profile.bottlenecks.map(c=>'<span>Prioridad: '+(NAMES[c]||c)+'</span>').join('')}</div>
- ${r.profile.overclaimed.length?'<div class="tip">Creías poder más de lo que demostraste en: '+r.profile.overclaimed.map(c=>NAMES[c]||c).join(', ')+'. Lo trabajamos.</div>':''}
- <h2 style="margin-top:16px">Tu plan corto</h2><ol>${r.plan.steps.map(s=>'<li>'+E(s)+'</li>').join('')}</ol>
- <div class="row"><span></span><button class="btn pink" onclick="route()">Ir a mi inicio</button></div></div>`)}
+ V(`${lvlCard(pth)}<div class="card"><h2>Tu perfil</h2><p>${hl(P.summary)}</p>${bars(P.competencies)}${LEGEND}</div>
+ <div class="card"><h2>Qué practicar primero</h2>${P.bottlenecks.map((c,i)=>`<div class="pc" style="--c:${COL[i%5]}"><h3>${NAMES[c]||c}</h3><p class="d">${DESC[c]||''}</p><p>${hl(P.why_it_matters[c]||'')}</p>${P.evidence&&P.evidence[c]?'<p><b>👀 Lo que vi: </b>'+E(P.evidence[c])+'</p>':''}</div>`).join('')}
+ ${e?`<div class="tip green"><b>🎯 Error a trabajar</b><br>${hl('«'+e.label+'»')}<br>${E(e.hint)}<br><small>Ejemplo tuyo: ${E(e.example)}</small></div>`:''}
+ ${P.overclaimed.length?'<div class="tip">Creías poder más de lo que demostraste en: '+P.overclaimed.map(c=>'<b>'+(NAMES[c]||c)+'</b>').join(', ')+'. Lo trabajamos.</div>':''}</div>
+ <div class="card"><h2>Tu plan corto</h2>${steps(r.plan.steps)}<div class="row"><span></span><button class="btn pink" onclick="route()">Ir a mi inicio</button></div></div>`)}
 /* ---- Inicio ---- */
 async function vHome(p){
- const [pr,nx]=await Promise.all([api('/users/'+S.user_id+'/progress'),api('/users/'+S.user_id+'/next')]);
- migo('idle','Hola, '+E(S.name)+' 👋',E(nx.reentry_note||'Tengo un plan para hoy'));
- V(`<div class="card"><h2>Hoy te propongo</h2><div class="chips"><span>${RULES[nx.rule]||nx.rule}</span><span>Dificultad ${nx.difficulty}/5</span><span>Ayuda máx. ${nx.help_allowed}</span></div>
- <p><b>${hum(nx.objective)}</b></p><p class="meta">${hum(nx.why)}</p>
+ const [pr,nx,st]=await Promise.all([api('/users/'+S.user_id+'/progress'),api('/users/'+S.user_id+'/next'),api('/users/'+S.user_id+'/settings')]);
+ migo('idle','Hola, '+E(S.name)+' 👋',hl(nx.reentry_note||'Tengo un plan para hoy'));
+ const c=Object.fromEntries(Object.entries(pr.by_competency).map(([k,v])=>[k,{autonomy:v.current_autonomy}]));
+ V(`${lvlCard(p.path)}<div class="card"><h2>Hoy te propongo</h2><div class="chips"><span>${RULES[nx.rule]||E(nx.rule)}</span><span>Dificultad ${nx.difficulty}/5</span><span>Ayuda máx. ${nx.help_allowed}</span></div>
+ <p><b>${hl(nx.objective)}</b></p><p class="meta">${hl(nx.why)}</p>
  <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>
- <div class="card"><h2>Tu autonomía sin ayuda</h2>${Object.entries(pr.by_competency).map(([k,v])=>`<div class="br"><span>${NAMES[k]||k}</span><div class="prog"><i style="width:${pct(v.current_autonomy)}%"></i></div><b>${pct(v.current_autonomy)}%</b></div>`).join('')}
- <p class="meta">${pr.sessions_closed} sesiones cerradas · ${pr.independent_successes_in_new_contexts} aciertos solo/a en contextos nuevos.<br>${E(pr.note)}</p></div>
- <div class="card"><h2>Tu plan</h2><ol>${((p.plan||{}).steps||[]).map(s=>'<li>'+E(s)+'</li>').join('')}</ol></div>`)}
+ <div class="card"><h2>Tu autonomía sin ayuda</h2>${bars(c)}${LEGEND}<p class="meta">${pr.sessions_closed} sesiones cerradas · ${pr.independent_successes_in_new_contexts} aciertos solo/a en contextos nuevos.</p></div>
+ <div class="card"><h2>Tu plan</h2>${steps(((p.plan||{}).steps)||[])}</div>
+ <div class="card"><h2>Idioma de ayuda</h2><p class="meta">Tus ejercicios siempre son en inglés. Aquí eliges en qué idioma te explico.</p>
+ <select id="hl" onchange="setHL(this.value)" aria-label="Idioma de ayuda"><option value="auto">Automático (según tu nivel)</option><option value="es">Español</option><option value="mixed">Mixto</option><option value="en">English</option></select><p class="meta" id="hlnow"></p></div>`);
+ $('#hl').value=st.help_lang;$('#hlnow').textContent=tr({es:'Ahora: español',mixed:'Ahora: mixto',en:'Ahora: English'}[st.effective])}
+function setHL(v){act(null,async()=>{await api('/users/'+S.user_id+'/settings','POST',{help_lang:v});await route()})}
 /* ---- Sesión ---- */
 let SS=null,phase='try';
 function startSession(b){act(b,async()=>{SS=await api('/users/'+S.user_id+'/sessions','POST');phase='try';vSession()})}
 function vSession(){
- const d=SS.decision;migo('idle',hum(d.why),d.reentry_note?E(d.reentry_note):'Inténtalo tú primero 💪');
- V(`<div class="card"><div class="chips"><span>${RULES[d.rule]||d.rule}</span><span>Dificultad ${d.difficulty}/5</span><span>Ayuda máx. ${d.help_allowed}</span></div>
- <p class="meta">Éxito: resolverlo con poca ayuda y luego repetirlo solo/a en un contexto nuevo</p><h2 class="q" id="pr">${E(SS.activity.prompt)}</h2>
- <textarea id="ans" rows="4" placeholder="Write in English…"></textarea><div id="helps"></div><div id="fb"></div><p class="err" id="err" hidden></p>
- <div class="row" id="acts"><span><button class="hint" onclick="help(this,false)">💡 Ayuda</button> <button class="hint" onclick="help(this,true)">😵 Estoy bloqueado</button></span><button class="btn pink" onclick="send(this)">Enviar</button></div>
- <p><button class="back" onclick="leave()">Salir sin culpa</button></p></div>`)}
+ const d=SS.decision;migo('idle',hl(d.why),d.reentry_note?hl(d.reentry_note):'Inténtalo tú primero 💪');
+ V(`<div class="card"><div class="chips"><span>${RULES[d.rule]||E(d.rule)}</span><span>Dificultad ${d.difficulty}/5</span><span>Ayuda máx. ${d.help_allowed}</span></div>
+ ${d.focus_label?`<div class="tip green">🎯 Hoy trabajamos: ${hl('«'+d.focus_label+'»')}<br>${E(d.focus_hint)}</div>`:''}
+ <p class="meta">Éxito: ${E(d.success_criterion)}</p><span class="ln">✍️ Escribe tu respuesta en inglés</span>
+ <h2 class="q" id="pr" style="font-family:inherit">${pf(SS.activity.prompt)}</h2>
+ <label for="ans">✍️ Tu respuesta</label><textarea id="ans" maxlength="800" placeholder="Write your answer here…"></textarea><div id="helps"></div><div id="fb"></div><p class="err" id="err" hidden></p>
+ <div class="row" id="acts"><span><button class="hint" onclick="help(this,false)">💡 Ayuda</button> <button class="hint o" onclick="help(this,true)">😵 Estoy bloqueado</button></span><button class="btn pink" onclick="send(this)">Enviar</button></div>
+ <p><button class="back" onclick="leave(this)">Salir sin culpa</button></p></div>`)}
 function help(b,bl){act(b,async()=>{const r=await api('/sessions/'+SS.session_id+'/help','POST',{blocked:bl});
- $('#helps').insertAdjacentHTML('beforeend','<div class="tip">'+(r.granted?'<b>'+({hint:'Pista',guiding_question:'Pregunta',example:'Ejemplo',full_explanation:'Explicación'}[r.kind])+':</b> '+E(r.content):E(r.message))+'</div>')})}
+ $('#helps').insertAdjacentHTML('beforeend','<div class="tip blue">'+(r.granted?'<b>'+({hint:'Pista',guiding_question:'Pregunta',example:'Ejemplo',full_explanation:'Explicación'}[r.kind])+':</b> '+E(r.content):E(r.message))+'</div>')})}
 function send(b){const a=$('#ans').value.trim();if(!a)return err('Escribe tu respuesta.');
  act(b,async()=>{
   if(phase=='rec'){const r=await api('/sessions/'+SS.session_id+'/recovery','POST',{answer:a});return vDone(r)}
   const r=await api('/sessions/'+SS.session_id+'/attempt','POST',{answer:a});
-  migo(r.passed?'happy':'sad',r.passed?'¡Bien hecho!':'Casi…',E(r.feedback));
+  migo(r.passed?'happy':'sad',r.passed?'¡Bien hecho!':'Casi…',E(r.feedback),1);
   if(r.recovery_task){phase='rec';$('#pr').textContent=r.recovery_task;$('#ans').value='';$('#helps').innerHTML='';
-   $('#fb').innerHTML='<div class="tip"><b>Última prueba, sin ayuda y en un contexto nuevo.</b> Así vemos si ya lo dominas solo/a.</div>';$('#acts span').hidden=true}
-  else $('#fb').innerHTML='<div class="tip">'+E(r.feedback)+' '+E(r.next||'')+'</div>'})}
-function leave(){act(null,async()=>{await api('/sessions/'+SS.session_id+'/abandon','POST');route()})}
+   $('#fb').innerHTML=tr('<div class="tip green"><b>Última prueba, sin ayuda y en un contexto nuevo.</b> Así vemos si ya lo dominas solo/a.</div>');$('#acts span').hidden=true}
+  else $('#fb').innerHTML=tr('<div class="tip">'+E(r.feedback)+' '+E(r.next||'')+'</div>')})}
+function leave(b){act(b,async()=>{await api('/sessions/'+SS.session_id+'/abandon','POST');await route()})}
 function vDone(r){
- const ok=r.recovery_score>=.7;migo(ok?'happy':'sad',ok?'¡Lo hiciste sin ayuda! 🎉':'Aún nos falta un poco',E(r.recovery_feedback));
- V(`<div class="card"><h2>Lo que mejoró hoy</h2><div class="br"><span>${NAMES[r.competency]||r.competency}</span><div class="prog"><i style="width:${pct(r.after.autonomy)}%"></i></div><b>${pct(r.after.autonomy)}%</b></div>
- <p>Autonomía: ${pct(r.before.autonomy)}% → <b>${pct(r.after.autonomy)}%</b>${r.error_resolved?'<br>✅ Error superado: '+E(r.error_resolved):''}</p><p class="meta">${E(r.honest_note)}</p>
- <div class="tip"><b>Siguiente paso:</b> ${hum(r.next_step.objective)}</div><div class="row"><span></span><button class="btn pink" onclick="route()">Volver al inicio</button></div></div>`)}
+ const ok=r.recovery_score>=.7;migo(ok?'happy':'sad',ok?'¡Lo hiciste sin ayuda! 🎉':'Aún nos falta un poco',E(r.recovery_feedback),1);
+ V(`<div class="card"><h2>Lo que mejoró hoy</h2>${bars({[r.competency]:r.after})}
+ <p>Autonomía: ${pct(r.before.autonomy)}% → <b>${pct(r.after.autonomy)}%</b>${r.error_resolved?'<br>✅ Error superado: <b>'+E(r.error_resolved)+'</b>':''}</p><p class="meta">${E(r.honest_note)}</p>
+ <div class="tip"><b>Siguiente paso:</b> ${hl(r.next_step.objective)}</div><div class="row"><span></span><button class="btn pink" onclick="route()">Volver al inicio</button></div></div>`)}
 /* ---- Chat ---- */
 let MSG=[];
 function vChat(){
@@ -226,7 +321,7 @@ function bg(){const c=$('#bgc'),w=c.width=innerWidth>>1,h=c.height=innerHeight>>
  for(let k=0;k<w*h/500;k++){const px=r()*w,py=r()*h,a=((px/90|0)*7+(py/90|0)*13)%6*.5+r()*.4,l=30+r()*70;
   x.strokeStyle=cols[r()*cols.length|0];x.globalAlpha=.1+r()*.25;x.lineWidth=3+r()*5;x.beginPath();x.moveTo(px,py);x.lineTo(px+Math.cos(a)*l,py+Math.sin(a)*l);x.stroke()}}
 bg();let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(bg,250)});
-route();
+setLang(LANG);route();
 </script>
 </body>
 </html>
