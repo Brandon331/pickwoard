@@ -335,6 +335,13 @@ def chat(user, msg):
                      "If the user wants something off-plan, allow it but state the cost vs their goal. "
                      "Return {\"reply\":str,\"signals\":{\"intent\":\"question|frustration|goal_change|off_topic|preference|other\",\"new_situation\":str|null,\"preference\":{\"key\":str,\"value\":str}|null}}",
                      J({"goal": user["goal"], "situation": user["situation"], "profile": prof.get("summary"), "memory": memory(uid)["errors"][:3], "message": msg}))
+    print("[CHAT] Resultado LLM:", repr(r))
+
+    if not (r and r.get("reply")):
+        print("[CHAT] FALLBACK: se ejecutará heur_chat()")
+        r = heur_chat(user, msg)
+    else:
+        print("[CHAT] LLM funcionando correctamente")
     if not (r and r.get("reply")): r = heur_chat(user, msg)
     sig = r.get("signals") or {}; applied = []
     if sig.get("intent") == "frustration": set_pref(uid, "frustrated", 1); applied.append(i18n.t(i18n.tk(i18n.lang(uid)), "m_frus"))
