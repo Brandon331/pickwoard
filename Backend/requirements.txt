@@ -1,4 +1,5 @@
 fastapi
 uvicorn
 httpx
+psycopg[binary,pool]
 anthropic

@@ -1,3 +1,4 @@
 .env
 /_pycache_
 .pyc
+./_pycache_

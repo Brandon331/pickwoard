@@ -32,3 +32,9 @@ La landing (con migo-test.js, test adaptativo de 12 preguntas) envía nivel, ran
 
 ## Frontend
 Abre `app.html` (mismo directorio que tu landing). Por defecto llama a http://localhost:8000; cambia con localStorage "migo-api".
+
+## Base de datos (Supabase / Postgres)
+Si existe la variable `DATABASE_URL` (también se acepta `DATABASEURL`) se usa PostgreSQL; si no, SQLite local.
+Las tablas se crean solas al arrancar. En Render: Environment → `DATABASE_URL = postgresql://postgres.<ref>:<PASSWORD>@aws-0-us-east-2.pooler.supabase.com:6543/postgres`
+(Transaction pooler; sin corchetes; si la contraseña tiene @ / # : ? % se escribe codificada: @=%40, /=%2F, #=%23, :=%3A, ?=%3F, %=%25).
+Comprueba en `/health` que diga `"db": "postgres"`.

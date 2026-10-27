@@ -1,4 +1,9 @@
-import sqlite3, os, time
+"""Base de datos: PostgreSQL (Supabase, etc.) si existe DATABASE_URL; si no, SQLite local (MIGO_DB, por defecto migo.db).
+La interfaz es la misma en ambos casos: run(sql, args, one=False, write=False)."""
+import os, re, time
+
+DATABASE_URL = (os.getenv("DATABASE_URL") or os.getenv("DATABASEURL") or "").strip().strip('"').strip("'")
+PG = DATABASE_URL.startswith(("postgres://", "postgresql://"))
 DB = os.getenv("MIGO_DB", "migo.db")
 SCHEMA = """
 create table if not exists users(id integer primary key autoincrement, name text, goal text, situation text, context text,
@@ -19,14 +24,47 @@ create table if not exists messages(id integer primary key autoincrement, user_i
 """
 def now(): return time.time()
 
-def run(sql, args=(), one=False, write=False):
-    c = sqlite3.connect(DB); c.row_factory = sqlite3.Row
-    try:
-        cur = c.execute(sql, args)
-        if write: c.commit(); return cur.lastrowid
-        rows = [dict(r) for r in cur.fetchall()]
-        return (rows[0] if rows else None) if one else rows
-    finally: c.close()
+if PG:
+    from psycopg.rows import dict_row
+    from psycopg_pool import ConnectionPool
+    # El "Transaction pooler" de Supabase (puerto 6543) no admite prepared statements -> prepare_threshold=None. Supabase exige SSL.
+    _url = DATABASE_URL if "sslmode=" in DATABASE_URL else DATABASE_URL + ("&" if "?" in DATABASE_URL else "?") + "sslmode=require"
+    _pool = ConnectionPool(_url, min_size=1, max_size=int(os.getenv("DB_POOL", "5")), open=True, timeout=30,
+                           kwargs={"autocommit": True, "prepare_threshold": None, "row_factory": dict_row},
+                           check=ConnectionPool.check_connection)
+    _ID = {"users", "errors", "sessions", "decisions", "evidence", "messages", "accounts"}   # tablas con columna id
 
-def init():
-    c = sqlite3.connect(DB); c.executescript(SCHEMA); c.commit(); c.close()
+    def _pg(sql):   # el código escribe SQL estilo SQLite; aquí se traduce
+        sql = re.sub(r"integer primary key autoincrement", "serial primary key", sql, flags=re.I)
+        sql = re.sub(r"\breal\b", "double precision", sql, flags=re.I)   # real = float4 perdería precisión en timestamps
+        return sql.replace("?", "%s")
+
+    def run(sql, args=(), one=False, write=False):
+        q = _pg(sql); m = re.match(r"\s*insert\s+into\s+(\w+)", q, re.I)
+        ret = bool(write and m and m.group(1).lower() in _ID and "on conflict" not in q.lower())
+        if ret: q += " returning id"
+        with _pool.connection() as c:
+            cur = c.execute(q, args)
+            if ret: return cur.fetchone()["id"]
+            if write: return None
+            rows = cur.fetchall()
+            return (rows[0] if rows else None) if one else rows
+
+    def init():
+        with _pool.connection() as c:
+            for st in SCHEMA.split(";"):
+                if st.strip(): c.execute(_pg(st))
+else:
+    import sqlite3
+
+    def run(sql, args=(), one=False, write=False):
+        c = sqlite3.connect(DB); c.row_factory = sqlite3.Row
+        try:
+            cur = c.execute(sql, args)
+            if write: c.commit(); return cur.lastrowid
+            rows = [dict(r) for r in cur.fetchall()]
+            return (rows[0] if rows else None) if one else rows
+        finally: c.close()
+
+    def init():
+        c = sqlite3.connect(DB); c.executescript(SCHEMA); c.commit(); c.close()
