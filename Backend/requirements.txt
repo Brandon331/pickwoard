@@ -3,4 +3,4 @@ uvicorn
 httpx
 psycopg[binary,pool]
 anthropic
-pip install python-dotenv
+python-dotenv
