@@ -46,7 +46,7 @@ def S(sid):
     return s, U(s["user_id"])
 
 @app.get("/health")
-def health(): return {"ok": True, "llm_enabled": llm.enabled(), "model": llm.MODEL, "db": "postgres" if db.PG else "sqlite"}
+def health(): return {"ok": True, "llm_enabled": llm.enabled(), "model": llm.MODEL}
 
 @app.post("/users")
 def create_user(b: UserIn): return {"user_id": E.create_user(b.model_dump()), "next": "GET /users/{id}/diagnostic"}
