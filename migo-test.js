@@ -1,49 +1,9 @@
 /* Migo – test de nivel ADAPTATIVO (12 preguntas, escalera A2 → sube/baja).
-   Se carga DESPUÉS del script principal de index.html:  <script src="migo-test.js"></script>
+   Se carga DESPUÉS del script principal de index.html, en este orden:
+   <script src="qbank.js"></script><script src="adaptive-core.js"></script><script src="migo-test.js"></script>
    Reutiliza tu banco QB, tu diseño y tus animaciones; solo reemplaza la lógica del test. */
-const N_Q = 12;                       // preguntas del test
-const NO_SE = 4;                      // índice de la opción "No sé" (se guarda como 5.ª opción de cada pregunta)
-let AT = { seen: new Set(), path: [] };
-function resetAT() { AT = { seen: new Set(), path: [] }; }
-
-/* Elige una pregunta no repetida del nivel lv (0=A1 … 4=C1); si se agotó, usa el nivel vecino más cercano. */
-function pickQ(lv) {
-  lv = Math.max(0, Math.min(4, lv));
-  let pool = QB[lv].filter(q => !AT.seen.has(q.q));
-  if (!pool.length) for (const d of [1, -1, 2, -2]) {
-    const l = lv + d;
-    if (l >= 0 && l <= 4) { pool = QB[l].filter(q => !AT.seen.has(q.q)); if (pool.length) { lv = l; break; } }
-  }
-  const q = pool[Math.random() * pool.length | 0]; AT.seen.add(q.q);
-  const o = shuf(q.o.map((t, k) => ({ t: t, ok: k === q.a })));
-  return { lv: lv, q: q.q, o: o.map(x => x.t).concat('No sé'), a: o.findIndex(x => x.ok) };
-}
-/* Registra la respuesta y devuelve el nivel de la siguiente pregunta: acierto = sube, fallo o "No sé" = baja. */
-function adaptStep(d, ok, skip) { AT.path.push({ lv: d.lv, ok: ok, skip: !!skip }); return d.lv + (ok ? 1 : -1); }
-
-/* Nivel = habilidad θ (0=A1 … 4=C1) más probable dada TODA la secuencia de respuestas (modelo logístico con 25% de acierto por azar
-   y un nivel "dominado" ≈ 80% de aciertos). "No sé" cuenta como fallo sin azar. La confianza sale de la incertidumbre (sd) de θ. */
-function level() {
-  const p = AT.path, raw = [0, 0, 0, 0, 0], tot = [0, 0, 0, 0, 0];
-  p.forEach(x => { tot[x.lv]++; if (x.ok) raw[x.lv]++; });
-  const cnt = raw.map((c, j) => tot[j] ? Math.round(2 * c / tot[j]) : 0);
-  if (!p.length) return { k: 0, cnt: cnt, raw: raw, tot: tot, lo: 0, hi: 0, conf: 'baja', mean: 0, sd: 9 };
-  const sg = x => 1 / (1 + Math.exp(-x)), G = [], W = [];
-  for (let th = 0; th <= 4.0001; th += .05) {
-    let ll = -0.5 * Math.pow((th - 1.8) / 1.5, 2);                 // prior suave centrado en A2
-    for (const x of p) {
-      const s = sg(2.2 * (th - x.lv + .5)), pc = .25 + .75 * s;
-      ll += Math.log(x.skip ? Math.max(1 - s, 1e-6) : x.ok ? pc : Math.max(1 - pc, 1e-6));
-    }
-    G.push(th); W.push(ll);
-  }
-  const mx = Math.max(...W), w = W.map(l => Math.exp(l - mx)), sw = w.reduce((a, b) => a + b, 0);
-  const mean = G.reduce((a, t, j) => a + t * w[j], 0) / sw;
-  const sd = Math.sqrt(G.reduce((a, t, j) => a + w[j] * (t - mean) * (t - mean), 0) / sw);
-  const c = v => Math.max(0, Math.min(4, Math.round(v))), k = c(mean);
-  const conf = sd < .40 ? 'alta' : sd < .49 ? 'media' : 'baja';
-  return { k: k, cnt: cnt, raw: raw, tot: tot, lo: Math.min(k, c(mean - sd)), hi: Math.max(k, c(mean + sd)), conf: conf, mean: mean, sd: sd };
-}
+/* El motor (pickQ, adaptStep, adaptLevel, N_Q, NO_SE) vive en adaptive-core.js y el banco en qbank.js. */
+function level() { return adaptLevel(); }
 
 /* ---------- Pantalla del test ---------- */
 function start() {

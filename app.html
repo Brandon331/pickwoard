@@ -137,6 +137,8 @@ textarea::placeholder{color:#8a96b8;font-style:italic}
 <div class="coach"><div class="figwrap" id="fw"></div><div class="say" id="say" aria-live="polite"></div></div>
 <div id="view"></div>
 </main>
+<script src="qbank.js"></script>
+<script src="adaptive-core.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 const API=localStorage.getItem('migo-api')||'https://migo-english-back.onrender.com';
@@ -169,12 +171,12 @@ const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],[
 ["Éxito: ","Goal: "],["Inténtalo tú primero 💪","Try it yourself first 💪"],["💡 Ayuda","💡 Help"],["😵 Estoy bloqueado","😵 I’m stuck"],["Enviar","Send"],["<b>Pista:</b>","<b>Hint:</b>"],["<b>Pregunta:</b>","<b>Question:</b>"],["<b>Ejemplo:</b>","<b>Example:</b>"],["<b>Explicación:</b>","<b>Explanation:</b>"],["Intenta de nuevo o pide una ayuda.","Try again or ask for help."],["Esta sesión trabaja con menos ayuda. Intenta otra vez; si estás bloqueado, avísalo (blocked=true) y cambio la estrategia.","This session uses fewer hints. Try again; if you’re stuck, say so and I’ll change the strategy."],
 ["¡Bien hecho!","Well done!"],["Casi…","Almost…"],["Última prueba, sin ayuda y en un contexto nuevo.","Last check: no help, new context."],[" Así vemos si ya lo dominas solo/a."," This shows if you can do it on your own."],["Lo que mejoró hoy","What improved today"],["Autonomía: ","Autonomy: "],["✅ Error superado: ","✅ Error overcome: "],["Volver al inicio","Back home"],["¡Lo hiciste sin ayuda! 🎉","You did it without help! 🎉"],["Aún nos falta un poco","We’re not quite there yet"],["🎯 Hoy trabajamos: ","🎯 Today we work on: "],
 ["Pregúntame lo que quieras","Ask me anything"],["Lo conecto con tu plan","I’ll connect it to your plan"],["Pregunta, cuéntame si algo te frustra o si quieres cambiar de objetivo.","Ask, or tell me if something frustrates you or you want to change your goal."],["← Inicio","← Home"],["🧠 Anotado: ","🧠 Noted: "],["Escribe tu respuesta.","Write your answer."],["Ups…","Oops…"],["Migo está pensando…","Migo is thinking…"],
-["Tu nivel","Your level"],["Palabras con imagen","Words with pictures"],["Practicar 8 palabras","Practice 8 words"],["Otras 8 palabras","8 more words"],["Elige la palabra que completa la frase","Choose the word that completes the sentence"],["🖼️ Mira la frase, elige la palabra","🖼️ Read the sentence, pick the word"],["👁️ Ver imagen","👁️ See picture"],["Mira la imagen 👀","Look at the picture 👀"],["Siguiente palabra","Next word"],["Terminar","Finish"],["¡Bien hecho!","Well done!"],["¡Ahí está!","There it is!"],["¡Listo! 🎉","All done! 🎉"],["Así se aprende: imagen + frase, sin traducir","This is how you learn: picture + sentence, no translating"],["⏱️ Responde rápido: ","⏱️ Reply fast: "],[" s · No tiene que ser perfecta; reacciona como en la vida real."," s · It doesn’t have to be perfect; react like in real life."],["⏱️ ¡Tiempo! Termina tu idea y envía.","⏱️ Time! Finish your thought and send."],["Acertaste <b>","You got <b>"],[" a la primera, y <b>"," on the first try, and <b>"],["</b> sin ver la imagen.","</b> without peeking."],[" · confianza "," · confidence "],[" · Confianza del test: "," · Test confidence: "],["<b>alta</b>","<b>high</b>"],["<b>media</b>","<b>medium</b>"],["<b>baja</b>","<b>low</b>"],[" · Probablemente entre <b>"," · Probably between <b>"],["</b> y <b>","</b> and <b>"],["Dedicando <b>","Spending <b>"],[" min al día</b>"," min a day</b>"],["</b> llegarás a <b>","</b> you will reach <b>"],["</b> en ~<b>","</b> in ~<b>"],[" min/día → "," min/day → "],
+["Tu nivel","Your level"],["Tu nivel de partida","Your starting level"],["Test de nivel","Level test"],["Empezamos fácil y subimos 🪜","We start easy and go up 🪜"],["Si no sabes, elige «No sé»: no pasa nada","If you don’t know, pick “I don’t know”: no problem"],["✍️ Elige la opción correcta","✍️ Choose the correct option"],["No sé 🤷","I don’t know 🤷"],["Ver mi nivel","See my level"],["Sin problema","No problem"],["¡Bien!","Nice!"],["La respuesta: ","The answer: "],["Ya sé dónde empezar 🎯","Now I know where to start 🎯"],["Ahora un diagnóstico práctico para afinar tu plan","Now a practical diagnostic to fine-tune your plan"],["Es una estimación: lo confirmamos con las siguientes tareas prácticas.","This is an estimate: we’ll confirm it with the next practical tasks."],[" correctas."," correct."],["Probablemente entre <b>","Probably between <b>"],["Confianza <b>","Confidence <b>"],["Palabras con imagen","Words with pictures"],["Practicar 8 palabras","Practice 8 words"],["Otras 8 palabras","8 more words"],["Elige la palabra que completa la frase","Choose the word that completes the sentence"],["🖼️ Mira la frase, elige la palabra","🖼️ Read the sentence, pick the word"],["👁️ Ver imagen","👁️ See picture"],["Mira la imagen 👀","Look at the picture 👀"],["Siguiente palabra","Next word"],["Terminar","Finish"],["¡Bien hecho!","Well done!"],["¡Ahí está!","There it is!"],["¡Listo! 🎉","All done! 🎉"],["Así se aprende: imagen + frase, sin traducir","This is how you learn: picture + sentence, no translating"],["⏱️ Responde rápido: ","⏱️ Reply fast: "],[" s · No tiene que ser perfecta; reacciona como en la vida real."," s · It doesn’t have to be perfect; react like in real life."],["⏱️ ¡Tiempo! Termina tu idea y envía.","⏱️ Time! Finish your thought and send."],["Acertaste <b>","You got <b>"],[" a la primera, y <b>"," on the first try, and <b>"],["</b> sin ver la imagen.","</b> without peeking."],[" · confianza "," · confidence "],[" · Confianza del test: "," · Test confidence: "],["<b>alta</b>","<b>high</b>"],["<b>media</b>","<b>medium</b>"],["<b>baja</b>","<b>low</b>"],[" · Probablemente entre <b>"," · Probably between <b>"],["</b> y <b>","</b> and <b>"],["Dedicando <b>","Spending <b>"],[" min al día</b>"," min a day</b>"],["</b> llegarás a <b>","</b> you will reach <b>"],["</b> en ~<b>","</b> in ~<b>"],[" min/día → "," min/day → "],
 ["Basado en tu test y tu diagnóstico práctico","Based on your test and practical diagnostic"],["Basado en tu test","Based on your test"],["Basado en tu diagnóstico práctico","Based on your practical diagnostic"],["Aún es una estimación","Still an estimate"],
 [". Estudiando todos los días; es una guía basada en horas de estudio de Cambridge, no una garantía.",". Studying every day; a guide based on Cambridge study hours, not a guarantee."],["Haz el test →","Take the test →"],["¡Estás en el nivel más alto de la escala!","You’re at the top of the scale!"],
 ["🎯 Tu test: nivel ","🎯 Your test: level "],[". Lo confirmamos con tu diagnóstico práctico.",". We’ll confirm it with your practical diagnostic."]
 ].sort((a,b)=>b[0].length-a[0].length);
-function tr(h){if(LANG=='es')return h;h=h.replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2').replace(/Palabra (\d+) de (\d+)/g,'Word $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
+function tr(h){if(LANG=='es')return h;h=h.replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2').replace(/Palabra (\d+) de (\d+)/g,'Word $1 of $2').replace(/Pregunta (\d+) de (\d+)/g,'Question $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
 function setLang(l){LANG=l||'es';try{localStorage.setItem('migo-lang',LANG)}catch(e){}document.documentElement.lang=LANG=='en'?'en':'es';$('#out').textContent=tr('Salir');$('#ldt').textContent=tr('Migo está pensando…')}
 const _iah=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(p,h){_iah.call(this,p,tr(h))};
 /* ---- API con círculo de carga ---- */
@@ -217,7 +219,8 @@ async function route(){
   if(PL){await api('/users/'+S.user_id+'/placement','POST',PL);PL=null;try{localStorage.removeItem('migo-pl')}catch(e){}}
   const p=await api('/users/'+S.user_id+'/profile');
   setLang(p.lang);
-  return p.stage!='diagnosed'?vDiag():vHome(p)
+  if(p.stage!='diagnosed')return p.path&&p.path.n==null?vPlace():vDiag();   // si ya hay nivel (viene del test o lo hizo antes) NO se repite
+  return vHome(p)
  }catch(e){if(/Sesión/.test(e.message))return logout();vLogin();err(e.message)}}
 /* ---- Onboarding ---- */
 function vOnb(){
@@ -280,6 +283,35 @@ function vVocabDone(v,res){
  <div class="chips sc">${res.map(r=>`<span class="${r.first&&!r.peek?'me':''}">${E(r.w)}</span>`).join('')}</div>
  <p class="meta">${v.words_mastered} palabras dominadas en total (las verdes cuentan). Repite mañana las que fallaste.</p>
  <div class="row"><button class="hint" onclick="route()">← Inicio</button><button class="btn blue" onclick="vocabPractice(this)">Otras 8 palabras</button></div></div>`)}
+/* ---- Test de nivel en la app (solo si la persona NO viene del test de la página principal) ---- */
+let PQ=null;
+function vPlace(){
+ if(typeof QBANK=='undefined'||typeof pickQ!='function'){console.warn('Falta qbank.js o adaptive-core.js: se omite el test de nivel');return vDiag()}
+ resetAT();PQ={i:0,qs:[pickQ(0)],ans:[],lock:false};pStep()}
+function pStep(){
+ const d=PQ.qs[PQ.i];PQ.lock=false;
+ migo('idle',PQ.i?'Pregunta '+(PQ.i+1)+' de '+N_Q:'Test de nivel',PQ.i?'Si no sabes, elige «No sé»: no pasa nada':'Empezamos fácil y subimos 🪜');
+ V(`<div class="card"><div class="chips"><span>Pregunta ${PQ.i+1} de ${N_Q}</span></div><span class="ln">✍️ Elige la opción correcta</span>
+ <h2 class="q" style="font-family:inherit">${E(d.q)} <button class="hint" onclick="speak(PQ.qs[PQ.i].q.replace('___','blank'))" aria-label="Escuchar">🔊</button></h2>
+ <div class="vopts">${d.o.slice(0,4).map((t,k)=>`<button class="vopt" onclick="pPick(${k})">${E(t)}</button>`).join('')}</div>
+ <p style="text-align:center;margin:4px 0"><button class="hint" id="pidk" onclick="pPick(${NO_SE})">No sé 🤷</button></p><div id="pf"></div></div>`)}
+function pPick(k){
+ if(PQ.lock)return;PQ.lock=true;
+ const d=PQ.qs[PQ.i],skip=k==NO_SE,ok=k===d.a;PQ.ans.push(ok);
+ const nl=adaptStep(d,ok,skip);
+ document.querySelectorAll('.vopt').forEach((o,j)=>{o.disabled=true;if(j==d.a)o.classList.add('good');else if(j==k)o.classList.add('bad')});
+ const ik=$('#pidk');if(ik)ik.disabled=true;
+ migo(ok?'happy':'sad',ok?'¡Bien!':(skip?'Sin problema':'Casi…'),ok?'':'La respuesta: '+E(d.o[d.a]),1);
+ if(PQ.i<N_Q-1)PQ.qs.push(pickQ(nl));
+ $('#pf').innerHTML=`<div class="row"><span></span><button class="btn pink" onclick="pNext(this)">${PQ.i==N_Q-1?'Ver mi nivel':'Siguiente'}</button></div>`}
+function pNext(b){PQ.i++;PQ.i<N_Q?pStep():pFinish(b)}
+function pFinish(b){const lv=adaptLevel(),sc=PQ.ans.filter(Boolean).length;
+ act(b,async()=>{
+  await api('/users/'+S.user_id+'/placement','POST',{level:LVS[lv.k],score:sc,counts:lv.raw,n:N_Q,conf:lv.conf,lo:LVS[lv.lo],hi:LVS[lv.hi]});
+  const c=LVC[LVS[lv.k]];migo('happy','Ya sé dónde empezar 🎯','Ahora un diagnóstico práctico para afinar tu plan');
+  V(`<div class="card"><h2>Tu nivel de partida</h2><div class="lvrow"><div class="lvb" style="background:linear-gradient(${c[0]},${c[1]})">${LVS[lv.k]}</div>
+  <p class="lvt">${sc} de ${N_Q} correctas.${lv.hi>lv.lo?' Probablemente entre <b>'+LVS[lv.lo]+'</b> y <b>'+LVS[lv.hi]+'</b>.':''} Confianza <b>${lv.conf}</b>.</p></div>
+  <p class="meta">Es una estimación: lo confirmamos con las siguientes tareas prácticas.</p><div class="row"><span></span><button class="btn pink" onclick="route()">Continuar</button></div></div>`)})}
 /* ---- Diagnóstico ---- */
 let DG={};
 const pf=p=>E(p).replace(/^Situation:([^.]*)\./,'<span class="sit">📍$1</span><br>');
