@@ -163,7 +163,7 @@ textarea::placeholder{color:#8a96b8;font-style:italic}
 <script src="vocab.js"></script>
 <script>
 const $=s=>document.querySelector(s);
-const API=localStorage.getItem('migo-api')||'http://localhost:8000';
+const API=localStorage.getItem('migo-api')||'https://migo-english-back.onrender.com';
 let S={};try{S=JSON.parse(localStorage.getItem('migo')||'{}')}catch(e){}
 const save=()=>localStorage.setItem('migo',JSON.stringify(S));
 let PL=null;try{PL=JSON.parse(localStorage.getItem('migo-pl')||'null')}catch(e){}
