@@ -3,9 +3,6 @@ Interfaz: run(sql, args, one=False, write=False). El SQL usa ? como marcador (se
 import os, re, time
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
-from dotenv import load_dotenv
-
-load_dotenv()
 
 DATABASE_URL = (os.getenv("DATABASE_URL") or "").strip().strip('"').strip("'")
 if not DATABASE_URL.startswith(("postgres://", "postgresql://")):
@@ -34,6 +31,7 @@ create table if not exists decisions(id serial primary key, user_id int, session
 create table if not exists evidence(id serial primary key, user_id int, session_id int, competency text,
   score double precision, help_level int, kind text, note text, created_at double precision);
 create table if not exists messages(id serial primary key, user_id int, role text, content text, created_at double precision);
+create table if not exists vocab_words(user_id int, word text, lv int default -1, seen int default 0, first_ok int default 0, unaided int default 0, last_seen double precision, primary key(user_id,word));
 create index if not exists ix_errors_user on errors(user_id);
 create index if not exists ix_sessions_user on sessions(user_id);
 create index if not exists ix_decisions_user on decisions(user_id);

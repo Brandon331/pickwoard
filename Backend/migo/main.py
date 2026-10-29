@@ -28,6 +28,7 @@ class VocabItem(BaseModel):
     w: str
     first: bool
     peek: bool = False
+    lv: int = -1
 class VocabIn(BaseModel): items: List[VocabItem]
 class DiagIn(BaseModel):
     responses: List[Resp]
@@ -46,7 +47,10 @@ def S(sid):
     return s, U(s["user_id"])
 
 @app.get("/health")
-def health(): return {"ok": True, "llm_enabled": llm.enabled(), "model": llm.MODEL}
+def health():
+    try: db.run("select 1 x", one=True); dbs = "ok"
+    except Exception: dbs = "error"
+    return {"ok": dbs == "ok", "db": dbs, "llm_enabled": llm.enabled(), "model": llm.MODEL, "llm_last_error": llm.LAST_ERROR}
 
 @app.post("/users")
 def create_user(b: UserIn): return {"user_id": E.create_user(b.model_dump()), "next": "GET /users/{id}/diagnostic"}
@@ -141,3 +145,7 @@ def post_vocab(uid: int, b: VocabIn):
     u = U(uid)
     if not b.items: raise HTTPException(422, "sin palabras")
     return E.record_vocab(u, [x.model_dump() for x in b.items], "vocab")
+
+@app.get("/users/{uid}/vocab")
+def get_vocab(uid: int):
+    U(uid); return E.vocab_state(uid)

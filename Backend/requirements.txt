@@ -1,7 +1,5 @@
 fastapi
 uvicorn
-httpx
-psycopg[binary,pool]
-anthropic
-python-dotenv
 openai
+psycopg[binary,pool]
+httpx

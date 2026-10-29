@@ -109,13 +109,22 @@ def record_vocab(user, items, kind="vocab"):
     if not n: return None
     first = sum(1 for x in items if x["first"]); good = [x["w"] for x in items if x["first"] and not x["peek"]]
     bump(uid, "vocabulary", first / n, len(good) / n)
-    record_strengths(uid, ["w:" + w for w in good])
+    for x in items:
+        db.run("insert into vocab_words(user_id,word,lv,seen,first_ok,unaided,last_seen) values(?,?,?,1,?,?,?) on conflict(user_id,word) do update set "
+               "seen=vocab_words.seen+1, first_ok=vocab_words.first_ok+excluded.first_ok, unaided=vocab_words.unaided+excluded.unaided, "
+               "lv=case when excluded.lv>=0 then excluded.lv else vocab_words.lv end, last_seen=excluded.last_seen",
+               (uid, x["w"], x.get("lv", -1), int(bool(x["first"])), int(bool(x["first"] and not x["peek"])), db.now()), write=True)
     note = i18n.t(i18n.tk(i18n.lang(uid)), "v_note", a=first, n=n, b=len(good))
     add_evidence(uid, None, "vocabulary", len(good) / n, 0, kind, note)
     return {"first_try": first, "unaided": len(good), "n": n, "note": note, "words_mastered": words_mastered(uid)}
 
+def vocab_state(uid):
+    rows = db.run("select word as w, lv, seen, first_ok, unaided, last_seen from vocab_words where user_id=? order by last_seen desc", (uid,))
+    for r in rows: r["status"] = "mastered" if r["unaided"] >= 2 else "seen"
+    return {"path": levels.path(uid), "words": rows, "progress": levels.progress(uid)}
+
 def words_mastered(uid):
-    return db.run("select count(*) n from strengths where user_id=? and substr(item,1,2)='w:'", (uid,), one=True)["n"]
+    return db.run("select count(*) n from vocab_words where user_id=? and unaided>=2", (uid,), one=True)["n"]   # dominada = 2 aciertos sin ver la imagen
 
 # ---------- diagnóstico ----------
 def diagnostic_tasks(user):
@@ -335,13 +344,6 @@ def chat(user, msg):
                      "If the user wants something off-plan, allow it but state the cost vs their goal. "
                      "Return {\"reply\":str,\"signals\":{\"intent\":\"question|frustration|goal_change|off_topic|preference|other\",\"new_situation\":str|null,\"preference\":{\"key\":str,\"value\":str}|null}}",
                      J({"goal": user["goal"], "situation": user["situation"], "profile": prof.get("summary"), "memory": memory(uid)["errors"][:3], "message": msg}))
-    print("[CHAT] Resultado LLM:", repr(r))
-
-    if not (r and r.get("reply")):
-        print("[CHAT] FALLBACK: se ejecutará heur_chat()")
-        r = heur_chat(user, msg)
-    else:
-        print("[CHAT] LLM funcionando correctamente")
     if not (r and r.get("reply")): r = heur_chat(user, msg)
     sig = r.get("signals") or {}; applied = []
     if sig.get("intent") == "frustration": set_pref(uid, "frustrated", 1); applied.append(i18n.t(i18n.tk(i18n.lang(uid)), "m_frus"))

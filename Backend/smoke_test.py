@@ -1,6 +1,7 @@
 """Recorre el flujo completo del prototipo (sesión 1 -> chat -> sesión 2) y comprueba que la sesión 2 cambia."""
-import os, tempfile, json
-os.environ["MIGO_DB"] = tempfile.mktemp(suffix=".db")
+import os, json
+if not os.environ.get("TEST_DATABASE_URL"): raise SystemExit("Define TEST_DATABASE_URL con una base de PRUEBA (no la de producción).")
+os.environ["DATABASE_URL"] = os.environ["TEST_DATABASE_URL"]
 from fastapi.testclient import TestClient
 from migo.main import app
 c = TestClient(app)

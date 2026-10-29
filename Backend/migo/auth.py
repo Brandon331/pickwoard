@@ -4,18 +4,7 @@ from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from . import db
 
-db.run("""
-    CREATE TABLE IF NOT EXISTS accounts(
-        id SERIAL PRIMARY KEY,
-        email TEXT UNIQUE,
-        name TEXT,
-        salt TEXT,
-        pw TEXT,
-        token TEXT,
-        user_id INT,
-        created_at DOUBLE PRECISION
-    )
-""", write=True)
+db.run("create table if not exists accounts(id serial primary key,email text unique,name text,salt text,pw text,token text,user_id int,created_at double precision)", write=True)
 router = APIRouter(prefix="/auth")
 
 class Reg(BaseModel): name: str = ""; email: str; password: str

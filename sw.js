@@ -1,6 +1,6 @@
 /* Service worker de Migo: la app abre aunque no haya red. Las llamadas a la API (otro dominio) NO se tocan nunca. */
-const V = 'migo-v1';   // súbelo (v2, v3…) cuando cambies archivos para forzar la actualización
-const SHELL = ['app.html', 'qbank.js', 'adaptive-core.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const V = 'migo-v2';   // súbelo (v2, v3…) cuando cambies archivos para forzar la actualización
+const SHELL = ['app.html', 'qbank.js', 'adaptive-core.js', 'vocab.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 const FONTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => e.waitUntil(

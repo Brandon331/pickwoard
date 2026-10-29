@@ -1,43 +1,23 @@
-# Migo English — backend del prototipo de validación
+# Migo English — backend
 
-FastAPI + SQLite. Sin API key corre con un evaluador heurístico (solo para probar el flujo);
-con `ANTHROPIC_API_KEY` el LLM genera diagnóstico/actividades y evalúa evidencia (`MIGO_MODEL` para cambiar el modelo).
+FastAPI + PostgreSQL (Supabase) + OpenAI. Las tablas se crean solas al arrancar.
 
+## Variables de entorno
+- `DATABASE_URL` (obligatoria): `postgresql://usuario:contraseña@host:puerto/base`. Con el Transaction pooler de Supabase (puerto 6543) funciona; contraseñas con @ / # : ? % van codificadas (%40 %2F %23 %3A %3F %25).
+- `OPENAI_API_KEY`: sin ella la app funciona con un evaluador de respaldo muy básico (el perfil sale marcado «sin evaluador LLM»).
+- `MIGO_MODEL`: modelo de OpenAI (por defecto `gpt-4.1-mini`).
+- `DB_POOL`: conexiones del pool (por defecto 5).
+
+## Correr
     pip install -r requirements.txt
-    python smoke_test.py                 # recorre: diagnóstico -> sesión 1 -> chat -> sesión 2
-    uvicorn migo.main:app --reload       # docs interactivas en /docs
+    uvicorn migo.main:app --host 0.0.0.0 --port $PORT      # docs en /docs
 
-## Flujo (mapea con la sección 10 del documento)
-1. `POST /users` objetivo + situación concreta
-2. `GET/POST /users/{id}/diagnostic` 4 tareas de acción (+ `self_rating` para declarado vs demostrado)
-3-4. respuesta del POST: perfil + cuello de botella + plan (3-5 pasos)
-5. `POST /users/{id}/sessions` -> decisión explícita (regla, objetivo, dificultad, ayuda permitida, criterio, memoria a actualizar)
-   `POST /sessions/{id}/help` (pista→pregunta→ejemplo→explicación; `blocked:true` cambia estrategia)
-   `POST /sessions/{id}/attempt` · `POST /sessions/{id}/recovery` (cierra, actualiza memoria, evidencia antes/después)
-7. `POST /users/{id}/chat` conversación libre; extrae frustración, cambio de objetivo, preferencias
-8. `GET /users/{id}/memory` · `GET /users/{id}/next` (qué haría Migo ahora)
-9. Sesión 2: mismo endpoint; el motor cambia por lo ocurrido antes
-`GET /users/{id}/progress` progreso basado en evidencia sin ayuda.
+`/health` muestra el estado de la base, si hay clave de OpenAI y el tipo del último error del LLM (el detalle va a los logs).
 
-## Dónde vive cada cosa
-- `engine.decide()`: reglas §5 (bloqueo > error recurrente > reducir pistas > avanzar > cuello de botella).
-- Memoria (§3): `competencies` (nivel vs autonomía), `errors`, `strengths`, `preferences`, `decisions`.
-- Métricas §12: tablas `sessions`, `decisions`, `evidence` permiten calcular activación, retención y progreso.
+## Pruebas
+    TEST_DATABASE_URL=postgresql://... python smoke_test.py     # usa una base de PRUEBA
 
-## Límites conocidos
-Auth básica + idioma de ayuda por nivel (migo/i18n.py) (migo/auth.py: cuentas + token), pero los demás endpoints aún no exigen el token; heurística de fallback muy básica; el pase de la sesión usa umbral fijo (0.7); sin tests de absentismo (>=3 días).
-
-## Nivel (landing → app)
-La landing (con migo-test.js, test adaptativo de 12 preguntas) envía nivel, rango y confianza a app.html?lvl=A2&conf=alta&lo=A2&hi=B1...; la app lo guarda en POST /users/{id}/placement. migo/levels.py calcula nivel estimado y tiempo a la siguiente etapa.
-
-## Diagnóstico
-Tareas por nivel (comprensión, expresión, respuesta rápida de 60 s) + mini-juego «palabras con imagen» (POST /users/{id}/vocab). Ya no hay lista de 5 palabras ni deletreo.
-
-## Frontend
-Abre `app.html` (mismo directorio que tu landing). Por defecto llama a http://localhost:8000; cambia con localStorage "migo-api".
-
-## Base de datos (Supabase / Postgres)
-Si existe la variable `DATABASE_URL` (también se acepta `DATABASEURL`) se usa PostgreSQL; si no, SQLite local.
-Las tablas se crean solas al arrancar. En Render: Environment → `DATABASE_URL = postgresql://postgres.<ref>:<PASSWORD>@aws-0-us-east-2.pooler.supabase.com:6543/postgres`
-(Transaction pooler; sin corchetes; si la contraseña tiene @ / # : ? % se escribe codificada: @=%40, /=%2F, #=%23, :=%3A, ?=%3F, %=%25).
-Comprueba en `/health` que diga `"db": "postgres"`.
+## Módulos
+`main.py` endpoints · `engine.py` diagnóstico, decisión, sesión, memoria, progreso · `levels.py` nivel y tiempo a la siguiente etapa ·
+`i18n.py` idioma de ayuda y textos de respaldo · `auth.py` cuentas y token · `llm.py` OpenAI · `db.py` Postgres.
+Auth: los demás endpoints aún no exigen el token (pendiente antes de abrirlo al público).
