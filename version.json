@@ -1,0 +1,15 @@
+{
+  "version": "4.0",
+  "notes_es": [
+    "Menú inferior para moverte: Inicio, Vocabulario, Progreso, Chat y Ajustes.",
+    "El botón 💡 Significado ahora explica la palabra en cada pregunta.",
+    "Si pasas a la siguiente pregunta, el audio se corta.",
+    "Avisos de actualización con lo que trae cada versión."
+  ],
+  "notes_en": [
+    "Bottom menu to move around: Home, Vocabulary, Progress, Chat and Settings.",
+    "The 💡 Meaning button now explains the word in every question.",
+    "When you go to the next question, the audio stops.",
+    "Update notices that tell you what each version brings."
+  ]
+}
