@@ -33,7 +33,11 @@ class VocabIn(BaseModel): items: List[VocabItem]
 class DiagIn(BaseModel):
     responses: List[Resp]
     vocab: Optional[VocabIn] = None
-class AnswerIn(BaseModel): answer: str
+class AnswerIn(BaseModel):
+    answer: str
+    replays: int = 0          # listening: veces que volvió a escuchar
+    slow: bool = False        # usó el audio lento
+    viewed: bool = False      # vio el texto de lo que escuchó (cuenta como ayuda)
 class HelpIn(BaseModel): blocked: bool = False
 class ChatIn(BaseModel): message: str
 
@@ -85,13 +89,13 @@ def help_(sid: int, b: HelpIn):
 def attempt(sid: int, b: AnswerIn):
     s, u = S(sid)
     if s["status"] != "active": raise HTTPException(409, f"session is {s['status']}")
-    return E.attempt(u, s, b.answer)
+    return E.attempt(u, s, b.answer, {"replays": b.replays, "slow": b.slow, "viewed": b.viewed})
 
 @app.post("/sessions/{sid}/recovery")
 def recovery(sid: int, b: AnswerIn):
     s, u = S(sid)
     if s["status"] != "recovery": raise HTTPException(409, "recovery not available yet")
-    return E.recover_and_close(u, s, b.answer)
+    return E.recover_and_close(u, s, b.answer, {"replays": b.replays, "slow": b.slow, "viewed": b.viewed})
 
 @app.post("/sessions/{sid}/abandon")
 def abandon(sid: int):
@@ -109,17 +113,22 @@ def memory(uid: int): U(uid); return E.memory(uid)
 @app.get("/users/{uid}/next")
 def next_decision(uid: int): return E.decide(U(uid))   # preview: "¿qué haría Migo contigo ahora?"
 
-class SetIn(BaseModel): help_lang: str
+class SetIn(BaseModel):
+    help_lang: Optional[str] = None
+    audio: Optional[bool] = None
 
 @app.get("/users/{uid}/settings")
 def get_settings(uid: int):
-    U(uid); return {"help_lang": i18n.pref(uid), "effective": i18n.lang(uid)}
+    U(uid); return {"help_lang": i18n.pref(uid), "effective": i18n.lang(uid), "audio": E.audio_on(uid)}
 
 @app.post("/users/{uid}/settings")
 def set_settings(uid: int, b: SetIn):
     U(uid)
-    if b.help_lang not in ("auto", "es", "mixed", "en"): raise HTTPException(422, "help_lang inválido")
-    E.set_pref(uid, "help_lang", b.help_lang); return {"help_lang": b.help_lang, "effective": i18n.lang(uid)}
+    if b.help_lang is not None:
+        if b.help_lang not in ("auto", "es", "mixed", "en"): raise HTTPException(422, "help_lang inválido")
+        E.set_pref(uid, "help_lang", b.help_lang)
+    if b.audio is not None: E.set_pref(uid, "audio", 1 if b.audio else 0)
+    return {"help_lang": i18n.pref(uid), "effective": i18n.lang(uid), "audio": E.audio_on(uid)}
 
 class PlIn(BaseModel):
     level: str

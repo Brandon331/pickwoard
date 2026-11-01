@@ -93,8 +93,8 @@ def evaluate(user, task, answer, secs=None):
         "You are a strict but kind English assessor for a Spanish speaker. Judge ONLY observable evidence in the answer. "
         "Return {\"score\":0-1,\"errors\":[{\"pattern\":snake_case_label,\"example\":str}],\"strengths\":[str],"
         "\"translated\":bool (answer shows mental translation from Spanish),\"feedback\":\"1-2 sentences, language: " + i18n.llm_lang(user["id"]) + "\"}. "
-        "If competency is translation_independence, judge how direct and natural the reply is (literal calques, L1 interference); seconds_taken is only context. Reuse these known error labels when they apply: " + J(known),
-        J({"situation": user["situation"], "task": task["prompt"], "competency": task["competency"], "answer": answer, "seconds_taken": secs}))
+        "If a transcript is given, the learner HEARD it as audio without seeing the text: for comprehension judge whether the answer shows they understood it (the learner may answer in Spanish or English; judge understanding, not the language). If competency is translation_independence, judge how direct and natural the reply is (literal calques, L1 interference); seconds_taken is only context. Reuse these known error labels when they apply: " + J(known),
+        J({"situation": user["situation"], "task": task["prompt"], "competency": task["competency"], "answer": answer, "seconds_taken": secs, "transcript": task.get("transcript")}))
     if r and isinstance(r.get("score"), (int, float)):
         r.update(score=clamp(float(r["score"])), evaluator="llm")
         r.setdefault("errors", []); r.setdefault("strengths", []); r.setdefault("feedback", ""); r.setdefault("translated", False)
@@ -229,6 +229,10 @@ def decide(user, consume=False):
     else:
         rule = "bottleneck"; why = i18n.t(lg, "w_bn", c=i18n.cn(lg, comp), g=user["goal"])
     fmt = fmt or FORMATS[comp]
+    modality = "read"          # comprensión: alterna escuchar (audio, sin texto) y leer
+    if fmt == "listen_and_respond" and audio_on(uid):
+        prev = [L(d["decision_json"]).get("modality") for d in decs if L(d["decision_json"]).get("activity_format") == "listen_and_respond"]
+        modality = "read" if prev and prev[-1] == "listen" else "listen"
     diff = int(clamp(1 + int(C[comp]["level"] * 4) + (rule == "advance") - bool(frustrated), 1, 5))
     if frustrated: why += " " + i18n.t(lg, "w_frus")
     fresh = [v for v in VARIANTS if v not in used] or VARIANTS
@@ -237,14 +241,66 @@ def decide(user, consume=False):
     st = db.run("select item from strengths where user_id=? order by times_ok desc limit 1", (uid,), one=True)
     reentry = i18n.t(lg, "reentry", d=int(days), s=(i18n.t(lg, "re_st", i=st["item"]) if st else i18n.t(lg, "re_calm"))) if days >= 3 else None
     if consume and frustrated: db.run("delete from preferences where user_id=? and key='frustrated'", (uid,), write=True)
-    return {"rule": rule, "why": why, "competency": comp, "activity_format": fmt, "difficulty": diff, "help_allowed": help_max,
+    return {"rule": rule, "why": why, "modality": modality, "competency": comp, "activity_format": fmt, "difficulty": diff, "help_allowed": help_max,
             "focus_error": focus, "focus_label": i18n.errn(lg, focus) if focus else None, "focus_hint": i18n.errh(lg, focus) if focus else None, "scenario": fresh[0], "reentry_note": reentry,
             "objective": i18n.t(lg, "obj", c=i18n.cn(lg, comp), s=user["situation"]) + (i18n.t(lg, "obj_err", f=i18n.errn(lg, focus)) if focus else ""),
             "success_criterion": i18n.t(lg, "succ", h=help_max),
             "memory_to_update": [f"competencies.{comp}", "errors", "strengths", "decision_history"]}
 
 # ---------- sesión ----------
+DIALOGUES = [  # respaldo sin LLM. tier 0 = A1-A2 · 1 = B1 · 2 = B2+
+ {"tier": 0, "sp": {"A": {"name": "Ana", "g": "f"}, "B": {"name": "Leo", "g": "m"}},
+  "s": [("A", "Hi Leo! Are you free on Saturday?"), ("B", "Hi Ana! Yes, I am. Why?"), ("A", "I want to go to the cinema. The film starts at six."), ("B", "Great! Let's meet at the station at five thirty."), ("A", "Perfect. See you on Saturday!")],
+  "q": "What are they going to do, and what time do they meet?", "kw": ["cinema", "cine", "film", "película", "five thirty", "5:30", "cinco y media", "station", "estación"]},
+ {"tier": 0, "sp": {"A": {"name": "Tom", "g": "m"}, "B": {"name": "Sara", "g": "f"}},
+  "s": [("A", "Good morning. What would you like?"), ("B", "A coffee and a sandwich, please."), ("A", "Sorry, we have no sandwiches today. We have cake."), ("B", "OK, a coffee and a piece of cake, please."), ("A", "That is six dollars, please.")],
+  "q": "What does the customer order, and how much does it cost?", "kw": ["coffee", "café", "cake", "pastel", "six", "seis", "6"]},
+ {"tier": 1, "sp": {"A": {"name": "Marta", "g": "f"}, "B": {"name": "Pablo", "g": "m"}},
+  "s": [("A", "Did you finish the report? The boss wants it by Friday."), ("B", "Almost. I still need the sales numbers from Carlos, but he is on holiday until Thursday."), ("A", "Then ask Julia. She has the same numbers and she is in the office today."), ("B", "Good idea. If she sends them this afternoon, I can finish tomorrow.")],
+  "q": "What is the problem, and what solution do they find?", "kw": ["numbers", "números", "carlos", "holiday", "vacaciones", "julia", "ask", "pedir", "report", "informe"]},
+ {"tier": 2, "sp": {"A": {"name": "Dan", "g": "m"}, "B": {"name": "Eva", "g": "f"}},
+  "s": [("A", "I used to love working from home, but lately I feel isolated."), ("B", "Really? I find it more productive. No commute, fewer interruptions."), ("A", "True, but I miss the casual chats by the coffee machine. That's where the best ideas came from."), ("B", "Maybe a hybrid schedule would suit you better: two days at the office, three at home.")],
+  "q": "What is each person's opinion about working from home?", "kw": ["isolated", "aislado", "productive", "productivo", "hybrid", "híbrido", "office", "oficina"]}]
+
+def _tx(sc): return " / ".join(f'{t["who"]}: {t["text"]}' for t in sc) if sc else None
+
+def _valid_script(sc):
+    return isinstance(sc, list) and 2 <= len(sc) <= 12 and all(isinstance(t, dict) and t.get("who") in ("A", "B") and isinstance(t.get("text"), str) and t["text"].strip() for t in sc)
+
+def _spk(d, a, b):
+    d = d if isinstance(d, dict) else {}; out = {}
+    for who, nm, g in (("A", a, "f"), ("B", b, "m")):
+        x = d.get(who) if isinstance(d.get(who), dict) else {}
+        out[who] = {"name": str(x.get("name") or nm)[:20], "g": x.get("g") if x.get("g") in ("f", "m") else g}
+    return out
+
+def audio_on(uid):
+    r = db.run("select value from preferences where user_id=? and key='audio'", (uid,), one=True)
+    return not r or r["value"] != "0"
+
+def make_dialogue(user, plan):
+    """Actividad de comprensión: conversación entre 2 personas + una pregunta. Se escucha (sin texto) o se lee, según plan['modality']."""
+    r = llm.ask_json("Design ONE comprehension activity for an English learner (Spanish speaker): a short natural conversation between TWO people (speakers A and B) "
+                     "about the learner's situation or a related everyday scenario, plus ONE question about its gist or key details. Follow the plan (difficulty 1-5 = CEFR A1..C1, scenario twist). "
+                     "4-8 turns, each at most 18 words, natural for that level. The learner will usually HEAR it as audio (no text) and may answer in Spanish or English. "
+                     "Return {\"script\":[{\"who\":\"A\",\"text\":...}],\"speakers\":{\"A\":{\"name\":...,\"g\":\"f|m\"},\"B\":{\"name\":...,\"g\":\"f|m\"}},\"prompt\":the question in English,"
+                     "\"keywords\":[ideas a correct answer contains, in English and Spanish],\"help\":{\"1\":hint,\"2\":guiding question,\"3\":where to pay attention,\"4\":full explanation of what the conversation says (help language: " + i18n.llm_lang(user["id"]) + ")},"
+                     "\"recovery_script\":[...],\"recovery_speakers\":{...},\"recovery_prompt\":question about a DIFFERENT conversation in a different scenario,\"recovery_keywords\":[...]}. "
+                     "Plain spoken lines only: no stage directions, no sound effects, no audio instructions.",
+                     J({"situation": user["situation"], "goal": user["goal"], "plan": plan}), max_tokens=1800)
+    if r and _valid_script(r.get("script")) and _valid_script(r.get("recovery_script")) and r.get("prompt") and r.get("recovery_prompt") and isinstance(r.get("help"), dict):
+        r["speakers"] = _spk(r.get("speakers"), "Ana", "Leo"); r["recovery_speakers"] = _spk(r.get("recovery_speakers"), "Eva", "Tom")
+        r.setdefault("keywords", []); r.setdefault("recovery_keywords", []); return r
+    k = levels.estimate(user["id"])["k"]; tier = 0 if k <= 1 else 1 if k == 2 else 2
+    main = random.choice([d for d in DIALOGUES if d["tier"] == tier])
+    rec = random.choice([d for d in DIALOGUES if d is not main and abs(d["tier"] - tier) <= 1])
+    lg = i18n.tk(i18n.lang(user["id"])); sc = lambda d: [{"who": w, "text": t} for w, t in d["s"]]
+    return {"script": sc(main), "speakers": main["sp"], "prompt": main["q"], "keywords": main["kw"],
+            "help": {str(i): i18n.t(lg, f"dh{i}") for i in (1, 2, 3, 4)},
+            "recovery_script": sc(rec), "recovery_speakers": rec["sp"], "recovery_prompt": rec["q"], "recovery_keywords": rec["kw"]}
+
 def make_activity(user, plan):
+    if plan["activity_format"] == "listen_and_respond": return make_dialogue(user, plan)
     r = llm.ask_json("Design ONE micro-activity for an English learner (Spanish speaker). Follow the plan exactly (format, difficulty 1-5, scenario). Text-only: no audio, images or microphone; the learner types the answer in English. "
                      "Return {\"prompt\":English task,\"key_phrases\":[...],\"help\":{\"1\":hint,\"2\":guiding question,\"3\":example,\"4\":full explanation with model answer (help language: " + i18n.llm_lang(user["id"]) + ")},"
                      "\"recovery_prompt\":same skill, DIFFERENT scenario, no help}",
@@ -268,7 +324,7 @@ def create_session(user):
                  (user["id"], J(plan), J(act), "active", "[]", db.now()), write=True)
     db.run("insert into decisions(user_id,session_id,rule,decision_json,created_at) values(?,?,?,?,?)",
            (user["id"], sid, plan["rule"], J(plan), db.now()), write=True)
-    return {"session_id": sid, "decision": plan, "activity": {"prompt": act["prompt"], "format": plan["activity_format"]}}
+    return {"session_id": sid, "decision": plan, "activity": {"prompt": act["prompt"], "format": plan["activity_format"], "script": act.get("script"), "speakers": act.get("speakers"), "modality": plan.get("modality", "read")}}
 
 def give_help(sess, blocked=False):
     plan, act = L(sess["plan_json"]), L(sess["activity_json"])
@@ -279,27 +335,32 @@ def give_help(sess, blocked=False):
     db.run("update sessions set help_level=? where id=?", (lvl, sess["id"]), write=True)
     return {"granted": True, "level": lvl, "kind": HELP_KIND[lvl], "content": act["help"].get(str(lvl), "")}
 
-def attempt(user, sess, answer):
+def attempt(user, sess, answer, meta=None):
     plan, act, att = L(sess["plan_json"]), L(sess["activity_json"]), L(sess["attempts_json"])
-    ev = evaluate(user, {"prompt": act["prompt"], "competency": plan["competency"], "keywords": act.get("keywords", [])}, answer)
-    att.append({"answer": answer, "score": ev["score"], "help_level": sess["help_level"], "errors": ev["errors"],
+    hl = sess["help_level"]; meta = meta or {}
+    if meta.get("viewed"): hl = max(hl, 3)                                      # vio el texto = ayuda
+    elif meta.get("slow") or meta.get("replays", 0) > 2: hl = max(hl, 1)        # más de 3 escuchas o audio lento = ayuda leve
+    ev = evaluate(user, {"prompt": act["prompt"], "competency": plan["competency"], "keywords": act.get("keywords", []), "transcript": _tx(act.get("script"))}, answer)
+    att.append({"answer": answer, "score": ev["score"], "help_level": hl, "errors": ev["errors"],
                 "strengths": ev["strengths"], "feedback": ev["feedback"]})
-    add_evidence(user["id"], sess["id"], plan["competency"], ev["score"], sess["help_level"], "attempt", ev["feedback"])
+    add_evidence(user["id"], sess["id"], plan["competency"], ev["score"], hl, "attempt", (f'[{plan.get("modality", "read")}] ' if act.get("script") else "") + ev["feedback"])
     passed = ev["score"] >= PASS; done = passed or len(att) >= 3
     db.run("update sessions set attempts_json=?,status=? where id=?", (J(att), "recovery" if done else "active", sess["id"]), write=True)
     out = {"passed": passed, "score": ev["score"], "feedback": ev["feedback"], "errors": ev["errors"],
-           "help_level_used": sess["help_level"], "evaluator": ev["evaluator"]}
-    out.update({"recovery_task": act["recovery_prompt"]} if done else {"next": "Intenta de nuevo o pide una ayuda."})
+           "help_level_used": hl, "evaluator": ev["evaluator"]}
+    if done: out.update({"recovery_task": act["recovery_prompt"], "recovery_script": act.get("recovery_script"), "recovery_speakers": act.get("recovery_speakers")})
+    else: out["next"] = "Intenta de nuevo o pide una ayuda."
     return out
 
-def recover_and_close(user, sess, answer):
+def recover_and_close(user, sess, answer, meta=None):
     uid, plan, act, att = user["id"], L(sess["plan_json"]), L(sess["activity_json"]), L(sess["attempts_json"])
     comp = plan["competency"]
-    ev = evaluate(user, {"prompt": act["recovery_prompt"], "competency": comp}, answer)
-    add_evidence(uid, sess["id"], comp, ev["score"], 0, "recovery", ev["feedback"])
+    ev = evaluate(user, {"prompt": act["recovery_prompt"], "competency": comp, "keywords": act.get("recovery_keywords", []), "transcript": _tx(act.get("recovery_script"))}, answer)
+    viewed = bool((meta or {}).get("viewed"))
+    add_evidence(uid, sess["id"], comp, ev["score"], 3 if viewed else 0, "recovery", ev["feedback"])
     before = snapshot(uid)
     best = max(a["score"] for a in att)
-    bump(uid, comp, max(best, ev["score"]), ev["score"])  # autonomía = desempeño sin ayuda en contexto nuevo
+    bump(uid, comp, max(best, ev["score"]), ev["score"] * (0.5 if viewed else 1))  # autonomía = desempeño sin ayuda en contexto nuevo
     for a in att + [ev]: record_errors(uid, comp, a["errors"]); record_strengths(uid, a["strengths"])
     resolved = None
     if plan.get("focus_error") and ev["score"] >= PASS and plan["focus_error"] not in {e["pattern"] for e in ev["errors"]}:
