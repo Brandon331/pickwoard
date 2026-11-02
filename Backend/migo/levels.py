@@ -56,6 +56,9 @@ def activity(uid):
     d = db.run("select min(created_at) t from evidence where user_id=? and kind='diagnostic'", (uid,), one=True)
     if d and d["t"]: ev.append((d["t"], 10.0))
     for m in db.run("select created_at from messages where user_id=? and role='user'", (uid,)): ev.append((m["created_at"], 1.0))
+    for r in db.run("select created_at, ended_at from roleplays where user_id=? and status='done'", (uid,)):
+        if r["ended_at"] and r["created_at"]: ev.append((r["created_at"], max(1.0, min(15.0, (r["ended_at"] - r["created_at"]) / 60))))
+    for r in db.run("select created_at from evidence where user_id=? and kind='vocab_use'", (uid,)): ev.append((r["created_at"], 3.0))
     return [(t, m) for t, m in ev if t]
 
 def progress(uid, k=None):
@@ -69,8 +72,9 @@ def progress(uid, k=None):
     span = max(1.0, (now - first) / 86400) if first else 0.0
     recent = sum(m for t, m in ev if t >= now - 14 * 86400)
     pace, src = (max(5.0, recent / min(14.0, span)), "actual") if span >= 3 else (float(declared), "declared")
-    mastered = db.run("select count(*) n from vocab_words where user_id=? and lv=? and unaided>=2", (uid, k), one=True)["n"]
-    vf = min(1.0, mastered / KEYW[k])
+    mastered = db.run("select count(*) n from vocab_words where user_id=? and lv=? and used_ok>=2 and unaided>=2", (uid, k), one=True)["n"]
+    wsum = db.run("select coalesce(sum(case when used_ok>=2 and unaided>=2 then 1.0 when used_ok>=1 then 0.7 when unaided>=2 then 0.4 else 0 end),0) v from vocab_words where user_id=? and lv=?", (uid, k), one=True)["v"]
+    vf = min(1.0, float(wsum) / KEYW[k])      # reconocida .4 · usada .7 · dominada 1.0
     rows = db.run("select autonomy from competencies where user_id=?", (uid,))
     skill = sum(r["autonomy"] for r in rows) / len(rows) if rows else 0.0
     boost = 1 + .5 * (vf + skill) / 2

@@ -13,7 +13,7 @@ _url = DATABASE_URL if "sslmode=" in DATABASE_URL else DATABASE_URL + ("&" if "?
 _pool = ConnectionPool(_url, min_size=1, max_size=int(os.getenv("DB_POOL", "5")), open=True, timeout=30,
                        kwargs={"autocommit": True, "prepare_threshold": None, "row_factory": dict_row},
                        check=ConnectionPool.check_connection)
-_ID = {"users", "errors", "sessions", "decisions", "evidence", "messages", "accounts"}   # tablas con columna id
+_ID = {"users", "errors", "sessions", "decisions", "evidence", "messages", "accounts", "roleplays"}   # tablas con columna id
 
 SCHEMA = """
 create table if not exists users(id serial primary key, name text, goal text, situation text, context text,
@@ -32,6 +32,12 @@ create table if not exists evidence(id serial primary key, user_id int, session_
   score double precision, help_level int, kind text, note text, created_at double precision);
 create table if not exists messages(id serial primary key, user_id int, role text, content text, created_at double precision);
 create table if not exists vocab_words(user_id int, word text, lv int default -1, seen int default 0, first_ok int default 0, unaided int default 0, last_seen double precision, primary key(user_id,word));
+alter table vocab_words add column if not exists used_n int default 0;
+alter table vocab_words add column if not exists used_ok int default 0;
+alter table vocab_words add column if not exists box int default 0;
+alter table vocab_words add column if not exists due double precision;
+create table if not exists roleplays(id serial primary key, user_id int, scenario_json text, words_json text, turns_json text, status text default 'active', summary_json text, created_at double precision, ended_at double precision);
+create index if not exists ix_roleplays_user on roleplays(user_id);
 create index if not exists ix_errors_user on errors(user_id);
 create index if not exists ix_sessions_user on sessions(user_id);
 create index if not exists ix_decisions_user on decisions(user_id);

@@ -158,3 +158,47 @@ def post_vocab(uid: int, b: VocabIn):
 @app.get("/users/{uid}/vocab")
 def get_vocab(uid: int):
     U(uid); return E.vocab_state(uid)
+
+class UseItem(BaseModel):
+    w: str
+    lv: int = -1
+    sentence: str
+class UseIn(BaseModel): items: List[UseItem]
+class RoleWord(BaseModel):
+    w: str
+    lv: int = -1
+class RoleStartIn(BaseModel): words: List[RoleWord]
+class RoleTurnIn(BaseModel): text: str
+
+@app.get("/users/{uid}/vocab/due")
+def vocab_due(uid: int): U(uid); return E.vocab_due(uid)
+
+@app.post("/users/{uid}/vocab/use")
+def vocab_use(uid: int, b: UseIn):
+    u = U(uid)
+    if not 1 <= len(b.items) <= 5: raise HTTPException(422, "entre 1 y 5 frases")
+    return E.use_words(u, [{"w": x.w.strip()[:40], "lv": x.lv, "sentence": x.sentence.strip()[:300]} for x in b.items])
+
+@app.post("/users/{uid}/roleplay")
+def roleplay_start(uid: int, b: RoleStartIn):
+    u = U(uid)
+    if not 1 <= len(b.words) <= 5: raise HTTPException(422, "entre 1 y 5 palabras")
+    return E.role_start(u, [{"w": x.w.strip()[:40], "lv": x.lv} for x in b.words])
+
+def RP(rid):
+    rp = db.run("select * from roleplays where id=?", (rid,), one=True)
+    if not rp: raise HTTPException(404, "roleplay not found")
+    return rp, U(rp["user_id"])
+
+@app.post("/roleplay/{rid}/turn")
+def roleplay_turn(rid: int, b: RoleTurnIn):
+    rp, u = RP(rid)
+    if rp["status"] != "active": raise HTTPException(409, "el rol ya terminó")
+    if not b.text.strip(): raise HTTPException(422, "texto vacío")
+    return E.role_turn(u, rp, b.text.strip()[:400])
+
+@app.post("/roleplay/{rid}/finish")
+def roleplay_finish(rid: int):
+    rp, u = RP(rid)
+    if rp["status"] == "done": return E.L(rp["summary_json"]) or {"evaluator": "none", "results": []}
+    return E.role_finish(u, rp)

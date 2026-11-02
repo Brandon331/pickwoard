@@ -109,22 +109,127 @@ def record_vocab(user, items, kind="vocab"):
     if not n: return None
     first = sum(1 for x in items if x["first"]); good = [x["w"] for x in items if x["first"] and not x["peek"]]
     bump(uid, "vocabulary", first / n, len(good) / n)
-    for x in items:
-        db.run("insert into vocab_words(user_id,word,lv,seen,first_ok,unaided,last_seen) values(?,?,?,1,?,?,?) on conflict(user_id,word) do update set "
-               "seen=vocab_words.seen+1, first_ok=vocab_words.first_ok+excluded.first_ok, unaided=vocab_words.unaided+excluded.unaided, "
-               "lv=case when excluded.lv>=0 then excluded.lv else vocab_words.lv end, last_seen=excluded.last_seen",
-               (uid, x["w"], x.get("lv", -1), int(bool(x["first"])), int(bool(x["first"] and not x["peek"])), db.now()), write=True)
+    for x in items: _touch(uid, x["w"], x.get("lv", -1), bool(x["first"] and not x["peek"]), rec=x)
     note = i18n.t(i18n.tk(i18n.lang(uid)), "v_note", a=first, n=n, b=len(good))
     add_evidence(uid, None, "vocabulary", len(good) / n, 0, kind, note)
     return {"first_try": first, "unaided": len(good), "n": n, "note": note, "words_mastered": words_mastered(uid)}
 
+INTERVALS = [1, 1, 3, 7, 14]    # días hasta el próximo repaso según la caja (0 = fallaste o pediste ayuda)
+MAX_TURNS = 6                   # turnos del alumno en un rol con Migo
+FOLLOW = ["Tell me more about that.", "Why is that important to you?", "What happened next?", "Can you give me an example?", "How do you feel about it?", "Anything else you want to add?"]
+
+def _stem_rx(w): return re.compile(r"\b" + r"\s+".join(re.escape(t) + r"\w*" for t in w.split(" ")), re.I)
+
+def _touch(uid, w, lv, good, rec=None, use=False):
+    """Actualiza una palabra. rec = ronda de reconocimiento (frase con hueco); use = el alumno la USÓ en una frase o conversación.
+    Caja de repaso: acierto sube una caja (próximo repaso más lejano); fallo en reconocimiento vuelve a 0; fallo al usarla baja una."""
+    r = db.run("select box from vocab_words where user_id=? and word=?", (uid, w), one=True)
+    box = (r["box"] or 0) if r else 0
+    box = min(4, box + 1) if good else (max(0, box - 1) if use else 0)
+    now = db.now()
+    db.run("insert into vocab_words(user_id,word,lv,seen,first_ok,unaided,used_n,used_ok,box,due,last_seen) values(?,?,?,?,?,?,?,?,?,?,?) on conflict(user_id,word) do update set "
+           "seen=vocab_words.seen+excluded.seen, first_ok=vocab_words.first_ok+excluded.first_ok, unaided=vocab_words.unaided+excluded.unaided, "
+           "used_n=vocab_words.used_n+excluded.used_n, used_ok=vocab_words.used_ok+excluded.used_ok, box=excluded.box, due=excluded.due, "
+           "lv=case when excluded.lv>=0 then excluded.lv else vocab_words.lv end, last_seen=excluded.last_seen",
+           (uid, w, lv, 1 if rec is not None else 0, int(bool(rec and rec["first"])), int(bool(rec and rec["first"] and not rec["peek"])),
+            1 if use else 0, int(bool(use and good)), box, now + INTERVALS[box] * 86400, now), write=True)
+
+def vocab_due(uid):
+    now = db.now()
+    rows = db.run("select word as w, lv, box, coalesce(due, last_seen + 86400) as due from vocab_words where user_id=? and coalesce(due, last_seen + 86400) <= ? order by 4", (uid, now))
+    nx = db.run("select min(coalesce(due, last_seen + 86400)) t from vocab_words where user_id=? and coalesce(due, last_seen + 86400) > ?", (uid, now), one=True)
+    return {"due": rows, "count": len(rows), "next_due": nx["t"] if nx else None}
+
 def vocab_state(uid):
-    rows = db.run("select word as w, lv, seen, first_ok, unaided, last_seen from vocab_words where user_id=? order by last_seen desc", (uid,))
-    for r in rows: r["status"] = "mastered" if r["unaided"] >= 2 else "seen"
-    return {"path": levels.path(uid), "words": rows, "progress": levels.progress(uid)}
+    now = db.now()
+    rows = db.run("select word as w, lv, seen, first_ok, unaided, used_n, used_ok, box, coalesce(due, last_seen + 86400) as due, last_seen from vocab_words where user_id=? order by last_seen desc", (uid,))
+    for r in rows: r["status"] = "mastered" if r["used_ok"] >= 2 and r["unaided"] >= 2 else "used" if r["used_ok"] >= 1 else "seen"
+    return {"path": levels.path(uid), "words": rows, "progress": levels.progress(uid), "due_count": sum(1 for r in rows if r["due"] <= now)}
+
+def use_words(user, items):
+    """'Usa la palabra': el alumno escribe SU frase con cada palabra y un evaluador ESTRICTO decide si la usó bien. Sin LLM no se evalúa ni se cambia nada."""
+    uid = user["id"]
+    known = [e["pattern"] for e in db.run("select pattern from errors where user_id=?", (uid,))]
+    r = llm.ask_json("You are a STRICT but kind English teacher evaluating SENTENCES that a Spanish-speaking learner wrote to practice target words. For each item decide used_correctly: "
+                     "true ONLY if the target word (any inflection) appears AND is used with the right meaning and part of speech in a grammatical, natural sentence the learner wrote themselves. "
+                     "False if the sentence is under 4 words, copies or barely edits the example, is ungrammatical, or uses the word with a wrong meaning. "
+                     "Return {\"results\":[{\"w\":word,\"used_correctly\":bool,\"feedback\":ONE short sentence (language: " + i18n.llm_lang(uid) + ") on what is good or wrong,"
+                     "\"better\":a more natural English version of THEIR sentence keeping their idea,\"errors\":[{\"pattern\":snake_case_label,\"example\":str}]}]}. Reuse these error labels when they apply: " + J(known),
+                     J({"estimated_cefr_level": levels.LV[levels.estimate(uid)["k"]], "items": [{"w": i["w"], "example": _example(i["w"]), "sentence": i["sentence"]} for i in items]}), max_tokens=1400)
+    if not (r and isinstance(r.get("results"), list)): return {"evaluator": "none", "results": [], "ok": 0, "n": len(items)}
+    by = {x.get("w"): x for x in r["results"] if isinstance(x, dict)}; out = []; ok_n = 0
+    for it in items:
+        x = by.get(it["w"]) or {}
+        good = bool(x.get("used_correctly")) and len(it["sentence"].split()) >= 4 and bool(_stem_rx(it["w"]).search(it["sentence"]))
+        _touch(uid, it["w"], it.get("lv", -1), good, use=True); ok_n += good
+        out.append({"w": it["w"], "ok": good, "feedback": str(x.get("feedback", ""))[:240], "better": str(x.get("better", ""))[:240]})
+        errs = [{"pattern": e["pattern"], "example": str(e.get("example", ""))[:80]} for e in (x.get("errors") or []) if isinstance(e, dict) and e.get("pattern")][:2]
+        if errs: record_errors(uid, "production", errs)
+    bump(uid, "vocabulary", ok_n / len(items), ok_n / len(items))
+    add_evidence(uid, None, "vocabulary", ok_n / len(items), 0, "vocab_use", f"{ok_n}/{len(items)}")
+    return {"evaluator": "llm", "results": out, "ok": ok_n, "n": len(items), "words_mastered": words_mastered(uid)}
+
+def _example(w): return ""   # el ejemplo lo conoce el cliente; el evaluador no lo necesita para juzgar el uso
+
+def role_start(user, words):
+    uid = user["id"]; k = levels.estimate(uid)["k"]; keys = ("title", "setting", "migo_role", "user_role", "line")
+    r = llm.ask_json("Design a short ROLE-PLAY for an English learner (Spanish speaker). Migo plays a role in a realistic scene tied to the learner's situation; the learner plays themselves. "
+                     "Choose a scene where the TARGET WORDS can come up naturally. Return {\"title\":scene title,\"setting\":one sentence,\"migo_role\":who Migo plays,\"user_role\":who the learner plays,"
+                     "\"line\":Migo's first line, max 20 words, simple English for the learner's level, ending with a question}. All values in English, no stage directions.",
+                     J({"situation": user["situation"], "goal": user["goal"], "estimated_cefr_level": levels.LV[k], "target_words": [w["w"] for w in words]}))
+    sc = {x: r[x].strip()[:200] for x in keys} if isinstance(r, dict) and all(isinstance(r.get(x), str) and r[x].strip() for x in keys) else None
+    if not sc: sc = {"title": user["situation"][:60], "setting": "A practice conversation about: " + user["situation"], "migo_role": "a friendly partner", "user_role": "yourself",
+                     "line": "Hi! Let's practice. Tell me a little about your situation and what you need."}
+    rid = db.run("insert into roleplays(user_id,scenario_json,words_json,turns_json,created_at) values(?,?,?,?,?)", (uid, J(sc), J(words), J([{"who": "migo", "text": sc["line"]}]), db.now()), write=True)
+    return {"id": rid, "scenario": sc, "line": sc["line"], "words": [w["w"] for w in words], "max_turns": MAX_TURNS}
+
+def role_turn(user, rp, text):
+    sc, words, turns = L(rp["scenario_json"]), L(rp["words_json"]), L(rp["turns_json"])
+    turns.append({"who": "me", "text": text}); n = sum(1 for t in turns if t["who"] == "me")
+    mine = [t["text"] for t in turns if t["who"] == "me"]
+    used = [w["w"] for w in words if any(_stem_rx(w["w"]).search(t) for t in mine)]
+    done = n >= MAX_TURNS
+    if done: reply = "Great talk! Let's see how you did."
+    else:
+        pending = [w["w"] for w in words if w["w"] not in used]
+        hist = "\n".join(("Migo: " if t["who"] == "migo" else "Learner: ") + t["text"] for t in turns[-8:])
+        reply = llm.ask("You are Migo, playing " + sc["migo_role"] + " in this scene: " + sc["setting"] + " The learner plays: " + sc["user_role"] + ". Stay in role and reply in ONE or TWO short sentences "
+                        "(max 25 words) in simple English for CEFR level " + levels.LV[levels.estimate(user["id"])["k"]] + ". Do NOT correct mistakes now. End with a question that gives the learner a natural reason "
+                        "to use one of these words WITHOUT saying the words yourself: " + (", ".join(pending) or "(none left: just keep the conversation natural)") + ".", hist, max_tokens=120)
+        reply = (reply or "").strip().replace("\n", " ")[:300] or FOLLOW[(n - 1) % len(FOLLOW)]
+    turns.append({"who": "migo", "text": reply})
+    db.run("update roleplays set turns_json=? where id=?", (J(turns), rp["id"]), write=True)
+    return {"reply": reply, "used_now": used, "turn": n, "done": done}
+
+def role_finish(user, rp):
+    uid = user["id"]; words, turns = L(rp["words_json"]), L(rp["turns_json"])
+    mine = [t["text"] for t in turns if t["who"] == "me"]
+    used = [w for w in words if any(_stem_rx(w["w"]).search(t) for t in mine)]
+    r = llm.ask_json("You are a STRICT but kind English teacher doing a ROLE-PLAY review for a Spanish-speaking learner. For each target word the learner used, decide used_correctly: true ONLY if it was used with the right meaning "
+                     "and part of speech in a grammatical, natural sentence. Return {\"results\":[{\"w\":word,\"used_correctly\":bool,\"feedback\":ONE short sentence (language: " + i18n.llm_lang(uid) + "),"
+                     "\"better\":a more natural version of the learner's sentence}],\"overall\":{\"praise\":one short encouraging sentence (language: " + i18n.llm_lang(uid) + "),"
+                     "\"fixes\":[up to 3 short corrections of the learner's most important mistakes]}}.",
+                     J({"transcript": "\n".join(("Migo: " if t["who"] == "migo" else "Learner: ") + t["text"] for t in turns), "target_words_used": [w["w"] for w in used]}), max_tokens=1400)
+    db.run("update roleplays set status='done', ended_at=? where id=?", (db.now(), rp["id"]), write=True)
+    if not (r and isinstance(r.get("results"), list)) or not mine:
+        return {"evaluator": "none", "results": [{"w": w["w"], "used": w in used, "ok": False, "feedback": "", "better": ""} for w in words], "ok": 0, "used": len(used), "n": len(words)}
+    by = {x.get("w"): x for x in r["results"] if isinstance(x, dict)}; out = []; ok_n = 0
+    for w in words:
+        if w not in used: out.append({"w": w["w"], "used": False, "ok": False, "feedback": "", "better": ""}); continue
+        x = by.get(w["w"]) or {}; good = bool(x.get("used_correctly")); ok_n += good
+        _touch(uid, w["w"], w.get("lv", -1), good, use=True)
+        out.append({"w": w["w"], "used": True, "ok": good, "feedback": str(x.get("feedback", ""))[:240], "better": str(x.get("better", ""))[:240]})
+    if used:
+        bump(uid, "vocabulary", ok_n / len(used), ok_n / len(used)); add_evidence(uid, None, "vocabulary", ok_n / len(used), 0, "vocab_use", f"rol: {ok_n}/{len(used)}")
+    ov = r.get("overall") if isinstance(r.get("overall"), dict) else {}
+    summary = {"evaluator": "llm", "results": out, "praise": str(ov.get("praise", ""))[:240], "fixes": [str(f)[:200] for f in (ov.get("fixes") or [])][:3],
+               "ok": ok_n, "used": len(used), "n": len(words), "words_mastered": words_mastered(uid)}
+    db.run("update roleplays set summary_json=? where id=?", (J(summary), rp["id"]), write=True)
+    return summary
+
 
 def words_mastered(uid):
-    return db.run("select count(*) n from vocab_words where user_id=? and unaided>=2", (uid,), one=True)["n"]   # dominada = 2 aciertos sin ver la imagen
+    return db.run("select count(*) n from vocab_words where user_id=? and used_ok>=2 and unaided>=2", (uid,), one=True)["n"]   # dominada = reconocida sin ayuda 2 veces Y usada bien 2 veces
 
 # ---------- diagnóstico ----------
 def diagnostic_tasks(user):
