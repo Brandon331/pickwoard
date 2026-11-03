@@ -11,8 +11,7 @@ if not DATABASE_URL.startswith(("postgres://", "postgresql://")):
 # El "Transaction pooler" de Supabase (puerto 6543) no admite prepared statements -> prepare_threshold=None. Supabase exige SSL.
 _url = DATABASE_URL if "sslmode=" in DATABASE_URL else DATABASE_URL + ("&" if "?" in DATABASE_URL else "?") + "sslmode=require"
 _pool = ConnectionPool(_url, min_size=1, max_size=int(os.getenv("DB_POOL", "5")), open=True, timeout=30,
-                       kwargs={"autocommit": True, "prepare_threshold": None, "row_factory": dict_row},
-                       check=ConnectionPool.check_connection)
+                       kwargs={"autocommit": True, "prepare_threshold": None, "row_factory": dict_row})
 _ID = {"users", "errors", "sessions", "decisions", "evidence", "messages", "accounts", "roleplays"}   # tablas con columna id
 
 SCHEMA = """
