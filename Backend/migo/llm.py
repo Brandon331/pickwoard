@@ -3,10 +3,44 @@ import os, json, re, logging
 
 log = logging.getLogger("migo.llm")
 MODEL = os.getenv("MIGO_MODEL", "gpt-4.1-mini")
+TTS_MODEL = os.getenv("MIGO_TTS_MODEL", "gpt-4o-mini-tts")
+TTS_VOICE = os.getenv("MIGO_VOICE", "coral")
+STT_MODEL = os.getenv("MIGO_STT_MODEL", "gpt-4o-mini-transcribe")
+TTS_STYLE = "Speak like a warm, friendly English conversation partner. Natural pace, clear pronunciation, relaxed and encouraging, not robotic."
 LAST_ERROR = None          # solo el tipo de error (sin mensaje: podría incluir parte de la clave); el detalle va a los logs
 _client = None
 
 def enabled(): return bool(os.getenv("OPENAI_API_KEY"))
+
+def _cli():
+    global _client
+    if _client is None:
+        from openai import OpenAI
+        _client = OpenAI(timeout=45)
+    return _client
+
+def tts(text):
+    """Texto -> bytes mp3 con voz natural. None si no hay clave o falla."""
+    global LAST_ERROR
+    if not enabled() or not text: return None
+    try:
+        r = _cli().audio.speech.create(model=TTS_MODEL, voice=TTS_VOICE, input=text[:500], instructions=TTS_STYLE, response_format="mp3")
+        LAST_ERROR = None
+        return r.content
+    except Exception as e:
+        LAST_ERROR = type(e).__name__; log.error("TTS error (%s): %s", LAST_ERROR, e); return None
+
+def stt(data, filename="audio.webm", mime="audio/webm", hint=""):
+    """Audio -> texto en inglés. None si falla. `hint` = palabras objetivo (ayuda a reconocerlas)."""
+    global LAST_ERROR
+    if not enabled() or not data: return None
+    try:
+        kw = {"prompt": hint[:200]} if hint else {}
+        r = _cli().audio.transcriptions.create(model=STT_MODEL, file=(filename, data, mime), language="en", **kw)
+        LAST_ERROR = None
+        return (r.text or "").strip()
+    except Exception as e:
+        LAST_ERROR = type(e).__name__; log.error("STT error (%s): %s", LAST_ERROR, e); return None
 
 def ask(system, prompt, max_tokens=1200, json_mode=False):
     global _client, LAST_ERROR

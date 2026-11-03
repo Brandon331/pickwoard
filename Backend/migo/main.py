@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,7 +54,7 @@ def S(sid):
 def health():
     try: db.run("select 1 x", one=True); dbs = "ok"
     except Exception: dbs = "error"
-    return {"ok": dbs == "ok", "db": dbs, "llm_enabled": llm.enabled(), "model": llm.MODEL, "llm_last_error": llm.LAST_ERROR}
+    return {"ok": dbs == "ok", "db": dbs, "llm_enabled": llm.enabled(), "model": llm.MODEL, "llm_last_error": llm.LAST_ERROR, "tts_model": llm.TTS_MODEL, "voice": llm.TTS_VOICE, "stt_model": llm.STT_MODEL}
 
 @app.post("/users")
 def create_user(b: UserIn): return {"user_id": E.create_user(b.model_dump()), "next": "GET /users/{id}/diagnostic"}
@@ -202,3 +202,30 @@ def roleplay_finish(rid: int):
     rp, u = RP(rid)
     if rp["status"] == "done": return E.L(rp["summary_json"]) or {"evaluator": "none", "results": []}
     return E.role_finish(u, rp)
+
+
+# ---------- voz (speaking): Migo habla (TTS) y el usuario responde hablando (STT) ----------
+class TtsIn(BaseModel): text: str
+
+@app.post("/users/{uid}/speech/tts")
+def speech_tts(uid: int, b: TtsIn):
+    U(uid)
+    t = b.text.strip()
+    if not t: raise HTTPException(422, "texto vacío")
+    a = llm.tts(t[:500])
+    if not a: raise HTTPException(503, "voz no disponible")
+    return Response(content=a, media_type="audio/mpeg", headers={"Cache-Control": "private, max-age=86400"})
+
+_EXT = {"webm": "webm", "mp4": "mp4", "m4a": "m4a", "mpeg": "mp3", "mp3": "mp3", "ogg": "ogg", "wav": "wav", "x-m4a": "m4a"}
+
+@app.post("/users/{uid}/speech/stt")
+async def speech_stt(uid: int, request: Request, hint: str = ""):
+    U(uid)
+    data = await request.body()
+    if len(data) < 1000: raise HTTPException(422, "audio vacío o muy corto")
+    if len(data) > 6_000_000: raise HTTPException(413, "audio muy largo (máx. ~1 min)")
+    mime = (request.headers.get("content-type") or "audio/webm").split(";")[0].strip()
+    ext = _EXT.get(mime.split("/")[-1], "webm")
+    t = llm.stt(data, "audio." + ext, mime, hint)
+    if t is None: raise HTTPException(503, "no pude transcribir el audio")
+    return {"text": t}
