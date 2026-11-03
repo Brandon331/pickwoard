@@ -175,7 +175,7 @@ body.hasnav main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 <script src="vocab.js"></script>
 <script>
 const $=s=>document.querySelector(s);
-const API=localStorage.getItem('migo-api')||'https://migo-english-back.onrender.com';
+const API=localStorage.getItem('migo-api')||'https://pickwoard-backend.onrender.com';
 let S={};try{S=JSON.parse(localStorage.getItem('migo')||'{}')}catch(e){}
 const save=()=>localStorage.setItem('migo',JSON.stringify(S));
 let PL=null;try{PL=JSON.parse(localStorage.getItem('migo-pl')||'null')}catch(e){}
