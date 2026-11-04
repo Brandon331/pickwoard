@@ -250,3 +250,22 @@ async def speech_stt(uid: int, request: Request, hint: str = ""):
     t = llm.stt(data, "audio." + ext, mime, hint)
     if t is None: voice_refund(uid); raise HTTPException(503, "no pude transcribir el audio")
     return {"text": t}
+
+
+# ---------- keep-alive: el servidor se llama a sí mismo cada 14 min para que el plan gratis no se duerma ----------
+import threading, time, urllib.request, logging
+
+_log = logging.getLogger("migo.keepalive")
+KEEPALIVE_URL = (os.getenv("MIGO_SELF_URL") or os.getenv("RENDER_EXTERNAL_URL") or "").rstrip("/")   # Render pone RENDER_EXTERNAL_URL solo
+KEEPALIVE_MIN = float(os.getenv("MIGO_KEEPALIVE_MIN", "14"))
+
+def _keepalive():
+    time.sleep(60)                               # deja arrancar primero
+    while True:
+        try:
+            with urllib.request.urlopen(KEEPALIVE_URL + "/health", timeout=30) as r: _log.info("keepalive %s", r.status)
+        except Exception as e: _log.warning("keepalive falló: %s", type(e).__name__)
+        time.sleep(KEEPALIVE_MIN * 60)
+
+if KEEPALIVE_URL and KEEPALIVE_MIN > 0:
+    threading.Thread(target=_keepalive, daemon=True, name="keepalive").start()
