@@ -106,7 +106,7 @@ textarea::placeholder{color:#8a96b8;font-style:italic}
 .chk input{width:20px;height:20px;accent-color:var(--pink)}
 .chat{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}
 .bub{max-width:86%;padding:8px 14px;border-radius:18px;font-weight:700;font-size:16px}
-.mic{font-size:20px}.mic.rec{background:#e8281e;color:#fff;box-shadow:0 6px 0 #9c1410;animation:mp 1s infinite}@keyframes mp{50%{transform:scale(1.04)}}
+.bub.fr{font-style:italic;opacity:.9}.mic{font-size:20px}.mic.rec{background:#e8281e;color:#fff;box-shadow:0 6px 0 #9c1410;animation:mp 1s infinite}@keyframes mp{50%{transform:scale(1.04)}}
 .bub.me{justify-self:end;background:var(--sky);color:#fff;border-bottom-right-radius:4px}
 .bub.mg{justify-self:start;background:var(--sun);color:#2a1a14;border-bottom-left-radius:4px}
 .fig *{transform-box:view-box}
@@ -274,16 +274,17 @@ const shuf=a=>{a=a.slice();for(let k=a.length;k>1;k--){const j=Math.random()*k|0
 function stopAudio(){AUD.token++;try{MA.pause()}catch(e){}try{if('speechSynthesis' in window)speechSynthesis.cancel()}catch(e){}}
 function speak(t){try{if(!('speechSynthesis' in window)||!t)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
 /* ---- Voz natural: Migo habla con TTS del servidor; tú respondes con el micrófono (STT) ---- */
-const MA=new Audio(),TTSC=new Map();let MAok=false,VOICE=localStorage.getItem('migo-voice')!=='0',REC=null,RECT=null;
+const MA=new Audio(),TTSC=new Map();let TTSOFF=false,MAok=false,VOICE=localStorage.getItem('migo-voice')!=='0',REC=null,RECT=null;
 const CANMIC=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
 function unlockAudio(){if(MAok)return;MAok=true;try{MA.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';MA.play().catch(()=>{})}catch(e){}}
-async function speakN(t){
- if(!t)return;stopAudio();
- try{let u=TTSC.get(t);
-  if(!u){const r=await fetch(API+'/users/'+S.user_id+'/speech/tts',{method:'POST',headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:JSON.stringify({text:t})});
-   if(!r.ok)throw 0;u=URL.createObjectURL(await r.blob());TTSC.set(t,u)}
-  MA.src=u;await MA.play()}
- catch(e){speak(t)}}   // sin voz del servidor -> voz del navegador
+async function speakN(t,es){   // es=true: Migo habla como él mismo en español. Resuelve al terminar el audio.
+ if(!t)return false;stopAudio();
+ if(TTSOFF){speak(t);return false}
+ try{const k=(es?'es|':'')+t;let u=TTSC.get(k);
+  if(!u){const r=await fetch(API+'/users/'+S.user_id+'/speech/tts',{method:'POST',headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:JSON.stringify({text:t,lang:es?'es':'en'})});
+   if(r.status==429)TTSOFF=true;if(!r.ok)throw 0;u=URL.createObjectURL(await r.blob());TTSC.set(k,u)}
+  MA.src=u;await MA.play();await new Promise(res=>{MA.onended=res;MA.onerror=res});return true}
+ catch(e){speak(t);return false}}   // sin voz del servidor -> voz del navegador
 async function micToggle(){
  if(REC){REC.stop();return}
  if(busy)return;unlockAudio();stopAudio();
@@ -345,24 +346,24 @@ function vRole(b){unlockAudio();act(b,async()=>{
  for(const w of st.words.filter(x=>x.lv>=0).sort(byUse)){const f=findW(w.w);if(f&&words.length<4)words.push({w:f.x.w,lv:f.k,e:f.x.e})}
  if(words.length<2){migo('idle','Primero necesitas palabras 📚','Practica 8 palabras y luego hacemos el rol');return vVocab(st)}
  const r=await api('/users/'+S.user_id+'/roleplay','POST',{words:words.map(x=>({w:x.w,lv:x.lv}))});
- RP={id:r.id,sc:r.scenario,words,used:[],turn:0,max:r.max_turns,log:[{who:'migo',text:r.line}]};rpRender()})}
+ RP={id:r.id,sc:r.scenario,words,used:[],turn:0,max:r.max_turns,log:[{who:'migo',text:r.line,pre:r.intro}],vl:r.voice_lang};rpRender()})}
 function rpRender(quiet){
  migo('idle','Rol con Migo 🎭',CANMIC?'Toca 🎤 y habla en inglés':'Habla en inglés y usa tus palabras');
  V(`<div class="card"><h2>🎭 ${E(RP.sc.title)}</h2><p class="meta">${E(RP.sc.setting)}<br>Migo es: <b>${E(RP.sc.migo_role)}</b> · Tú eres: <b>${E(RP.sc.user_role)}</b></p>
  <p class="meta">Usa estas palabras en la conversación:</p><div class="chips sc">${RP.words.map(x=>`<span class="${RP.used.includes(x.w)?'me':''}">${RP.used.includes(x.w)?'✅ ':''}${E(x.w)} ${x.e}</span>`).join('')}</div>
- <div class="chat" id="rpc">${RP.log.map(m=>`<div class="bub ${m.who=='migo'?'mg':'me'}">${E(m.text)}${m.who=='migo'?` <button class="hint" style="padding:0 8px" data-t="${E(m.text)}" onclick="speakN(this.dataset.t)" aria-label="Escuchar">🔊</button>`:''}</div>`).join('')}</div>
+ <div class="chat" id="rpc">${RP.log.map(m=>`${m.pre?`<div class="bub mg fr">🙂 ${E(m.pre)}</div>`:''}<div class="bub ${m.who=='migo'?'mg':'me'}">${E(m.text)}${m.who=='migo'?` <button class="hint" style="padding:0 8px" data-t="${E(m.text)}" onclick="speakN(this.dataset.t)" aria-label="Escuchar">🔊</button>`:''}</div>`).join('')}</div>
  ${CANMIC?`<div class="row"><button type="button" class="btn pink mic" id="mic" onclick="micToggle()">🎤 Hablar</button><button type="button" class="hint" onclick="rpVoice()">${VOICE?'🔊 Voz de Migo: sí':'🔇 Voz de Migo: no'}</button></div>`:''}
  <form onsubmit="return rpSend(event)" class="row"><input id="rpi" placeholder="…o escribe tu respuesta en inglés" autocomplete="off" style="flex:1" maxlength="400"><button class="btn pink" type="submit">Enviar</button></form>
- <p class="err" id="err" hidden></p><div class="row"><button class="back" onclick="rpFinish(this)">Terminar y ver mi resultado</button><span class="meta">Turno ${RP.turn}/${RP.max}</span></div></div>`);$('#rpc').scrollTop=1e5;if(VOICE&&!quiet){const m=RP.log[RP.log.length-1];if(m&&m.who=='migo')speakN(m.text)}}
+ <p class="err" id="err" hidden></p><div class="row"><button class="back" onclick="rpFinish(this)">Terminar y ver mi resultado</button><span class="meta">Turno ${RP.turn}/${RP.max}</span></div></div>`);$('#rpc').scrollTop=1e5;if(VOICE&&!quiet){const m=RP.log[RP.log.length-1];if(m&&m.who=='migo')(async()=>{if(m.pre)await speakN(m.pre,RP.vl=='es');speakN(m.text)})()}}
 function rpSend(e){e.preventDefault();const t=$('#rpi').value.trim();if(!t)return false;unlockAudio();
  act(e.target.querySelector('[type=submit]'),()=>rpTurnRun(t));return false}
 async function rpTurnRun(t){RP.log.push({who:'me',text:t});const r=await api('/roleplay/'+RP.id+'/turn','POST',{text:t});RP.log.push({who:'migo',text:r.reply});RP.used=r.used_now;RP.turn=r.turn;
- if(r.done){if(VOICE)speakN(r.reply);return rpDone(await api('/roleplay/'+RP.id+'/finish','POST'))}rpRender()}
+ if(r.done)return rpDone(await api('/roleplay/'+RP.id+'/finish','POST'));rpRender()}
 function rpFinish(b){stopAudio();act(b,async()=>{rpDone(await api('/roleplay/'+RP.id+'/finish','POST'))})}
 function rpDone(r){
  if(r.evaluator!='llm'){migo('sad','No pude revisarlo ahora','Inténtalo más tarde');return V('<div class="card"><h2>Sin revisión</h2><p>Ahora mismo no puedo evaluar la conversación (el servicio de IA no respondió), así que <b>no se contó</b>.</p><div class="row"><button class="hint" onclick="goTab(\'vocab\')">← Vocabulario</button><button class="btn pink" onclick="vRole(this)">Otro rol</button></div></div>')}
- migo(r.ok>0?'happy':'idle','Rol terminado 🎭',r.used+' de '+r.n+' palabras usadas · '+r.ok+' bien');
- V(`<div class="card"><h2>Tu resultado</h2>${r.praise?`<div class="tip">${E(r.praise)}</div>`:''}
+ migo(r.ok>0?'happy':'idle','Rol terminado 🎭',r.used+' de '+r.n+' palabras usadas · '+r.ok+' bien');if(VOICE&&r.friend)speakN(r.friend,r.voice_lang=='es');
+ V(`<div class="card"><h2>Tu resultado</h2>${r.friend?`<div class="tip">🙂 ${E(r.friend)}</div>`:''}${r.praise?`<div class="tip">${E(r.praise)}</div>`:''}
  ${r.results.map(x=>x.used?`<div class="pc" style="--c:${x.ok?'var(--green)':'var(--orange)'}"><h3>${x.ok?'✅':'🔁'} ${E(x.w)}</h3><p>${E(x.feedback)}</p>${x.better?`<p><b>Más natural:</b> ${E(x.better)}</p>`:''}</div>`:`<div class="pc" style="--c:var(--lilac)"><h3>➖ ${E(x.w)}</h3><p class="meta">No la usaste esta vez.</p></div>`).join('')}
  ${r.fixes&&r.fixes.length?`<div class="tip green"><b>Para mejorar:</b><br>${r.fixes.map(f=>'• '+E(f)).join('<br>')}</div>`:''}
  <p class="meta">🌟 ${r.words_mastered} palabras dominadas en total.</p><div class="row"><button class="hint" onclick="goTab('vocab')">← Vocabulario</button><button class="btn pink" onclick="vRole(this)">Otro rol</button></div></div>`)}

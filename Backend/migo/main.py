@@ -1,3 +1,5 @@
+import os
+from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 from typing import List, Optional
@@ -205,16 +207,34 @@ def roleplay_finish(rid: int):
 
 
 # ---------- voz (speaking): Migo habla (TTS) y el usuario responde hablando (STT) ----------
-class TtsIn(BaseModel): text: str
+VOICE_DAILY = int(os.getenv("MIGO_VOICE_DAILY", "120"))   # llamadas de voz (Migo habla + tú hablas) por usuario y día UTC; un rol completo gasta ~14
+
+def _day(): return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+def voice_take(uid):
+    """Cuenta una llamada de voz; 429 si ya pasó el límite del día. Devuelve cuántas le quedan."""
+    r = db.run("insert into voice_usage(user_id,day,n) values(?,?,1) on conflict(user_id,day) do update set n=voice_usage.n+1 returning n", (uid, _day()), one=True)
+    n = r["n"] if r else 1
+    if n > VOICE_DAILY:
+        db.run("update voice_usage set n=n-1 where user_id=? and day=?", (uid, _day()), write=True)
+        raise HTTPException(429, "Llegaste al límite de voz de hoy 🎤 Escribe tu respuesta y mañana vuelves a hablar.")
+    return VOICE_DAILY - n
+
+def voice_refund(uid): db.run("update voice_usage set n=n-1 where user_id=? and day=? and n>0", (uid, _day()), write=True)
+
+class TtsIn(BaseModel):
+    text: str
+    lang: str = "en"
 
 @app.post("/users/{uid}/speech/tts")
 def speech_tts(uid: int, b: TtsIn):
     U(uid)
     t = b.text.strip()
     if not t: raise HTTPException(422, "texto vacío")
-    a = llm.tts(t[:500])
-    if not a: raise HTTPException(503, "voz no disponible")
-    return Response(content=a, media_type="audio/mpeg", headers={"Cache-Control": "private, max-age=86400"})
+    left = voice_take(uid)
+    a = llm.tts(t[:500], "es" if b.lang == "es" else "en")
+    if not a: voice_refund(uid); raise HTTPException(503, "voz no disponible")
+    return Response(content=a, media_type="audio/mpeg", headers={"Cache-Control": "private, max-age=86400", "X-Voice-Left": str(left)})
 
 _EXT = {"webm": "webm", "mp4": "mp4", "m4a": "m4a", "mpeg": "mp3", "mp3": "mp3", "ogg": "ogg", "wav": "wav", "x-m4a": "m4a"}
 
@@ -224,8 +244,9 @@ async def speech_stt(uid: int, request: Request, hint: str = ""):
     data = await request.body()
     if len(data) < 1000: raise HTTPException(422, "audio vacío o muy corto")
     if len(data) > 6_000_000: raise HTTPException(413, "audio muy largo (máx. ~1 min)")
+    voice_take(uid)
     mime = (request.headers.get("content-type") or "audio/webm").split(";")[0].strip()
     ext = _EXT.get(mime.split("/")[-1], "webm")
     t = llm.stt(data, "audio." + ext, mime, hint)
-    if t is None: raise HTTPException(503, "no pude transcribir el audio")
+    if t is None: voice_refund(uid); raise HTTPException(503, "no pude transcribir el audio")
     return {"text": t}

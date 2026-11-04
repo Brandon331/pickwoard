@@ -4,23 +4,9 @@ import os, json, re, logging
 log = logging.getLogger("migo.llm")
 MODEL = os.getenv("MIGO_MODEL", "gpt-4.1-mini")
 TTS_MODEL = os.getenv("MIGO_TTS_MODEL", "gpt-4o-mini-tts")
-TTS_VOICE = os.getenv("MIGO_VOICE", "ash")
+TTS_VOICE = os.getenv("MIGO_VOICE", "coral")
 STT_MODEL = os.getenv("MIGO_STT_MODEL", "gpt-4o-mini-transcribe")
-TTS_STYLE = """
-Speak like a friendly, young male English conversation partner.
-
-Sound warm, approachable and natural, like a good friend
-who genuinely enjoys talking with someone.
-
-Use a relaxed conversational pace, clear pronunciation
-and natural pauses.
-
-Be encouraging, patient and expressive without
-sounding overly enthusiastic.
-
-Avoid sounding robotic, formal or like a teacher
-giving a lecture.
-"""
+TTS_STYLE = "Speak like a warm, friendly English conversation partner. Natural pace, clear pronunciation, relaxed and encouraging, not robotic."
 LAST_ERROR = None          # solo el tipo de error (sin mensaje: podría incluir parte de la clave); el detalle va a los logs
 _client = None
 
@@ -33,12 +19,14 @@ def _cli():
         _client = OpenAI(timeout=45)
     return _client
 
-def tts(text):
+TTS_STYLE_ES = "Habla en español natural y cercano, como un amigo: cálido, ritmo relajado, pronunciación clara, nada robótico."
+
+def tts(text, lang="en"):
     """Texto -> bytes mp3 con voz natural. None si no hay clave o falla."""
     global LAST_ERROR
     if not enabled() or not text: return None
     try:
-        r = _cli().audio.speech.create(model=TTS_MODEL, voice=TTS_VOICE, input=text[:500], instructions=TTS_STYLE, response_format="mp3")
+        r = _cli().audio.speech.create(model=TTS_MODEL, voice=TTS_VOICE, input=text[:500], instructions=(TTS_STYLE_ES if lang == "es" else TTS_STYLE), response_format="mp3")
         LAST_ERROR = None
         return r.content
     except Exception as e:

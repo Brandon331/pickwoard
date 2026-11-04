@@ -171,17 +171,47 @@ def use_words(user, items):
 
 def _example(w): return ""   # el ejemplo lo conoce el cliente; el evaluador no lo necesita para juzgar el uso
 
+def first_name(user): return ((user["name"] or "").strip().split() or [""])[0][:20]
+
+def friend_ctx(user, exclude_rid=None):
+    """Lo que Migo sabe de ti como amigo: tu nombre, el error que más se repite y cómo te fue en el último rol."""
+    uid = user["id"]
+    e = db.run("select pattern,example from errors where user_id=? and resolved=0 order by count desc, last_seen desc limit 1", (uid,), one=True)
+    q, a = "select id,scenario_json,summary_json from roleplays where user_id=? and status='done'", [uid]
+    if exclude_rid: q += " and id!=?"; a.append(exclude_rid)
+    r = db.run(q + " order by id desc limit 1", tuple(a), one=True); last = None
+    if r:
+        sc, sm = L(r["scenario_json"]) or {}, L(r["summary_json"]) or {}
+        last = {"scene": sc.get("title"), "main_fix": (sm.get("fixes") or [None])[0], "words_used_ok": sm.get("ok"), "words_used": sm.get("used")}
+    return {"name": first_name(user), "recurring_mistake": ({"pattern": e["pattern"], "example": e["example"]} if e else None), "last_roleplay": last}
+
+def voice_lang(uid): return "es" if i18n.lang(uid) == "es" else "en"   # idioma en que Migo habla como él mismo (TTS)
+
+def _intro_fb(user, sc):
+    n, es = first_name(user), i18n.lang(user["id"]) == "es"
+    if sc["migo_role"] == "a friendly partner": body = "charlemos un rato en inglés sobre tu situación. ¡Cuando quieras!" if es else "let's chat for a bit about your situation. Whenever you're ready!"
+    else: body = (f"practiquemos una escena. Yo: {sc['migo_role']}. Tú: {sc['user_role']}. ¡Cuando quieras!" if es
+                  else f"let's practice a scene. Me: {sc['migo_role']}. You: {sc['user_role']}. Whenever you're ready!")
+    t = f"{n}, {body}" if n else body
+    return t[0].upper() + t[1:]
+
 def role_start(user, words):
     uid = user["id"]; k = levels.estimate(uid)["k"]; keys = ("title", "setting", "migo_role", "user_role", "line")
     r = llm.ask_json("Design a short ROLE-PLAY for an English learner (Spanish speaker). Migo plays a role in a realistic scene tied to the learner's situation; the learner plays themselves. "
                      "Choose a scene where the TARGET WORDS can come up naturally. Return {\"title\":scene title,\"setting\":one sentence,\"migo_role\":who Migo plays,\"user_role\":who the learner plays,"
-                     "\"line\":Migo's first line, max 20 words, simple English for the learner's level, ending with a question}. All values in English, no stage directions.",
-                     J({"situation": user["situation"], "goal": user["goal"], "estimated_cefr_level": levels.LV[k], "target_words": [w["w"] for w in words]}))
+                     "\"line\":Migo's first line IN ROLE, max 20 words, simple English for the learner's level, ending with a question,"
+                     "\"intro\":what Migo says as HIMSELF, a close friend and not the character, just before the scene starts: ONE or TWO short sentences in this language: " + i18n.llm_lang(user["id"]) + ". "
+                     "Use the learner's first name, say who you will be today and invite them to start. If friend_context has a recurring_mistake or a last_roleplay main_fix, "
+                     "gently say to watch it this time, like a friend (never a lecture, never invent anything that is not in friend_context)}. "
+                     "Scene values (title, setting, migo_role, user_role, line) in English, no stage directions.",
+                     J({"situation": user["situation"], "goal": user["goal"], "estimated_cefr_level": levels.LV[k], "target_words": [w["w"] for w in words], "friend_context": friend_ctx(user)}))
     sc = {x: r[x].strip()[:200] for x in keys} if isinstance(r, dict) and all(isinstance(r.get(x), str) and r[x].strip() for x in keys) else None
     if not sc: sc = {"title": user["situation"][:60], "setting": "A practice conversation about: " + user["situation"], "migo_role": "a friendly partner", "user_role": "yourself",
                      "line": "Hi! Let's practice. Tell me a little about your situation and what you need."}
+    intro = str(r.get("intro") or "").strip()[:260] if isinstance(r, dict) else ""
+    if not intro: intro = _intro_fb(user, sc)
     rid = db.run("insert into roleplays(user_id,scenario_json,words_json,turns_json,created_at) values(?,?,?,?,?)", (uid, J(sc), J(words), J([{"who": "migo", "text": sc["line"]}]), db.now()), write=True)
-    return {"id": rid, "scenario": sc, "line": sc["line"], "words": [w["w"] for w in words], "max_turns": MAX_TURNS}
+    return {"id": rid, "scenario": sc, "line": sc["line"], "intro": intro, "voice_lang": voice_lang(uid), "words": [w["w"] for w in words], "max_turns": MAX_TURNS}
 
 def role_turn(user, rp, text):
     sc, words, turns = L(rp["scenario_json"]), L(rp["words_json"]), L(rp["turns_json"])
@@ -193,8 +223,9 @@ def role_turn(user, rp, text):
     else:
         pending = [w["w"] for w in words if w["w"] not in used]
         hist = "\n".join(("Migo: " if t["who"] == "migo" else "Learner: ") + t["text"] for t in turns[-8:])
-        reply = llm.ask("You are Migo, playing " + sc["migo_role"] + " in this scene: " + sc["setting"] + " The learner plays: " + sc["user_role"] + ". Stay in role and reply in ONE or TWO short sentences "
-                        "(max 25 words) in simple English for CEFR level " + levels.LV[levels.estimate(user["id"])["k"]] + ". Do NOT correct mistakes now. End with a question that gives the learner a natural reason "
+        reply = llm.ask("You are Migo, playing " + sc["migo_role"] + " in this scene: " + sc["setting"] + " The learner plays: " + sc["user_role"] + ". Stay in role. First react naturally and warmly to what the learner just said, like a friend would (show you really understood it, e.g. a quick 'Ha, nice!' or 'Oh really?'; "
+                        "if it was unclear, say what you understood and check). Then ask ONE question. Total: ONE or TWO short sentences (max 25 words) in simple English for CEFR level " + levels.LV[levels.estimate(user["id"])["k"]] + ". "
+                        "No teacher voice. Do NOT correct mistakes now. The question must give the learner a natural reason "
                         "to use one of these words WITHOUT saying the words yourself: " + (", ".join(pending) or "(none left: just keep the conversation natural)") + ".", hist, max_tokens=120)
         reply = (reply or "").strip().replace("\n", " ")[:300] or FOLLOW[(n - 1) % len(FOLLOW)]
     turns.append({"who": "migo", "text": reply})
@@ -208,8 +239,10 @@ def role_finish(user, rp):
     r = llm.ask_json("You are a STRICT but kind English teacher doing a ROLE-PLAY review for a Spanish-speaking learner. For each target word the learner used, decide used_correctly: true ONLY if it was used with the right meaning "
                      "and part of speech in a grammatical, natural sentence. Return {\"results\":[{\"w\":word,\"used_correctly\":bool,\"feedback\":ONE short sentence (language: " + i18n.llm_lang(uid) + "),"
                      "\"better\":a more natural version of the learner's sentence}],\"overall\":{\"praise\":one short encouraging sentence (language: " + i18n.llm_lang(uid) + "),"
-                     "\"fixes\":[up to 3 short corrections of the learner's most important mistakes]}}.",
-                     J({"transcript": "\n".join(("Migo: " if t["who"] == "migo" else "Learner: ") + t["text"] for t in turns), "target_words_used": [w["w"] for w in used]}), max_tokens=1400)
+                     "\"fixes\":[up to 3 short corrections of the learner's most important mistakes]},"
+                     "\"friend\":what Migo says as HIMSELF, a close friend and not a grader, right after the scene: 2 short sentences (language: " + i18n.llm_lang(uid) + ") using the learner's first name; "
+                     "react to something specific the learner actually said, and mention ONE concrete thing that went well or ONE thing to watch next time (use friend_context only if truly relevant). Warm and honest, no scores, never invent progress}.",
+                     J({"transcript": "\n".join(("Migo: " if t["who"] == "migo" else "Learner: ") + t["text"] for t in turns), "target_words_used": [w["w"] for w in used], "friend_context": friend_ctx(user, rp["id"])}), max_tokens=1600)
     db.run("update roleplays set status='done', ended_at=? where id=?", (db.now(), rp["id"]), write=True)
     if not (r and isinstance(r.get("results"), list)) or not mine:
         return {"evaluator": "none", "results": [{"w": w["w"], "used": w in used, "ok": False, "feedback": "", "better": ""} for w in words], "ok": 0, "used": len(used), "n": len(words)}
@@ -222,7 +255,7 @@ def role_finish(user, rp):
     if used:
         bump(uid, "vocabulary", ok_n / len(used), ok_n / len(used)); add_evidence(uid, None, "vocabulary", ok_n / len(used), 0, "vocab_use", f"rol: {ok_n}/{len(used)}")
     ov = r.get("overall") if isinstance(r.get("overall"), dict) else {}
-    summary = {"evaluator": "llm", "results": out, "praise": str(ov.get("praise", ""))[:240], "fixes": [str(f)[:200] for f in (ov.get("fixes") or [])][:3],
+    summary = {"evaluator": "llm", "results": out, "praise": str(ov.get("praise", ""))[:240], "fixes": [str(f)[:200] for f in (ov.get("fixes") or [])][:3], "friend": str(r.get("friend") or "").strip()[:420], "voice_lang": voice_lang(uid),
                "ok": ok_n, "used": len(used), "n": len(words), "words_mastered": words_mastered(uid)}
     db.run("update roleplays set summary_json=? where id=?", (J(summary), rp["id"]), write=True)
     return summary
@@ -506,10 +539,10 @@ def chat(user, msg):
     uid = user["id"]
     db.run("insert into messages(user_id,role,content,created_at) values(?,?,?,?)", (uid, "user", msg, db.now()), write=True)
     prof = L(user["profile_json"]) or {}
-    r = llm.ask_json("You are Migo, a close but demanding English companion for a Spanish speaker. Reply in " + i18n.llm_lang(uid) + ", short, warm but honest; never invent progress. "
+    r = llm.ask_json("You are Migo, a close but demanding English companion for a Spanish speaker. Reply in " + i18n.llm_lang(uid) + ", short, warm but honest; never invent progress. Talk like a close friend: use the user's first name now and then (not in every message) and, only when relevant, mention their last role-play or recurring mistake from friend_context (never invent facts). "
                      "If the user wants something off-plan, allow it but state the cost vs their goal. "
                      "Return {\"reply\":str,\"signals\":{\"intent\":\"question|frustration|goal_change|off_topic|preference|other\",\"new_situation\":str|null,\"preference\":{\"key\":str,\"value\":str}|null}}",
-                     J({"goal": user["goal"], "situation": user["situation"], "profile": prof.get("summary"), "memory": memory(uid)["errors"][:3], "message": msg}))
+                     J({"goal": user["goal"], "situation": user["situation"], "profile": prof.get("summary"), "memory": memory(uid)["errors"][:3], "friend_context": friend_ctx(user), "message": msg}))
     if not (r and r.get("reply")): r = heur_chat(user, msg)
     sig = r.get("signals") or {}; applied = []
     if sig.get("intent") == "frustration": set_pref(uid, "frustrated", 1); applied.append(i18n.t(i18n.tk(i18n.lang(uid)), "m_frus"))
