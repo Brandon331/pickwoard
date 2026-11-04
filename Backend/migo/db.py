@@ -25,6 +25,8 @@ create table if not exists errors(id serial primary key, user_id int, pattern te
 create table if not exists strengths(user_id int, item text, times_ok int default 1, primary key(user_id,item));
 create table if not exists preferences(user_id int, key text, value text, primary key(user_id,key));
 create table if not exists voice_usage(user_id int, day text, n int default 0, primary key(user_id,day));
+create table if not exists lesson_cache(slug text, lvl text, lang text, title text, kind text, content_json text, created_at double precision, primary key(slug,lvl,lang));
+create table if not exists lesson_progress(user_id int, slug text, title text, kind text, status text default 'new', score int, updated_at double precision, primary key(user_id,slug));
 create table if not exists sessions(id serial primary key, user_id int, plan_json text, activity_json text,
   status text, help_level int default 0, blocked int default 0, attempts_json text, summary_json text, created_at double precision, closed_at double precision);
 create table if not exists decisions(id serial primary key, user_id int, session_id int, rule text,

@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
-from . import db, engine as E, llm, auth, i18n, levels
+from . import db, engine as E, llm, auth, i18n, levels, lessons
 
 db.init()
 app = FastAPI(title="Migo English Companion (prototype backend)")
@@ -205,6 +205,25 @@ def roleplay_finish(rid: int):
     if rp["status"] == "done": return E.L(rp["summary_json"]) or {"evaluator": "none", "results": []}
     return E.role_finish(u, rp)
 
+
+# ---------- lecciones "How to…" ----------
+class CustomLessonIn(BaseModel): title: str
+class TalkIn(BaseModel):
+    text: str
+    history: List[dict] = []
+    score: int = 0
+
+@app.get("/users/{uid}/lessons")
+def lessons_list(uid: int): return lessons.list_lessons(U(uid))
+
+@app.post("/users/{uid}/lessons/custom")
+def lessons_custom(uid: int, b: CustomLessonIn): return lessons.create_custom(U(uid), b.title)
+
+@app.post("/users/{uid}/lessons/{slug}/start")
+def lessons_start(uid: int, slug: str): return lessons.start(U(uid), slug)
+
+@app.post("/users/{uid}/lessons/{slug}/talk")
+def lessons_talk(uid: int, slug: str, b: TalkIn): return lessons.talk(U(uid), slug, b.history, b.text, b.score)
 
 # ---------- voz (speaking): Migo habla (TTS) y el usuario responde hablando (STT) ----------
 VOICE_DAILY = int(os.getenv("MIGO_VOICE_DAILY", "120"))   # llamadas de voz (Migo habla + tú hablas) por usuario y día UTC; un rol completo gasta ~14

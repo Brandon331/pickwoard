@@ -7,6 +7,7 @@ FastAPI + PostgreSQL (Supabase) + OpenAI. Las tablas se crean solas al arrancar.
 - `OPENAI_API_KEY`: sin ella la app funciona con un evaluador de respaldo muy básico (el perfil sale marcado «sin evaluador LLM»).
 - `MIGO_MODEL`: modelo de OpenAI (por defecto `gpt-4.1-mini`).
 - `MIGO_SELF_URL`: URL pública del backend (ej. `https://tu-app.onrender.com`). Si existe (o `RENDER_EXTERNAL_URL`, que Render pone solo), el servidor se llama a `/health` cada `MIGO_KEEPALIVE_MIN` minutos (14 por defecto; 0 lo apaga) para que el plan gratis no se duerma.
+- `MIGO_LESSON_DAILY`: lecciones propias («How to…» pedidas por el usuario) por día y usuario (por defecto 5). Las lecciones del catálogo se generan una vez por nivel e idioma y se guardan en `lesson_cache`.
 - `MIGO_VOICE_DAILY`: límite de llamadas de voz por usuario y día UTC (por defecto 120; un rol completo gasta ~14). `MIGO_VOICE`, `MIGO_TTS_MODEL`, `MIGO_STT_MODEL`: voz y modelos de voz.
 - `DB_POOL`: conexiones del pool (por defecto 5).
 

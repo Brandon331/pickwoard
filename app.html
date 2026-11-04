@@ -106,6 +106,11 @@ textarea::placeholder{color:#8a96b8;font-style:italic}
 .chk input{width:20px;height:20px;accent-color:var(--pink)}
 .chat{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}
 .bub{max-width:86%;padding:8px 14px;border-radius:18px;font-weight:700;font-size:16px}
+.dots{display:flex;gap:6px;justify-content:center;margin:8px 0 4px}.dots i{width:34px;height:8px;border-radius:9px;background:var(--lilac)}.dots i.on{background:var(--pink)}
+.li{padding:10px 0;border-top:2px dashed var(--lilac)}.li:first-child{border-top:0}.li b{font-size:19px}.li .ex{font-style:italic;color:var(--soft);margin:2px 0}
+.tag{border-radius:999px;padding:0 8px;font-size:12px;font-weight:800;color:#fff;background:var(--sky);margin-left:6px;vertical-align:middle}.tag.formal{background:var(--plum)}.tag.casual{background:var(--orange)}
+.lsc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);color:inherit;border:3px solid var(--lilac);border-radius:18px;padding:10px 14px;margin-top:8px;font:inherit;cursor:pointer}.lsc i{font-size:26px;font-style:normal}.lsc small{display:block;color:var(--soft);font-size:14px}
+.opt{display:block;width:100%;margin-top:8px;text-align:left}.opt.ok{background:var(--green);color:#fff;border-color:var(--green)}.opt.no{background:var(--red);color:#fff;border-color:var(--red)}
 .bub.fr{font-style:italic;opacity:.9}.mic{font-size:20px}.mic.rec{background:#e8281e;color:#fff;box-shadow:0 6px 0 #9c1410;animation:mp 1s infinite}@keyframes mp{50%{transform:scale(1.04)}}
 .bub.me{justify-self:end;background:var(--sky);color:#fff;border-bottom-right-radius:4px}
 .bub.mg{justify-self:start;background:var(--sun);color:#2a1a14;border-bottom-left-radius:4px}
@@ -192,6 +197,11 @@ const COL=['var(--pink)','var(--sky)','var(--green)','var(--orange)','var(--plum
 /* ---- Idioma de la interfaz (es = español · mixed/en = botones y títulos en inglés) ---- */
 let LANG='es';try{LANG=localStorage.getItem('migo-lang')||'es'}catch(e){}
 const V=h=>{stopAudio();$('#view').innerHTML=tr(h);$('#nav').hidden=true;document.body.classList.remove('hasnav');scrollTo(0,0)};
+const EN_LES=[["🎓 Migo te recomienda","🎓 Migo recommends"],["Migo te recomienda","Migo recommends"],["🎓 Lecciones","🎓 Lessons"],["Lecciones","Lessons"],["Aprende a decir las cosas como un nativo","Learn to say things like a native"],["Ver todas","See all"],["Empezar (5 min)","Start (5 min)"],["Empezar","Start"],
+["Expresar algo","Express yourself"],["Situaciones de la vida","Real-life situations"],["Estructuras de inglés","English structures"],["✨ Tus lecciones","✨ Your lessons"],["✨ Pídele una a Migo","✨ Ask Migo for one"],["Escribe «How to…» y lo que quieras aprender. Hoy te quedan ","Type “How to…” and what you want to learn. Left today: "],["Crear lección","Create lesson"],["← Lecciones","← Lessons"],
+["Vamos 🚀","Let’s go 🚀"],["Mini-chequeo ","Mini-check "],["Siguiente","Next"],["¡Eso!","Yes!"],["🚫 Mejor evitar","🚫 Better avoid"],["Intenta usar: ","Try to use: "],["Ahora tú 🎤","Your turn 🎤"],["Toca 🎤 y habla en inglés","Tap 🎤 and speak English"],["Escribe en inglés","Write in English"],
+["¡Lección completada! 🎉","Lesson complete! 🎉"],["Expresiones que usaste","Expressions you used"],["Para la próxima","For next time"],["Otra lección","Another lesson"],["Preparando tu lección…","Preparing your lesson…"],["Puede tardar unos segundos","It may take a few seconds"],["en el chequeo","in the mini-check"],
+["🎤 Hablar","🎤 Speak"],["⏹ Listo","⏹ Done"],["🔊 Voz de Migo: sí","🔊 Migo’s voice: on"],["🔇 Voz de Migo: no","🔇 Migo’s voice: off"],["…o escribe tu respuesta en inglés","…or type your answer in English"],["Te escucho 👂","I’m listening 👂"],["Toca ⏹ cuando termines","Tap ⏹ when you’re done"]];
 const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],["Vocabulario","Vocabulary"],["Sin traducir","No translating"],
 ["Entender lo que te dicen","Understanding what people say"],["Decir lo que quieres","Saying what you want"],["Tener las palabras que necesitas","Having the words you need"],["Pensar directo en inglés","Thinking directly in English"],
 ["Tu punto débil","Your weak spot"],["Error que se repite","Recurring error"],["Menos pistas","Fewer hints"],["Subir de nivel","Level up"],["Nueva estrategia","New strategy"],
@@ -209,7 +219,7 @@ const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],[
 ["Basado en tu test y tu diagnóstico práctico","Based on your test and practical diagnostic"],["Basado en tu test","Based on your test"],["Basado en tu diagnóstico práctico","Based on your practical diagnostic"],["Aún es una estimación","Still an estimate"],
 [". Estudiando todos los días; es una guía basada en horas de estudio de Cambridge, no una garantía.",". Studying every day; a guide based on Cambridge study hours, not a guarantee."],["Haz el test →","Take the test →"],["¡Estás en el nivel más alto de la escala!","You’re at the top of the scale!"],
 ["🎯 Tu test: nivel ","🎯 Your test: level "],[". Lo confirmamos con tu diagnóstico práctico.",". We’ll confirm it with your practical diagnostic."]
-].sort((a,b)=>b[0].length-a[0].length);
+].concat(EN_LES).sort((a,b)=>b[0].length-a[0].length);
 function tr(h){if(LANG=='es')return h;h=h.replace(/Turno (\d+)\/(\d+)/g,'Turn $1/$2').replace(/(\d+) de (\d+) bien usadas/g,'$1 of $2 used well').replace(/(\d+) de (\d+) palabras usadas · (\d+) bien/g,'$1 of $2 words used · $3 correct').replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2').replace(/Palabra (\d+) de (\d+)/g,'Word $1 of $2').replace(/Pregunta (\d+) de (\d+)/g,'Question $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
 function setLang(l){LANG=l||'es';try{localStorage.setItem('migo-lang',LANG)}catch(e){}document.documentElement.lang=LANG=='en'?'en':'es';$('#out').textContent=tr('Salir');document.querySelectorAll('[data-i]').forEach(e=>{e.dataset.es=e.dataset.es||e.textContent;e.textContent=tr(e.dataset.es)});$('#ldt').textContent=tr('Migo está pensando…')}
 const _iah=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(p,h){_iah.call(this,p,tr(h))};
@@ -274,7 +284,7 @@ const shuf=a=>{a=a.slice();for(let k=a.length;k>1;k--){const j=Math.random()*k|0
 function stopAudio(){AUD.token++;try{MA.pause()}catch(e){}try{if('speechSynthesis' in window)speechSynthesis.cancel()}catch(e){}}
 function speak(t){try{if(!('speechSynthesis' in window)||!t)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
 /* ---- Voz natural: Migo habla con TTS del servidor; tú respondes con el micrófono (STT) ---- */
-const MA=new Audio(),TTSC=new Map();let TTSOFF=false,MAok=false,VOICE=localStorage.getItem('migo-voice')!=='0',REC=null,RECT=null;
+const MA=new Audio(),TTSC=new Map();let VHEAR=null,TTSOFF=false,MAok=false,VOICE=localStorage.getItem('migo-voice')!=='0',REC=null,RECT=null;
 const CANMIC=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
 function unlockAudio(){if(MAok)return;MAok=true;try{MA.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';MA.play().catch(()=>{})}catch(e){}}
 async function speakN(t,es){   // es=true: Migo habla como él mismo en español. Resuelve al terminar el audio.
@@ -292,20 +302,19 @@ async function micToggle(){
  const mt=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'',ch=[];
  const mr=new MediaRecorder(st,mt?{mimeType:mt}:{});
  mr.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
- mr.onstop=()=>{clearTimeout(RECT);st.getTracks().forEach(t=>t.stop());REC=null;micUI();rpHear(new Blob(ch,{type:mr.mimeType||mt||'audio/webm'}))};
+ mr.onstop=()=>{clearTimeout(RECT);st.getTracks().forEach(t=>t.stop());REC=null;micUI();(VHEAR||rpHear)(new Blob(ch,{type:mr.mimeType||mt||'audio/webm'}))};
  REC=mr;mr.start();micUI();RECT=setTimeout(()=>{if(REC)REC.stop()},60000);
  migo('idle','Te escucho 👂','Toca ⏹ cuando termines')}
 function micUI(){const b=$('#mic');if(!b)return;b.classList.toggle('rec',!!REC);b.textContent=REC?'⏹ Listo':'🎤 Hablar'}
+async function sttText(blob,hint){
+ let r;ld(1);
+ try{r=await fetch(API+'/users/'+S.user_id+'/speech/stt?hint='+encodeURIComponent(hint||''),{method:'POST',headers:{'Content-Type':blob.type||'audio/webm',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:blob})}
+ catch(e){throw new Error('No puedo hablar con el servidor')}finally{ld(-1)}
+ const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'No pude transcribir tu voz');
+ const t=(j.text||'').trim();if(!t)throw new Error('No te entendí. Inténtalo otra vez, un poco más fuerte 🎤');return t}
 async function rpHear(blob){
  if(blob.size<1000)return err('No te escuché. Acércate al micrófono e inténtalo otra vez 🎤');
- await act($('#mic'),async()=>{
-  migo('idle','Escuchándote…','Pasando tu voz a texto');
-  const hint=RP.words.map(x=>x.w).join(', ');let r;ld(1);
-  try{r=await fetch(API+'/users/'+S.user_id+'/speech/stt?hint='+encodeURIComponent(hint),{method:'POST',headers:{'Content-Type':blob.type||'audio/webm',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:blob})}
-  catch(e){throw new Error('No puedo hablar con el servidor')}finally{ld(-1)}
-  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'No pude transcribir tu voz');
-  const t=(j.text||'').trim();if(!t)throw new Error('No te entendí. Inténtalo otra vez, un poco más fuerte 🎤');
-  await rpTurnRun(t)})}
+ await act($('#mic'),async()=>{migo('idle','Escuchándote…','Pasando tu voz a texto');await rpTurnRun(await sttText(blob,RP.words.map(x=>x.w).join(', ')))})}
 function rpVoice(){VOICE=!VOICE;localStorage.setItem('migo-voice',VOICE?'1':'0');if(!VOICE)stopAudio();rpRender(true)}
 const VOC=VOCRAW.map(l=>l.map(x=>{const [w,e,s,d]=x.split('|');return{w,e,s,d}}));
 const rxw=w=>new RegExp('\\b'+w.split(' ').map(t=>t+'\\w*').join('\\s+'),'i');
@@ -348,6 +357,7 @@ function vRole(b){unlockAudio();act(b,async()=>{
  const r=await api('/users/'+S.user_id+'/roleplay','POST',{words:words.map(x=>({w:x.w,lv:x.lv}))});
  RP={id:r.id,sc:r.scenario,words,used:[],turn:0,max:r.max_turns,log:[{who:'migo',text:r.line,pre:r.intro}],vl:r.voice_lang};rpRender()})}
 function rpRender(quiet){
+ VHEAR=rpHear;
  migo('idle','Rol con Migo 🎭',CANMIC?'Toca 🎤 y habla en inglés':'Habla en inglés y usa tus palabras');
  V(`<div class="card"><h2>🎭 ${E(RP.sc.title)}</h2><p class="meta">${E(RP.sc.setting)}<br>Migo es: <b>${E(RP.sc.migo_role)}</b> · Tú eres: <b>${E(RP.sc.user_role)}</b></p>
  <p class="meta">Usa estas palabras en la conversación:</p><div class="chips sc">${RP.words.map(x=>`<span class="${RP.used.includes(x.w)?'me':''}">${RP.used.includes(x.w)?'✅ ':''}${E(x.w)} ${x.e}</span>`).join('')}</div>
@@ -519,13 +529,78 @@ async function vHome(p){return tHome(p)}
 let TAB='home';
 function setTab(t){TAB=t;$('#nav').hidden=false;document.body.classList.add('hasnav');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t))}
 function goTab(t){act(null,async()=>{await({home:()=>tHome(),vocab:()=>vVocab(),progress:tProgress,chat:async()=>vChat(),settings:tSettings}[t])()})}
+/* ---- Lecciones "How to…": expresar algo · situaciones de la vida · estructuras de inglés ---- */
+let LS=null;
+const LK={express:['🗣️','Expresar algo'],situation:['🌍','Situaciones de la vida'],structure:['🧩','Estructuras de inglés']};
+const LST={new:'',doing:'⏳',done:'✅'};
+const lsSp=t=>`<button class="hint" style="padding:0 8px" data-t="${E(t)}" onclick="speakN(this.dataset.t)" aria-label="Escuchar">🔊</button>`;
+function lsCard(l){return `<button class="lsc" onclick="lsOpen('${E(l.slug)}',this)"><i>${l.icon}</i><span><b>${E(l.title)}</b>${l.desc?`<small>${E(l.desc)}</small>`:''}</span><span style="margin-left:auto">${LST[l.status]||''}</span></button>`}
+function lsHomeCard(d){if(!d||!d.recommended)return '';const r=d.recommended;return `<div class="card"><h2>🎓 Lecciones</h2><p class="meta">Migo te recomienda</p><p><b>${r.icon} ${E(r.title)}</b><br><span class="meta">${E(r.reason)}</span></p><div class="row"><button class="hint" onclick="vLessons()">Ver todas</button><button class="btn pink" onclick="lsOpen('${E(r.slug)}',this)">Empezar (5 min)</button></div></div>`}
+async function vLessons(){
+ const d=await api('/users/'+S.user_id+'/lessons');
+ migo('idle','Lecciones 🎓','Aprende a decir las cosas como un nativo');
+ const r=d.recommended;
+ V((r?`<div class="card"><h2>🎓 Migo te recomienda</h2><p><b>${r.icon} ${E(r.title)}</b><br><span class="meta">${E(r.reason)}</span></p><div class="row"><span></span><button class="btn pink" onclick="lsOpen('${E(r.slug)}',this)">Empezar</button></div></div>`:'')
+ +d.groups.map(g=>`<div class="card"><h2>${LK[g.kind][0]} ${LK[g.kind][1]}</h2>${g.lessons.map(lsCard).join('')}</div>`).join('')
+ +(d.custom.length?`<div class="card"><h2>✨ Tus lecciones</h2>${d.custom.map(lsCard).join('')}</div>`:'')
+ +`<div class="card"><h2>✨ Pídele una a Migo</h2><p class="meta">Escribe «How to…» y lo que quieras aprender. Hoy te quedan ${d.custom_left}.</p><p class="err" id="err" hidden></p>
+ <form onsubmit="return lsCustom(event)"><input id="lsq" maxlength="80" placeholder="How to order food at a restaurant" aria-label="Lección propia"><div class="row"><button type="button" class="hint" onclick="goTab('home')">← Inicio</button><button class="btn blue" type="submit">Crear lección</button></div></form></div>`)}
+function lsInit(d){LS=d;LS.step=0;LS.qi=0;LS.score=0;LS.locked=false;LS.used=[];LS.hist=[{who:'migo',text:d.content.speak.ask}];lsRender()}
+function lsOpen(slug,b){unlockAudio();act(b,async()=>{migo('idle','Preparando tu lección…','Puede tardar unos segundos');lsInit(await api('/users/'+S.user_id+'/lessons/'+slug+'/start','POST'))})}
+function lsCustom(e){e.preventDefault();const t=$('#lsq').value.trim();if(!t)return false;unlockAudio();
+ act(e.target.querySelector('[type=submit]'),async()=>{migo('idle','Preparando tu lección…','Puede tardar unos segundos');lsInit(await api('/users/'+S.user_id+'/lessons/custom','POST',{title:t}))});return false}
+function lsExit(){stopAudio();vLessons()}
+function lsTop(){return `<div class="row" style="margin-top:0"><button class="hint" onclick="lsExit()">← Lecciones</button><span></span></div><div class="dots">${[0,1,2,3,4].map(i=>`<i class="${i<=LS.step?'on':''}"></i>`).join('')}</div>`}
+function lsGo(n){LS.step=n;LS.qi=0;LS.locked=false;lsRender()}
+function lsVoice(){VOICE=!VOICE;try{localStorage.setItem('migo-voice',VOICE?'1':'0')}catch(e){}if(!VOICE)stopAudio();lsRender(true)}
+function lsRender(quiet){
+ VHEAR=lsHear;const c=LS.content;
+ if(LS.step==0){migo('happy',E(LS.title),'Lección de 5 minutos');
+  V(`<div class="card">${lsTop()}<h2>${E(LS.title)}</h2><div class="bub mg fr">🙂 ${E(LS.intro)}</div><div class="row"><button class="hint" onclick="lsVoice()">${VOICE?'🔊 Voz de Migo: sí':'🔇 Voz de Migo: no'}</button><button class="btn pink" onclick="lsGo(1)">Vamos 🚀</button></div></div>`);
+  if(VOICE&&!quiet)speakN(LS.intro,LS.voice_lang=='es')}
+ else if(LS.step==1){migo('idle',E(LS.title),'Toca 🔊 para escuchar cada frase');
+  const items=c.items.map(x=>`<div class="li"><b>${E(x.en)}</b> ${lsSp(x.en)}${x.tone?`<span class="tag ${E(x.tone)}">${E(x.tone)}</span>`:''}<div>${E(x.es||'')}</div><div class="ex">“${E(x.example)}” ${lsSp(x.example)}</div>${x.note?`<div class="meta">💡 ${E(x.note)}</div>`:''}</div>`).join('');
+  const rule=LS.kind=='structure'&&c.rule?`<div class="tip">${E(c.rule)}</div>`:'';
+  const mis=LS.kind=='structure'&&c.mistake?`<p>❌ <s>${E(c.mistake.wrong)}</s><br>✅ <b>${E(c.mistake.right)}</b><br><span class="meta">${E(c.mistake.why||'')}</span></p>`:'';
+  const dia=LS.kind=='situation'&&(c.dialogue||[]).length?`<h2>💬</h2><div class="chat">${c.dialogue.map(d=>`<div class="bub ${d.who=='You'?'me':'mg'}">${E(d.en)} ${lsSp(d.en)}</div>`).join('')}</div>`:'';
+  const av=LS.kind=='situation'&&(c.avoid||[]).length?`<p><b>🚫 Mejor evitar</b></p><ul>${c.avoid.map(x=>`<li>${E(x)}</li>`).join('')}</ul>`:'';
+  const cu=LS.kind=='situation'&&c.culture?`<p class="meta">🌎 ${E(c.culture)}</p>`:'';
+  V(`<div class="card">${lsTop()}${rule}${items}${mis}${dia}${av}${cu}<div class="row"><span></span><button class="btn pink" onclick="lsGo(2)">Siguiente</button></div></div>`)}
+ else if(LS.step==2){const n=c.check.length,q=c.check[LS.qi];migo('idle','Mini-chequeo '+(LS.qi+1)+'/'+n,'Elige la mejor opción');
+  V(`<div class="card">${lsTop()}<p><b>${E(q.q)}</b></p>${q.options.map((o,i)=>`<button class="hint opt" onclick="lsPick(${i},this)">${E(o)}</button>`).join('')}<div id="lsw"></div></div>`)}
+ else if(LS.step==3){migo('idle','Ahora tú 🎤',CANMIC?'Toca 🎤 y habla en inglés':'Escribe en inglés');
+  const sp=c.speak,turn=LS.hist.filter(h=>h.who=='me').length;
+  V(`<div class="card">${lsTop()}<h2>Habla con Migo</h2><p class="meta">Intenta usar: ${sp.targets.map(t=>`<span class="hl">${E(t)}</span>`).join(' · ')}</p>
+  <div class="chat" id="rpc">${LS.hist.map(m=>`<div class="bub ${m.who=='migo'?'mg':'me'}">${E(m.text)}${m.who=='migo'?` ${lsSp(m.text)}`:''}</div>`).join('')}</div>
+  <p class="err" id="err" hidden></p>${CANMIC?`<div class="row"><button type="button" class="btn pink mic" id="mic" onclick="micToggle()">🎤 Hablar</button><button type="button" class="hint" onclick="lsVoice()">${VOICE?'🔊 Voz de Migo: sí':'🔇 Voz de Migo: no'}</button></div>`:''}
+  <form onsubmit="return lsSend(event)"><input id="lsi" autocomplete="off" placeholder="…o escribe tu respuesta en inglés" aria-label="Respuesta"><div class="row"><span class="meta">${turn+1}/3</span><button class="btn blue" type="submit">Enviar</button></div></form></div>`);
+  $('#rpc').scrollTop=1e5;const m=LS.hist[LS.hist.length-1];if(VOICE&&!quiet&&m&&m.who=='migo')speakN(m.text)}
+ else{const r=LS.fin,n=c.check.length;migo('happy','¡Lección completada! 🎉',LS.score+'/'+n+' en el chequeo');
+  const used=r.used_all||[];
+  V(`<div class="card">${lsTop()}<h2>🎉 ${E(LS.title)}</h2>${r.friend?`<div class="bub mg fr">🙂 ${E(r.friend)}</div>`:''}
+  <p><b>Expresiones que usaste</b></p><div class="chips sc">${(r.targets||[]).map(t=>`<span class="${used.includes(t)?'me':''}">${used.includes(t)?'✅ ':''}${E(t)}</span>`).join('')}</div>
+  ${(r.fixes||[]).length?`<p><b>Para la próxima</b></p>${r.fixes.map(f=>`<p>❌ <s>${E(f.wrong)}</s><br>✅ <b>${E(f.right)}</b></p>`).join('')}`:''}
+  <div class="row"><button class="hint" onclick="goTab('home')">← Inicio</button><button class="btn pink" onclick="vLessons()">Otra lección</button></div></div>`);
+  if(VOICE&&!quiet)(async()=>{await speakN(r.reply);if(r.friend)speakN(r.friend,r.voice_lang=='es')})()}}
+function lsPick(i,b){if(LS.locked)return;LS.locked=true;const q=LS.content.check[LS.qi],ok=i==q.answer;if(ok)LS.score++;
+ document.querySelectorAll('.opt').forEach((x,k)=>{if(k==q.answer)x.classList.add('ok');else if(k==i)x.classList.add('no')});
+ migo(ok?'happy':'sad',ok?'¡Eso!':'Casi…','');
+ $('#lsw').innerHTML=`<p class="tip">${ok?'✅':'❌'} ${E(q.why||'')}</p><div class="row"><span></span><button class="btn pink" onclick="lsNextQ()">Siguiente</button></div>`}
+function lsNextQ(){LS.locked=false;LS.qi++;if(LS.qi>=LS.content.check.length)lsGo(3);else lsRender()}
+function lsSend(e){e.preventDefault();const t=$('#lsi').value.trim();if(!t)return false;unlockAudio();act(e.target.querySelector('[type=submit]'),()=>lsTurn(t));return false}
+async function lsHear(blob){
+ if(blob.size<1000)return err('No te escuché. Acércate al micrófono e inténtalo otra vez 🎤');
+ await act($('#mic'),async()=>{migo('idle','Escuchándote…','Pasando tu voz a texto');await lsTurn(await sttText(blob,LS.content.speak.targets.join(', ')))})}
+async function lsTurn(t){const hist=LS.hist.slice();LS.hist.push({who:'me',text:t});let r;
+ try{r=await api('/users/'+S.user_id+'/lessons/'+LS.slug+'/talk','POST',{text:t,history:hist,score:LS.score})}catch(e){LS.hist.pop();throw e}
+ LS.hist.push({who:'migo',text:r.reply});if(r.done){LS.fin=r;LS.step=4}lsRender()}
 async function tHome(p){
  p=p||await api('/users/'+S.user_id+'/profile');CUR=p.path;setLang(p.lang);
- const [nx,du]=await Promise.all([api('/users/'+S.user_id+'/next'),api('/users/'+S.user_id+'/vocab/due')]);SIT=p.situation||SIT;
+ const [nx,du,ls]=await Promise.all([api('/users/'+S.user_id+'/next'),api('/users/'+S.user_id+'/vocab/due'),api('/users/'+S.user_id+'/lessons').catch(()=>null)]);SIT=p.situation||SIT;
  migo('idle','Hola, '+E(S.name)+' 👋',hl(nx.reentry_note||'Tengo un plan para hoy'));
  V(`${lvlCard(p.path)}<div class="card"><h2>Hoy te propongo</h2><div class="chips"><span>${RULES[nx.rule]||E(nx.rule)}</span><span>Dificultad ${nx.difficulty}/5</span><span>Ayuda máx. ${nx.help_allowed}</span>${nx.modality=='listen'?'<span>🎧 Listening</span>':''}</div>
  <p><b>${hl(nx.objective)}</b></p><p class="meta">${hl(nx.why)}</p>
- <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>${dueCard(du)}`);setTab('home')}
+ <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>${lsHomeCard(ls)}${dueCard(du)}`);setTab('home')}
 async function tProgress(){
  const [p,pr]=await Promise.all([api('/users/'+S.user_id+'/profile'),api('/users/'+S.user_id+'/progress')]);CUR=p.path;
  const c=Object.fromEntries(Object.entries(pr.by_competency).map(([k,v])=>[k,{autonomy:v.current_autonomy}]));
