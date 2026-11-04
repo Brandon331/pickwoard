@@ -8,6 +8,8 @@ FastAPI + PostgreSQL (Supabase) + OpenAI. Las tablas se crean solas al arrancar.
 - `MIGO_MODEL`: modelo de OpenAI (por defecto `gpt-4.1-mini`).
 - `MIGO_SELF_URL`: URL pública del backend (ej. `https://tu-app.onrender.com`). Si existe (o `RENDER_EXTERNAL_URL`, que Render pone solo), el servidor se llama a `/health` cada `MIGO_KEEPALIVE_MIN` minutos (14 por defecto; 0 lo apaga) para que el plan gratis no se duerma.
 - `MIGO_LESSON_DAILY`: lecciones propias («How to…» pedidas por el usuario) por día y usuario (por defecto 5). Las lecciones del catálogo se generan una vez por nivel e idioma y se guardan en `lesson_cache`.
+- Audios de lecciones: las frases de cada lección se generan una vez y se guardan en `tts_cache` (compartidas entre usuarios, no cuentan en el límite de voz). Cambiar `MIGO_VOICE`/`MIGO_TTS_MODEL` genera audios nuevos. Para regenerar el texto de todas las lecciones, sube `CACHE_V` en `migo/lessons.py`.
+- `MIGO_TALK_TURNS` (turnos del juego de roles de cada lección, por defecto 4) y `MIGO_HINT_DAILY` (pistas 💡 por usuario y día, por defecto 30).
 - `MIGO_VOICE_DAILY`: límite de llamadas de voz por usuario y día UTC (por defecto 120; un rol completo gasta ~14). `MIGO_VOICE`, `MIGO_TTS_MODEL`, `MIGO_STT_MODEL`: voz y modelos de voz.
 - `DB_POOL`: conexiones del pool (por defecto 5).
 

@@ -4,7 +4,7 @@ import os, json, re, logging
 log = logging.getLogger("migo.llm")
 MODEL = os.getenv("MIGO_MODEL", "gpt-4.1-mini")
 TTS_MODEL = os.getenv("MIGO_TTS_MODEL", "gpt-4o-mini-tts")
-TTS_VOICE = os.getenv("MIGO_VOICE", "marin")
+TTS_VOICE = os.getenv("MIGO_VOICE", "coral")
 STT_MODEL = os.getenv("MIGO_STT_MODEL", "gpt-4o-mini-transcribe")
 TTS_STYLE = "Speak like a warm, friendly English conversation partner. Natural pace, clear pronunciation, relaxed and encouraging, not robotic."
 LAST_ERROR = None          # solo el tipo de error (sin mensaje: podría incluir parte de la clave); el detalle va a los logs

@@ -212,6 +212,11 @@ class TalkIn(BaseModel):
     text: str
     history: List[dict] = []
     score: int = 0
+    role: Optional[dict] = None
+
+class HintIn(BaseModel):
+    history: List[dict] = []
+    role: Optional[dict] = None
 
 @app.get("/users/{uid}/lessons")
 def lessons_list(uid: int): return lessons.list_lessons(U(uid))
@@ -223,7 +228,23 @@ def lessons_custom(uid: int, b: CustomLessonIn): return lessons.create_custom(U(
 def lessons_start(uid: int, slug: str): return lessons.start(U(uid), slug)
 
 @app.post("/users/{uid}/lessons/{slug}/talk")
-def lessons_talk(uid: int, slug: str, b: TalkIn): return lessons.talk(U(uid), slug, b.history, b.text, b.score)
+def lessons_talk(uid: int, slug: str, b: TalkIn): return lessons.talk(U(uid), slug, b.history, b.text, b.score, b.role)
+
+@app.post("/users/{uid}/lessons/{slug}/scene")
+def lessons_scene(uid: int, slug: str): return lessons.scene(U(uid), slug)
+
+@app.post("/users/{uid}/lessons/{slug}/hint")
+def lessons_hint(uid: int, slug: str, b: HintIn): return lessons.hint(U(uid), slug, b.history, b.role)
+
+class AudioIn(BaseModel): text: str
+
+@app.post("/users/{uid}/lessons/{slug}/audio")
+def lessons_audio(uid: int, slug: str, b: AudioIn):
+    a = lessons.audio(U(uid), slug, b.text)
+    return Response(content=a, media_type="audio/mpeg", headers={"Cache-Control": "private, max-age=604800"})
+
+@app.get("/users/{uid}/lessons/{slug}/result")
+def lessons_result(uid: int, slug: str): return lessons.result(U(uid), slug)
 
 # ---------- voz (speaking): Migo habla (TTS) y el usuario responde hablando (STT) ----------
 VOICE_DAILY = int(os.getenv("MIGO_VOICE_DAILY", "120"))   # llamadas de voz (Migo habla + tú hablas) por usuario y día UTC; un rol completo gasta ~14

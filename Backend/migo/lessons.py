@@ -6,7 +6,10 @@ from . import db, llm, i18n, levels, engine as E
 
 log = logging.getLogger("migo.lessons")
 LESSON_DAILY = int(os.getenv("MIGO_LESSON_DAILY", "5"))     # lecciones propias que un usuario puede pedir por día (UTC)
-TALK_TURNS = 3
+TALK_TURNS = int(os.getenv("MIGO_TALK_TURNS", "4"))        # turnos del alumno en el juego de roles de la lección
+HINT_DAILY = int(os.getenv("MIGO_HINT_DAILY", "30"))         # pistas 💡 por usuario y día
+CACHE_V = "v2"          # súbelo para regenerar todas las lecciones guardadas (formato nuevo: juego de roles en todas)
+def _key(lang): return f"{lang}|{CACHE_V}"
 
 def _c(slug, kind, title, es, en, icon, kw): return dict(slug=slug, kind=kind, title=title, es=es, en=en, icon=icon, kw=kw)
 CATALOG = [
@@ -62,8 +65,8 @@ def _prompt(title, kind, lvl, lang_name):
             '"dialogue":for type situation 4 lines [{"who":"You"|"Them","en":line}] of a realistic exchange, else [],'
             '"culture":for type situation ONE short cultural tip, else "",'
             '"check":[3 {"q":short situation or gap-fill sentence in English using ___,"options":[3 short English options],"answer":index of the right option,"why":one short sentence}],'
-            '"speak":{"ask":what Migo asks the learner to say, in simple English, 1-2 sentences about their real life (for type situation: the first line of a short role-play),'
-            '"role":for type situation {"migo_role":..,"user_role":..,"setting":..} else null,"targets":[3 or 4 of the items\' "en" the learner should try to use]}} '
+            '"speak":{"role":{"migo_role":who Migo plays,"user_role":who the learner plays,"setting":one short sentence describing a REALISTIC everyday scene where the learner would naturally need several of the items (e.g. a friend calls with big news, a shop assistant, a coworker, a neighbour at the funeral reception)},'
+            '"ask":Migo\'s first line IN ROLE, max 20 words, simple English, ending with a question that makes the learner react,"targets":[3 or 4 of the items\' "en" the learner should try to use naturally in the scene]}} '
             'Be respectful and practical with sensitive topics (funerals, health): never graphic, never medical advice.')
 
 def _valid(r):
@@ -80,16 +83,22 @@ def _shuffle(r):
         right = q["options"][q["answer"]]; random.shuffle(q["options"]); q["answer"] = q["options"].index(right)
     return r
 
+def _fix_role(r):
+    sp = r["speak"]; ro = sp.get("role")
+    if not (isinstance(ro, dict) and ro.get("migo_role") and ro.get("user_role") and ro.get("setting")):
+        sp["role"] = {"migo_role": "a friendly person", "user_role": "yourself", "setting": r.get("title") or "an everyday conversation"}
+    return r
+
 def generate(title, kind, lvl, lang_name):
     """Devuelve el contenido, {"reject":..} o None si la IA no respondió bien."""
     r = llm.ask_json(_prompt(title, kind, lvl, lang_name), json.dumps({"title": title}), max_tokens=2600)
     if isinstance(r, dict) and r.get("reject"): return {"reject": str(r["reject"])[:200]}
     if kind and isinstance(r, dict): r["kind"] = kind
-    return _shuffle(r) if _valid(r) else None
+    return _fix_role(_shuffle(r)) if _valid(r) else None
 
 def _get_or_make(user, slug, title, kind):
     uid, lvl, lang, lang_name = _ctx(user)
-    c = _cached(slug, lvl, lang)
+    c = _cached(slug, lvl, _key(lang))
     if c: return c
     from fastapi import HTTPException
     if not llm.enabled(): raise HTTPException(503, "Las lecciones necesitan la IA y ahora no está disponible.")
@@ -97,17 +106,17 @@ def _get_or_make(user, slug, title, kind):
     if r is None: raise HTTPException(503, "No pude preparar la lección ahora. Inténtalo en un momento.")
     if "reject" in r: raise HTTPException(422, r["reject"])
     db.run("insert into lesson_cache(slug,lvl,lang,title,kind,content_json,created_at) values(?,?,?,?,?,?,?) on conflict(slug,lvl,lang) do nothing",
-           (slug, lvl, lang, title, r["kind"], json.dumps(r, ensure_ascii=False), db.now()), write=True)
+           (slug, lvl, _key(lang), title, r["kind"], json.dumps(r, ensure_ascii=False), db.now()), write=True)
     return title, r["kind"], r
 
 # ---------------- progreso ----------------
 def _prog(uid): return {p["slug"]: p for p in db.run("select slug,title,kind,status,score from lesson_progress where user_id=?", (uid,))}
 
-def _set(uid, slug, title, kind, status, score=None):
-    db.run("insert into lesson_progress(user_id,slug,title,kind,status,score,updated_at) values(?,?,?,?,?,?,?) "
+def _set(uid, slug, title, kind, status, score=None, result=None):
+    db.run("insert into lesson_progress(user_id,slug,title,kind,status,score,result_json,updated_at) values(?,?,?,?,?,?,?,?) "
            "on conflict(user_id,slug) do update set status=case when lesson_progress.status='done' and excluded.status!='done' then 'done' else excluded.status end, "
-           "score=coalesce(excluded.score,lesson_progress.score), updated_at=excluded.updated_at",
-           (uid, slug, title, kind, status, score, db.now()), write=True)
+           "score=coalesce(excluded.score,lesson_progress.score), result_json=coalesce(excluded.result_json,lesson_progress.result_json), updated_at=excluded.updated_at",
+           (uid, slug, title, kind, status, score, result, db.now()), write=True)
 
 def _recommend(user, prog, es):
     uid = user["id"]
@@ -150,7 +159,7 @@ def start(user, slug):
     _set(uid, slug, title, kind, "doing")
     n = E.first_name(user); hook = c["hook"].strip()
     intro = (f"{n}, {hook}" if n else hook[:1].upper() + hook[1:])
-    return {"slug": slug, "title": title, "kind": kind, "intro": intro, "voice_lang": E.voice_lang(uid), "content": {k: v for k, v in c.items() if k != "hook"}}
+    return {"slug": slug, "title": title, "kind": kind, "turns": TALK_TURNS, "intro": intro, "voice_lang": E.voice_lang(uid), "content": {k: v for k, v in c.items() if k != "hook"}}
 
 def create_custom(user, title):
     from fastapi import HTTPException
@@ -163,26 +172,35 @@ def create_custom(user, title):
     return start(user, slug)
 
 # ---------------- hablar (3 turnos) ----------------
-def talk(user, slug, history, text, score):
+def _role(r, fb):
+    if isinstance(r, dict):
+        o = {k: str(r.get(k, "")).strip()[:160] for k in ("migo_role", "user_role", "setting")}
+        if all(o.values()): return o
+    return fb
+
+def talk(user, slug, history, text, score, role=None):
     from fastapi import HTTPException
     uid, lvl, lang, lang_name = _ctx(user)
-    c = _cached(slug, lvl, lang)
+    c = _cached(slug, lvl, _key(lang))
     if not c: raise HTTPException(404, "abre la lección otra vez")
     title, kind, d = c
     text = (text or "").strip()[:600]
     if not text: raise HTTPException(422, "no te escuché")
     hist = [{"who": "migo" if h.get("who") == "migo" else "learner", "text": str(h.get("text", ""))[:600]} for h in (history or [])][-12:]
     turn = sum(1 for h in hist if h["who"] == "learner") + 1; last = turn >= TALK_TURNS
-    sp = d["speak"]; role = sp.get("role") if kind == "situation" else None
-    sysmsg = (f'You are Migo, a warm friend chatting in English with {E.first_name(user) or "the learner"}. Lesson: "{title}". '
-              + (f'Role-play: you are {role.get("migo_role")}, the learner is {role.get("user_role")}. Setting: {role.get("setting")}. ' if isinstance(role, dict) else "")
-              + f'Target expressions the learner should try: {json.dumps(sp["targets"], ensure_ascii=False)}. Learner CEFR level: {lvl}. '
-              + 'This is learner turn %d of %d. React naturally and genuinely to what the learner just said (like a friend; show you understood it). ' % (turn, TALK_TURNS)
-              + ('Because this is the LAST turn, "reply" is a warm closing sentence in English WITHOUT a question. ' if last else 'Then ask ONE short follow-up question that invites them to use a target expression. Reply max 25 words, simple English. ')
-              + 'Do NOT correct mistakes inside "reply". Return JSON {"reply":..,"used":[targets the learner used correctly in THIS message]'
-              + (f',"used_all":[targets used correctly in the whole conversation],"friend":Migo speaking as HIMSELF in {lang_name}, 2 short sentences using the learner\'s first name: react to something specific they said, say one thing that went well and one thing to watch next time (no scores),'
+    sp = _fix_role(d)["speak"]; role = _role(role, sp["role"])
+    sysmsg = (f'You are Migo, playing a character in a REAL-LIFE role-play with {E.first_name(user) or "the learner"} (they play themselves). You are {role["migo_role"]}; the learner is {role["user_role"]}. Scene: {role["setting"]}. '
+              'Stay in character; never mention lessons, targets or teaching. '
+              f'Talk like a real person at CEFR {lvl}: short natural sentences, contractions (I\'m, don\'t, that\'s) and an occasional natural filler (oh, well, you know) when it fits. '
+              f'Expressions the learner may use: {json.dumps(sp["targets"], ensure_ascii=False)}. Do NOT steer the conversation toward them and never quiz; just keep the scene going so they can come up naturally (you may use one yourself, casually, at most once). '
+              f'This is learner turn {turn} of {TALK_TURNS}. First react genuinely to what they said (show you understood; if it was unclear, say what you understood and check). '
+              + ('This is the LAST turn: wrap the scene up naturally in character (for example saying you have to go, or wishing them luck), with NO question, max 25 words. ' if last else
+                 'Then vary: about half of the time ask ONE natural question, otherwise add something about yourself or the situation in one short line, so they have something to answer. Max 30 words. ')
+              + 'Sensitive scenes (a funeral, illness): be gentle and respectful, no jokes, never give medical advice. Do NOT correct mistakes inside "reply". '
+              + 'Return JSON {"reply":..,"used":[expressions the learner used correctly in THIS message]'
+              + (f',"used_all":[expressions used correctly in the whole conversation],"friend":Migo speaking as HIMSELF, out of character, in {lang_name}, 2 short sentences using the learner\'s first name: react to something specific they said, say one thing that went well and one thing to watch next time (no scores),'
                  '"fixes":[up to 2 {"wrong":learner\'s mistake,"right":corrected,"pattern":short snake_case error label}]' if last else '') + '}')
-    r = llm.ask_json(sysmsg, json.dumps({"conversation": hist, "learner_says": text, "friend_context": E.friend_ctx(user)}, ensure_ascii=False), max_tokens=700)
+    r = llm.ask_json(sysmsg, json.dumps({"conversation": hist, "learner_says": text, "friend_context": E.friend_ctx(user)}, ensure_ascii=False), max_tokens=800)
     if not isinstance(r, dict) or not r.get("reply"): raise HTTPException(503, "Migo no pudo responder ahora. Inténtalo otra vez.")
     out = {"reply": str(r["reply"])[:300], "used": [u for u in (r.get("used") or []) if isinstance(u, str)][:6], "done": last}
     if last:
@@ -191,5 +209,76 @@ def talk(user, slug, history, text, score):
         if pats: E.record_errors(uid, "production", pats)       # lo que te costó pasa a tu memoria y a las recomendaciones
         used_all = [u for u in (r.get("used_all") or []) if isinstance(u, str)][:6]
         out.update({"friend": str(r.get("friend") or "")[:420], "fixes": fixes, "used_all": used_all, "targets": sp["targets"], "voice_lang": E.voice_lang(uid)})
-        _set(uid, slug, title, kind, "done", max(0, min(3, int(score or 0))))
+        sc = max(0, min(len(d["check"]), int(score or 0)))
+        conv = [{"who": h["who"] if h["who"] == "migo" else "me", "text": h["text"]} for h in hist] + [{"who": "me", "text": text}, {"who": "migo", "text": out["reply"]}]
+        out.update({"conversation": conv, "score": sc, "n": len(d["check"])})
+        _set(uid, slug, title, kind, "done", sc, json.dumps({**out, "role": role}, ensure_ascii=False))   # tu conversación y tu feedback quedan guardados
     return out
+
+
+# ---------------- audios compartidos de las frases de la lección ----------------
+def _norm(t): return " ".join(str(t).split())
+
+def _phrases(d):
+    ph = set()
+    for x in d.get("items", []): ph |= {_norm(x.get("en", "")), _norm(x.get("example", ""))}
+    for x in d.get("dialogue", []) or []: ph.add(_norm(x.get("en", "")))
+    ph.discard(""); return ph
+
+def audio(user, slug, text):
+    """mp3 de una frase de la lección: se genera UNA vez y se comparte entre todos los usuarios (no cuenta en el límite de voz)."""
+    from fastapi import HTTPException
+    uid, lvl, lang, _ = _ctx(user); c = _cached(slug, lvl, _key(lang))
+    if not c: raise HTTPException(404, "abre la lección otra vez")
+    t = _norm(text)
+    if t not in _phrases(c[2]): raise HTTPException(422, "esa frase no es de la lección")
+    h = hashlib.sha1(f"{llm.TTS_MODEL}|{llm.TTS_VOICE}|en|{t}".encode()).hexdigest()
+    r = db.run("select audio from tts_cache where h=?", (h,), one=True)
+    if r and r["audio"]: return bytes(r["audio"])
+    a = llm.tts(t, "en")
+    if not a: raise HTTPException(503, "voz no disponible")
+    db.run("insert into tts_cache(h,audio,created_at) values(?,?,?) on conflict(h) do nothing", (h, a, db.now()), write=True)
+    return a
+
+def result(user, slug):
+    from fastapi import HTTPException
+    r = db.run("select title,kind,result_json from lesson_progress where user_id=? and slug=?", (user["id"], slug), one=True)
+    if not r or not r["result_json"]: raise HTTPException(404, "todavía no terminaste esta lección")
+    return {"title": r["title"], "kind": r["kind"], "result": json.loads(r["result_json"])}
+
+
+# ---------------- escena personalizada y pistas ----------------
+def scene(user, slug):
+    """Escena de juego de roles hecha para ti (tu nombre, tu meta) y distinta cada vez que repites. Si la IA falla, usa la escena guardada de la lección."""
+    from fastapi import HTTPException
+    uid, lvl, lang, _ = _ctx(user); c = _cached(slug, lvl, _key(lang))
+    if not c: raise HTTPException(404, "abre la lección otra vez")
+    title, kind, d = c; sp = _fix_role(d)["speak"]
+    pr = db.run("select result_json from lesson_progress where user_id=? and slug=?", (uid, slug), one=True); prev = None
+    if pr and pr["result_json"]:
+        try: prev = ((json.loads(pr["result_json"]).get("role") or {}).get("setting"))
+        except Exception: prev = None
+    sysm = ("Design ONE short, realistic role-play scene for an English learner to practice the lesson. Believable everyday situation (not a quiz or interview-style drill) where the target expressions would come up naturally. "
+            "The learner plays themselves; Migo plays the other person (a friend, colleague, shop assistant, neighbour...). Use the learner's goal/situation if it fits the lesson. "
+            "If the topic is sensitive (funeral, illness) be gentle and respectful. Make it different from avoid_setting. "
+            'Return JSON {"role":{"migo_role":..,"user_role":..,"setting":one short sentence},"ask":Migo\'s first line in character, natural, with contractions, max 20 words, simple English for CEFR ' + lvl + "}.")
+    r = llm.ask_json(sysm, json.dumps({"lesson": title, "targets": sp["targets"], "learner": {"first_name": E.first_name(user), "goal": user["goal"], "situation": user["situation"]}, "avoid_setting": prev}, ensure_ascii=False), max_tokens=450)
+    role = _role(r.get("role") if isinstance(r, dict) else None, None); ask = str((r or {}).get("ask") or "").strip()[:200] if isinstance(r, dict) else ""
+    if not role or not ask: return {"role": sp["role"], "ask": sp["ask"]}
+    return {"role": role, "ask": ask}
+
+def hint(user, slug, history, role):
+    """💡 Pista: dos formas naturales de contestar, con su significado."""
+    from fastapi import HTTPException
+    uid, lvl, lang, lang_name = _ctx(user); c = _cached(slug, lvl, _key(lang))
+    if not c: raise HTTPException(404, "abre la lección otra vez")
+    quota(uid, "hint", HINT_DAILY, "Hoy ya usaste muchas pistas 🙂 Inténtalo tú, ¡puedes!")
+    sp = _fix_role(c[2])["speak"]; role = _role(role, sp["role"])
+    hist = [{"who": "migo" if h.get("who") == "migo" else "learner", "text": str(h.get("text", ""))[:400]} for h in (history or [])][-8:]
+    r = llm.ask_json("The learner is stuck in an English role-play and needs help answering. Suggest TWO different natural things they could say next, in simple English for CEFR " + lvl +
+                     " (contractions OK), each short (max 14 words) and fitting the scene; naturally use one of the target expressions in the first one if it fits. "
+                     'Return JSON {"suggestions":[{"en":..,"es":its meaning in ' + lang_name + "}]}.",
+                     json.dumps({"scene": role, "targets": sp["targets"], "conversation": hist}, ensure_ascii=False), max_tokens=350)
+    sug = [{"en": str(x.get("en", ""))[:140], "es": str(x.get("es", ""))[:160]} for x in ((r or {}).get("suggestions") or []) if isinstance(x, dict) and x.get("en")][:2] if isinstance(r, dict) else []
+    if not sug: raise HTTPException(503, "No se me ocurrió una pista ahora. Inténtalo tú 🙂")
+    return {"suggestions": sug}
