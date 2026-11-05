@@ -28,6 +28,8 @@ create table if not exists voice_usage(user_id int, day text, n int default 0, p
 create table if not exists lesson_cache(slug text, lvl text, lang text, title text, kind text, content_json text, created_at double precision, primary key(slug,lvl,lang));
 create table if not exists lesson_progress(user_id int, slug text, title text, kind text, status text default 'new', score int, updated_at double precision, primary key(user_id,slug));
 alter table lesson_progress add column if not exists result_json text;
+alter table lesson_progress add column if not exists done_day text;
+create table if not exists lesson_plan(user_id int, pos int, slug text, primary key(user_id,pos));
 create table if not exists tts_cache(h text primary key, audio bytea, created_at double precision);
 create table if not exists sessions(id serial primary key, user_id int, plan_json text, activity_json text,
   status text, help_level int default 0, blocked int default 0, attempts_json text, summary_json text, created_at double precision, closed_at double precision);

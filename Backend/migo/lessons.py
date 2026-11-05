@@ -1,7 +1,7 @@
 """Lecciones "How to…": expresar algo, situaciones de la vida y estructuras de inglés.
 El contenido lo genera la IA según tu nivel y tu idioma de ayuda, y se guarda (lesson_cache) para no pagar dos veces."""
 import os, json, random, hashlib, logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from . import db, llm, i18n, levels, engine as E
 
 log = logging.getLogger("migo.lessons")
@@ -112,34 +112,71 @@ def _get_or_make(user, slug, title, kind):
 # ---------------- progreso ----------------
 def _prog(uid): return {p["slug"]: p for p in db.run("select slug,title,kind,status,score from lesson_progress where user_id=?", (uid,))}
 
-def _set(uid, slug, title, kind, status, score=None, result=None):
-    db.run("insert into lesson_progress(user_id,slug,title,kind,status,score,result_json,updated_at) values(?,?,?,?,?,?,?,?) "
+def _set(uid, slug, title, kind, status, score=None, result=None, done_day=None):
+    db.run("insert into lesson_progress(user_id,slug,title,kind,status,score,result_json,done_day,updated_at) values(?,?,?,?,?,?,?,?,?) "
            "on conflict(user_id,slug) do update set status=case when lesson_progress.status='done' and excluded.status!='done' then 'done' else excluded.status end, "
-           "score=coalesce(excluded.score,lesson_progress.score), result_json=coalesce(excluded.result_json,lesson_progress.result_json), updated_at=excluded.updated_at",
-           (uid, slug, title, kind, status, score, result, db.now()), write=True)
+           "score=coalesce(excluded.score,lesson_progress.score), result_json=coalesce(excluded.result_json,lesson_progress.result_json), "
+           "done_day=case when lesson_progress.status='done' then lesson_progress.done_day else excluded.done_day end, updated_at=excluded.updated_at",
+           (uid, slug, title, kind, status, score, result, done_day, db.now()), write=True)
 
-def _recommend(user, prog, es):
+def _order(user):
+    """Orden base del plan: primero lo que más va con tus errores y tu meta; en empate se intercalan los tipos (expresar, situación, estructura) para que cada día sea distinto."""
     uid = user["id"]
     errs = " ".join((e["pattern"] or "").lower().replace("_", " ") for e in db.run("select pattern from errors where user_id=? and resolved=0 order by count desc limit 3", (uid,)))
-    ctx = f'{user["goal"] or ""} {user["situation"] or ""}'.lower(); best = None
-    for c in CATALOG:
-        if (prog.get(c["slug"]) or {}).get("status") == "done": continue
-        e = any(k in errs for k in c["kw"]); g = any(k in ctx for k in c["kw"]); sc = (3 if e else 0) + (1 if g else 0)
-        if best is None or sc > best[0]: best = (sc, c, e, g)
-    if not best: return None
-    _, c, e, g = best
-    why = (("Te ayuda con un error que se te repite" if es else "It helps with a mistake you keep making") if e else
-           ("Va con lo que quieres lograr" if es else "It fits what you want to achieve") if g else
-           ("Buen siguiente paso" if es else "A good next step"))
-    return {"slug": c["slug"], "title": c["title"], "icon": c["icon"], "reason": why}
+    ctx = f'{user["goal"] or ""} {user["situation"] or ""}'.lower()
+    rr = [c for grp in zip(*[[x for x in CATALOG if x["kind"] == k] for k in KINDS]) for c in grp]
+    sc = {c["slug"]: (any(k in errs for k in c["kw"]), any(k in ctx for k in c["kw"])) for c in rr}
+    return sorted(rr, key=lambda c: -(3 * sc[c["slug"]][0] + sc[c["slug"]][1])), sc
 
-def list_lessons(user):
-    uid = user["id"]; es = i18n.lang(uid) != "en"; prog = _prog(uid)
-    st = lambda s: (prog.get(s) or {}).get("status", "new")
-    groups = [{"kind": k, "lessons": [{"slug": c["slug"], "title": c["title"], "icon": c["icon"], "desc": c["es"] if es else c["en"], "status": st(c["slug"])}
-                                      for c in CATALOG if c["kind"] == k]} for k in KINDS]
-    mine = [{"slug": s, "title": p["title"], "icon": "✨", "desc": "", "status": p["status"]} for s, p in prog.items() if s.startswith("c-")]
-    return {"recommended": _recommend(user, prog, es), "groups": groups, "custom": mine, "custom_left": max(0, LESSON_DAILY - _used(uid, "gen"))}
+def _plan(user):
+    """Tu plan: el orden de las lecciones, fijo para ti (una por día). Se crea la primera vez."""
+    uid = user["id"]; rows = db.run("select slug from lesson_plan where user_id=? order by pos", (uid,)); n = len(rows)
+    slugs = [r["slug"] for r in rows if r["slug"] in BY]
+    if not rows:
+        prog = _prog(uid); base, _ = _order(user); st = lambda c: (prog.get(c["slug"]) or {}).get("status", "new")
+        slugs = [c["slug"] for c in base if st(c) == "done"] + [c["slug"] for c in base if st(c) == "doing"] + [c["slug"] for c in base if st(c) == "new"]
+        for i, sl in enumerate(slugs): db.run("insert into lesson_plan(user_id,pos,slug) values(?,?,?) on conflict(user_id,pos) do nothing", (uid, i, sl), write=True)
+    else:
+        missing = [c["slug"] for c in CATALOG if c["slug"] not in slugs]          # temas nuevos del catálogo van al final
+        for j, sl in enumerate(missing): db.run("insert into lesson_plan(user_id,pos,slug) values(?,?,?) on conflict(user_id,pos) do nothing", (uid, n + j, sl), write=True)
+        slugs += missing
+    return slugs
+
+def _state(user, today):
+    uid = user["id"]; prog = _prog(uid); plan = _plan(user)
+    st = lambda sl: (prog.get(sl) or {}).get("status", "new")
+    nxt = next((sl for sl in plan if st(sl) != "done"), None)
+    done_today = db.run("select 1 x from lesson_progress where user_id=? and done_day=? and substr(slug,1,2)!='c-' limit 1", (uid, today), one=True) is not None
+    return prog, plan, st, nxt, done_today
+
+def _streak(uid, today):
+    days = {r["done_day"] for r in db.run("select distinct done_day from lesson_progress where user_id=? and done_day is not null and substr(slug,1,2)!='c-'", (uid,))}
+    d = datetime.strptime(today, "%Y-%m-%d").date()
+    if today not in days: d -= timedelta(days=1)
+    n = 0
+    while d.strftime("%Y-%m-%d") in days: n += 1; d -= timedelta(days=1)
+    return n
+
+def _why(user, slug, es):
+    _, sc = _order(user); e, g = sc[slug]
+    return (("Te ayuda con un error que se te repite" if es else "It helps with a mistake you keep making") if e else
+            ("Va con lo que quieres lograr" if es else "It fits what you want to achieve") if g else
+            ("Buen paso para hoy" if es else "A good step for today"))
+
+def list_lessons(user, today):
+    uid = user["id"]; es = i18n.lang(uid) != "en"
+    prog, plan, st, nxt, done_today = _state(user, today)
+    items = []
+    for i, sl in enumerate(plan):
+        c = BY[sl]; s_ = st(sl); lock = None
+        if s_ != "done" and nxt is not None: lock = (("tomorrow" if done_today else None) if sl == nxt else "later")
+        items.append({"day": i + 1, "slug": sl, "title": c["title"], "icon": c["icon"], "desc": c["es"] if es else c["en"], "kind": c["kind"], "status": s_, "lock": lock})
+    if nxt is None: t = {"state": "all_done"}
+    else:
+        c = BY[nxt]; t = {"state": "done_today" if done_today else "open", "slug": nxt, "title": c["title"], "icon": c["icon"], "desc": c["es"] if es else c["en"], "reason": _why(user, nxt, es)}
+    mine = [{"slug": s_, "title": p["title"], "icon": "✨", "desc": "", "status": p["status"], "lock": None} for s_, p in prog.items() if s_.startswith("c-")]
+    return {"today": t, "plan": items, "streak": _streak(uid, today), "done": sum(1 for sl in plan if st(sl) == "done"), "total": len(plan),
+            "custom": mine, "custom_left": max(0, LESSON_DAILY - _used(uid, "gen"))}
 
 def _used(uid, key):
     r = db.run("select n from voice_usage where user_id=? and day=?", (uid, f"{key}:{_day()}"), one=True)
@@ -151,17 +188,22 @@ def _find(uid, slug):
     if p: return p["title"], None
     return None, None
 
-def start(user, slug):
+def start(user, slug, today):
     from fastapi import HTTPException
     uid = user["id"]; title, kind = _find(uid, slug)
     if not title: raise HTTPException(404, "lección no encontrada")
+    if slug in BY:                                    # una lección nueva por día: la de hoy está abierta, las demás bloqueadas
+        _, plan, st, nxt, done_today = _state(user, today); es = i18n.lang(uid) != "en"
+        if st(slug) != "done" and nxt is not None:
+            if slug != nxt: raise HTTPException(403, "Esa lección todavía está bloqueada 🔒 Sigue tu plan: una por día." if es else "That lesson is still locked 🔒 Follow your plan: one a day.")
+            if done_today: raise HTTPException(403, "Hoy ya hiciste tu lección 🎉 La siguiente se desbloquea mañana." if es else "You already did today's lesson 🎉 The next one unlocks tomorrow.")
     title, kind, c = _get_or_make(user, slug, title, kind)
     _set(uid, slug, title, kind, "doing")
     n = E.first_name(user); hook = c["hook"].strip()
     intro = (f"{n}, {hook}" if n else hook[:1].upper() + hook[1:])
     return {"slug": slug, "title": title, "kind": kind, "turns": TALK_TURNS, "intro": intro, "voice_lang": E.voice_lang(uid), "content": {k: v for k, v in c.items() if k != "hook"}}
 
-def create_custom(user, title):
+def create_custom(user, title, today):
     from fastapi import HTTPException
     uid = user["id"]; title = " ".join(title.split())[:80]
     if len(title) < 6: raise HTTPException(422, "Cuéntame qué quieres aprender, por ejemplo: How to order food at a restaurant")
@@ -169,7 +211,7 @@ def create_custom(user, title):
     if not _prog(uid).get(slug): quota(uid, "gen", LESSON_DAILY, f"Hoy ya pediste {LESSON_DAILY} lecciones propias. Mañana puedes pedir más 🙂")
     t, k, c = _get_or_make(user, slug, title, None)
     _set(uid, slug, t, k, "new")
-    return start(user, slug)
+    return start(user, slug, today)
 
 # ---------------- hablar (3 turnos) ----------------
 def _role(r, fb):
@@ -178,7 +220,7 @@ def _role(r, fb):
         if all(o.values()): return o
     return fb
 
-def talk(user, slug, history, text, score, role=None):
+def talk(user, slug, history, text, score, today, role=None):
     from fastapi import HTTPException
     uid, lvl, lang, lang_name = _ctx(user)
     c = _cached(slug, lvl, _key(lang))
@@ -199,20 +241,27 @@ def talk(user, slug, history, text, score, role=None):
               + 'Sensitive scenes (a funeral, illness): be gentle and respectful, no jokes, never give medical advice. Do NOT correct mistakes inside "reply". '
               + 'Return JSON {"reply":..,"used":[expressions the learner used correctly in THIS message]'
               + (f',"used_all":[expressions used correctly in the whole conversation],"friend":Migo speaking as HIMSELF, out of character, in {lang_name}, 2 short sentences using the learner\'s first name: react to something specific they said, say one thing that went well and one thing to watch next time (no scores),'
-                 '"fixes":[up to 2 {"wrong":learner\'s mistake,"right":corrected,"pattern":short snake_case error label}]' if last else '') + '}')
+                 '"fixes":[up to 4 objects {"wrong":the learner\'s EXACT words copied verbatim from their messages,"right":the corrected version,"why":short reason in the same language as friend,"pattern":short snake_case error label}, one per different mistake, never invent words the learner did not say]'
+                 ' If friend mentions a mistake, it MUST be one of the items in fixes.' if last else '') + '}')
     r = llm.ask_json(sysmsg, json.dumps({"conversation": hist, "learner_says": text, "friend_context": E.friend_ctx(user)}, ensure_ascii=False), max_tokens=800)
     if not isinstance(r, dict) or not r.get("reply"): raise HTTPException(503, "Migo no pudo responder ahora. Inténtalo otra vez.")
     out = {"reply": str(r["reply"])[:300], "used": [u for u in (r.get("used") or []) if isinstance(u, str)][:6], "done": last}
     if last:
-        fixes = [{"wrong": str(f.get("wrong", ""))[:160], "right": str(f.get("right", ""))[:160]} for f in (r.get("fixes") or []) if isinstance(f, dict) and f.get("wrong") and f.get("right")][:2]
-        pats = [{"pattern": str(f.get("pattern") or "lesson_mistake")[:60], "example": str(f.get("wrong", ""))[:160]} for f in (r.get("fixes") or []) if isinstance(f, dict) and f.get("wrong")][:2]
+        learner_texts = [h["text"] for h in hist if h["who"] == "learner"] + [text]
+        fixes = E.clean_fixes(r.get("fixes"), learner_texts, 4)          # solo correcciones que citan lo que de verdad dijiste
+        pat = {E._nz(f.get("wrong", "")): str(f.get("pattern") or "lesson_mistake")[:60] for f in (r.get("fixes") or []) if isinstance(f, dict)}
+        pats = [{"pattern": pat.get(E._nz(f["wrong"]), "lesson_mistake"), "example": f["wrong"]} for f in fixes]
         if pats: E.record_errors(uid, "production", pats)       # lo que te costó pasa a tu memoria y a las recomendaciones
         used_all = [u for u in (r.get("used_all") or []) if isinstance(u, str)][:6]
         out.update({"friend": str(r.get("friend") or "")[:420], "fixes": fixes, "used_all": used_all, "targets": sp["targets"], "voice_lang": E.voice_lang(uid)})
         sc = max(0, min(len(d["check"]), int(score or 0)))
         conv = [{"who": h["who"] if h["who"] == "migo" else "me", "text": h["text"]} for h in hist] + [{"who": "me", "text": text}, {"who": "migo", "text": out["reply"]}]
         out.update({"conversation": conv, "score": sc, "n": len(d["check"])})
-        _set(uid, slug, title, kind, "done", sc, json.dumps({**out, "role": role}, ensure_ascii=False))   # tu conversación y tu feedback quedan guardados
+        _set(uid, slug, title, kind, "done", sc, json.dumps({**out, "role": role}, ensure_ascii=False), today)   # tu conversación y tu feedback quedan guardados
+        if slug in BY:
+            _, plan, st, nxt, done_today = _state(user, today)
+            out.update({"streak": _streak(uid, today), "plan_done": sum(1 for x in plan if st(x) == "done"), "plan_total": len(plan),
+                        "next_title": BY[nxt]["title"] if nxt else None, "next_locked": done_today})
     return out
 
 

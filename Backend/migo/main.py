@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 from typing import List, Optional
@@ -207,6 +208,11 @@ def roleplay_finish(rid: int):
 
 
 # ---------- lecciones "How to…" ----------
+def _today(request: Request):
+    """Fecha de hoy en la zona horaria del usuario (la app manda X-TZ); si no, UTC. Así «una lección por día» cambia a SU medianoche."""
+    try: return datetime.now(ZoneInfo(request.headers.get("x-tz", "UTC"))).strftime("%Y-%m-%d")
+    except Exception: return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
 class CustomLessonIn(BaseModel): title: str
 class TalkIn(BaseModel):
     text: str
@@ -219,16 +225,16 @@ class HintIn(BaseModel):
     role: Optional[dict] = None
 
 @app.get("/users/{uid}/lessons")
-def lessons_list(uid: int): return lessons.list_lessons(U(uid))
+def lessons_list(uid: int, request: Request): return lessons.list_lessons(U(uid), _today(request))
 
 @app.post("/users/{uid}/lessons/custom")
-def lessons_custom(uid: int, b: CustomLessonIn): return lessons.create_custom(U(uid), b.title)
+def lessons_custom(uid: int, b: CustomLessonIn, request: Request): return lessons.create_custom(U(uid), b.title, _today(request))
 
 @app.post("/users/{uid}/lessons/{slug}/start")
-def lessons_start(uid: int, slug: str): return lessons.start(U(uid), slug)
+def lessons_start(uid: int, slug: str, request: Request): return lessons.start(U(uid), slug, _today(request))
 
 @app.post("/users/{uid}/lessons/{slug}/talk")
-def lessons_talk(uid: int, slug: str, b: TalkIn): return lessons.talk(U(uid), slug, b.history, b.text, b.score, b.role)
+def lessons_talk(uid: int, slug: str, b: TalkIn, request: Request): return lessons.talk(U(uid), slug, b.history, b.text, b.score, _today(request), b.role)
 
 @app.post("/users/{uid}/lessons/{slug}/scene")
 def lessons_scene(uid: int, slug: str): return lessons.scene(U(uid), slug)

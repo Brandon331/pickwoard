@@ -171,6 +171,21 @@ def use_words(user, items):
 
 def _example(w): return ""   # el ejemplo lo conoce el cliente; el evaluador no lo necesita para juzgar el uso
 
+def _nz(t): return " ".join(re.sub(r"[^\w' ]+", " ", str(t).lower()).split())
+
+def clean_fixes(raw, learner_texts, limit=4):
+    """Correcciones verificadas: solo las que citan TAL CUAL lo que dijo el alumno (así siempre se ve la frase equivocada). Añade `said`, la frase completa."""
+    out, seen = [], set()
+    for f in raw or []:
+        if not isinstance(f, dict): continue
+        w, r = str(f.get("wrong", "")).strip(), str(f.get("right", "")).strip(); nw = _nz(w)
+        if not nw or not r or nw == _nz(r) or nw in seen: continue
+        said = next((t for t in learner_texts if nw in _nz(t)), None)
+        if not said: continue
+        seen.add(nw); out.append({"wrong": w[:160], "right": r[:160], "why": str(f.get("why", ""))[:200], "said": said[:300]})
+        if len(out) >= limit: break
+    return out
+
 def first_name(user): return ((user["name"] or "").strip().split() or [""])[0][:20]
 
 def friend_ctx(user, exclude_rid=None):
@@ -182,7 +197,7 @@ def friend_ctx(user, exclude_rid=None):
     r = db.run(q + " order by id desc limit 1", tuple(a), one=True); last = None
     if r:
         sc, sm = L(r["scenario_json"]) or {}, L(r["summary_json"]) or {}
-        last = {"scene": sc.get("title"), "main_fix": (sm.get("fixes") or [None])[0], "words_used_ok": sm.get("ok"), "words_used": sm.get("used")}
+        last = {"scene": sc.get("title"), "main_fix": (lambda f: (f if isinstance(f, str) or f is None else f"{f.get('wrong')} -> {f.get('right')}"))((sm.get("fixes") or [None])[0]), "words_used_ok": sm.get("ok"), "words_used": sm.get("used")}
     return {"name": first_name(user), "recurring_mistake": ({"pattern": e["pattern"], "example": e["example"]} if e else None), "last_roleplay": last}
 
 def voice_lang(uid): return "es" if i18n.lang(uid) == "es" else "en"   # idioma en que Migo habla como él mismo (TTS)
@@ -239,9 +254,9 @@ def role_finish(user, rp):
     r = llm.ask_json("You are a STRICT but kind English teacher doing a ROLE-PLAY review for a Spanish-speaking learner. For each target word the learner used, decide used_correctly: true ONLY if it was used with the right meaning "
                      "and part of speech in a grammatical, natural sentence. Return {\"results\":[{\"w\":word,\"used_correctly\":bool,\"feedback\":ONE short sentence (language: " + i18n.llm_lang(uid) + "),"
                      "\"better\":a more natural version of the learner's sentence}],\"overall\":{\"praise\":one short encouraging sentence (language: " + i18n.llm_lang(uid) + "),"
-                     "\"fixes\":[up to 3 short corrections of the learner's most important mistakes]},"
+                     "\"fixes\":[up to 4 objects {\"wrong\":the learner's EXACT words copied verbatim from the transcript,\"right\":the corrected version,\"why\":short reason in the same language as praise}, one per different mistake, never invent words the learner did not say]},"
                      "\"friend\":what Migo says as HIMSELF, a close friend and not a grader, right after the scene: 2 short sentences (language: " + i18n.llm_lang(uid) + ") using the learner's first name; "
-                     "react to something specific the learner actually said, and mention ONE concrete thing that went well or ONE thing to watch next time (use friend_context only if truly relevant). Warm and honest, no scores, never invent progress}.",
+                     "react to something specific the learner actually said, and mention ONE concrete thing that went well or ONE thing to watch next time (use friend_context only if truly relevant); if you mention a mistake it MUST be one of the items in overall.fixes. Warm and honest, no scores, never invent progress}.",
                      J({"transcript": "\n".join(("Migo: " if t["who"] == "migo" else "Learner: ") + t["text"] for t in turns), "target_words_used": [w["w"] for w in used], "friend_context": friend_ctx(user, rp["id"])}), max_tokens=1600)
     db.run("update roleplays set status='done', ended_at=? where id=?", (db.now(), rp["id"]), write=True)
     if not (r and isinstance(r.get("results"), list)) or not mine:
@@ -255,7 +270,7 @@ def role_finish(user, rp):
     if used:
         bump(uid, "vocabulary", ok_n / len(used), ok_n / len(used)); add_evidence(uid, None, "vocabulary", ok_n / len(used), 0, "vocab_use", f"rol: {ok_n}/{len(used)}")
     ov = r.get("overall") if isinstance(r.get("overall"), dict) else {}
-    summary = {"evaluator": "llm", "results": out, "praise": str(ov.get("praise", ""))[:240], "fixes": [str(f)[:200] for f in (ov.get("fixes") or [])][:3], "friend": str(r.get("friend") or "").strip()[:420], "voice_lang": voice_lang(uid),
+    summary = {"evaluator": "llm", "results": out, "praise": str(ov.get("praise", ""))[:240], "fixes": clean_fixes(ov.get("fixes"), mine, 4), "friend": str(r.get("friend") or "").strip()[:420], "voice_lang": voice_lang(uid),
                "ok": ok_n, "used": len(used), "n": len(words), "words_mastered": words_mastered(uid)}
     db.run("update roleplays set summary_json=? where id=?", (J(summary), rp["id"]), write=True)
     return summary

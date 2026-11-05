@@ -111,6 +111,9 @@ textarea::placeholder{color:#8a96b8;font-style:italic}
 .tag{border-radius:999px;padding:0 8px;font-size:12px;font-weight:800;color:#fff;background:var(--sky);margin-left:6px;vertical-align:middle}.tag.formal{background:var(--plum)}.tag.casual{background:var(--orange)}
 .lsc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);color:inherit;border:3px solid var(--lilac);border-radius:18px;padding:10px 14px;margin-top:8px;font:inherit;cursor:pointer}.lsc i{font-size:26px;font-style:normal}.lsc small{display:block;color:var(--soft);font-size:14px}
 .opt{display:block;width:100%;margin-top:8px;text-align:left}.opt.ok{background:var(--green);color:#fff;border-color:var(--green)}.opt.no{background:var(--red);color:#fff;border-color:var(--red)}
+.lsc.lock{opacity:.55}.lsc small b{font-weight:800}
+mark{background:rgba(232,40,30,.22);color:inherit;border-radius:5px;padding:0 3px}
+.fx{margin:8px 0;padding:8px 12px;border-left:5px solid var(--orange);border-radius:10px;background:rgba(255,150,60,.10)}.fx p{margin:3px 0}
 .bub.fr{font-style:italic;opacity:.9}.mic{font-size:20px}.mic.rec{background:#e8281e;color:#fff;box-shadow:0 6px 0 #9c1410;animation:mp 1s infinite}@keyframes mp{50%{transform:scale(1.04)}}
 .bub.me{justify-self:end;background:var(--sky);color:#fff;border-bottom-right-radius:4px}
 .bub.mg{justify-self:start;background:var(--sun);color:#2a1a14;border-bottom-left-radius:4px}
@@ -171,7 +174,7 @@ body.hasnav main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 <div id="updm" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="updt"><div class="mbox"><h2 id="updt" data-i>¿Quieres actualizar Migo?</h2><p id="updsub" class="meta"></p><ul id="updnotes"></ul><div class="row"><button class="hint" id="updlater" data-i>Más tarde</button><button class="btn pink" id="updgo" data-i>Actualizar ahora</button></div></div></div>
 <nav id="nav" class="nav" hidden aria-label="Menú"><button data-t="home" onclick="goTab('home')"><i>🏠</i><span data-i>Inicio</span></button><button data-t="vocab" onclick="goTab('vocab')"><i>📚</i><span data-i>Vocabulario</span></button><button data-t="progress" onclick="goTab('progress')"><i>📈</i><span data-i>Progreso</span></button><button data-t="chat" onclick="goTab('chat')"><i>💬</i><span data-i>Chat</span></button><button data-t="settings" onclick="goTab('settings')"><i>⚙️</i><span data-i>Ajustes</span></button></nav>
 <main>
-<header class="tb"><a class="logo" href="index.html" aria-label="Migo, volver al inicio"><span>M</span><span>I</span><span>G</span><span>O</span></a><span id="who"></span><button class="inst" id="inst" data-i hidden>📲 Instalar app</button><button class="back" id="out" onclick="logout()" hidden>Salir</button></header>
+<header class="tb"><a class="logo" href="index.html" aria-label="Migo, volver al inicio"><span>M</span><span>I</span><span>G</span><span>O</span></a><button class="back" id="homeb" onclick="goTab('home')" data-i hidden>🏠 Inicio</button><span id="who"></span><button class="inst" id="inst" data-i hidden>📲 Instalar app</button><button class="back" id="out" onclick="logout()" hidden>Salir</button></header>
 <div class="coach"><div class="figwrap" id="fw"></div><div class="say" id="say" aria-live="polite"></div></div>
 <div id="view"></div>
 </main>
@@ -197,7 +200,7 @@ const COL=['var(--pink)','var(--sky)','var(--green)','var(--orange)','var(--plum
 /* ---- Idioma de la interfaz (es = español · mixed/en = botones y títulos en inglés) ---- */
 let LANG='es';try{LANG=localStorage.getItem('migo-lang')||'es'}catch(e){}
 const V=h=>{stopAudio();$('#view').innerHTML=tr(h);$('#nav').hidden=true;document.body.classList.remove('hasnav');scrollTo(0,0)};
-const EN_LES=[["💡 Pista","💡 Hint"],["Preparando la escena 🎭","Setting the scene 🎭"],["Un momento…","One moment…"],["Toca una para usarla, o dila con 🎤","Tap one to use it, or say it with 🎤"],["🎭 Juego de roles con Migo","🎭 Role-play with Migo"],["💬 Tu conversación","💬 Your conversation"],["🔁 Practicar de nuevo","🔁 Practice again"],["🎓 Migo te recomienda","🎓 Migo recommends"],["Migo te recomienda","Migo recommends"],["🎓 Lecciones","🎓 Lessons"],["Lecciones","Lessons"],["Aprende a decir las cosas como un nativo","Learn to say things like a native"],["Ver todas","See all"],["Empezar (5 min)","Start (5 min)"],["Empezar","Start"],
+const EN_LES=[["Tu plan de lecciones 📅","Your lesson plan 📅"],["Una lección por día","One lesson a day"],["🎓 Tu lección de hoy","🎓 Today’s lesson"],["✅ ¡Hoy ya hiciste tu lección!","✅ You did today’s lesson!"],["Mañana se desbloquea: ","Unlocks tomorrow: "],["🎉 ¡Completaste tu plan!","🎉 You finished your plan!"],["Puedes repetir cualquiera o pedirle una a Migo.","You can repeat any lesson or ask Migo for one."],["📅 Tu plan","📅 Your plan"],["📅 Mi plan","📅 My plan"],["Día ","Day "],["🔒 Todavía no","🔒 Not yet"],["Se desbloquea mañana. ¡Vuelve a verme!","Unlocks tomorrow. Come back and see me!"],["Primero ve las lecciones de antes en tu plan","First do the earlier lessons in your plan"],["Siguiente: ","Next: "],["Dijiste: ","You said: "],["✅ Mejor: ","✅ Better: "],["Para mejorar:","To improve:"],["💡 Pista","💡 Hint"],["Preparando la escena 🎭","Setting the scene 🎭"],["Un momento…","One moment…"],["Toca una para usarla, o dila con 🎤","Tap one to use it, or say it with 🎤"],["🎭 Juego de roles con Migo","🎭 Role-play with Migo"],["💬 Tu conversación","💬 Your conversation"],["🔁 Practicar de nuevo","🔁 Practice again"],["🎓 Migo te recomienda","🎓 Migo recommends"],["Migo te recomienda","Migo recommends"],["🎓 Lecciones","🎓 Lessons"],["Lecciones","Lessons"],["Aprende a decir las cosas como un nativo","Learn to say things like a native"],["Ver todas","See all"],["Empezar (5 min)","Start (5 min)"],["Empezar","Start"],
 ["Expresar algo","Express yourself"],["Situaciones de la vida","Real-life situations"],["Estructuras de inglés","English structures"],["✨ Tus lecciones","✨ Your lessons"],["✨ Pídele una a Migo","✨ Ask Migo for one"],["Escribe «How to…» y lo que quieras aprender. Hoy te quedan ","Type “How to…” and what you want to learn. Left today: "],["Crear lección","Create lesson"],["← Lecciones","← Lessons"],
 ["Vamos 🚀","Let’s go 🚀"],["Mini-chequeo ","Mini-check "],["Siguiente","Next"],["¡Eso!","Yes!"],["🚫 Mejor evitar","🚫 Better avoid"],["Intenta usar: ","Try to use: "],["Ahora tú 🎤","Your turn 🎤"],["Toca 🎤 y habla en inglés","Tap 🎤 and speak English"],["Escribe en inglés","Write in English"],
 ["¡Lección completada! 🎉","Lesson complete! 🎉"],["Expresiones que usaste","Expressions you used"],["Para la próxima","For next time"],["Otra lección","Another lesson"],["Preparando tu lección…","Preparing your lesson…"],["Puede tardar unos segundos","It may take a few seconds"],["en el chequeo","in the mini-check"],
@@ -226,9 +229,10 @@ const _iah=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacent
 /* ---- API con círculo de carga ---- */
 let inflight=0,ldT;
 function ld(d){inflight+=d;clearTimeout(ldT);if(inflight>0)ldT=setTimeout(()=>{$('#ld').hidden=false},250);else $('#ld').hidden=true}
+const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'}catch(e){return 'UTC'}})();
 async function api(p,m='GET',b){
  let r;ld(1);
- try{try{r=await fetch(API+p,{method:m,headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:b?JSON.stringify(b):undefined})}
+ try{try{r=await fetch(API+p,{method:m,headers:{'Content-Type':'application/json','X-TZ':TZ,...(S.token?{Authorization:'Bearer '+S.token}:{})},body:b?JSON.stringify(b):undefined})}
  catch(e){throw new Error('No puedo hablar con el servidor ('+API+'). ¿Está corriendo uvicorn?')}
  const j=await r.json().catch(()=>({}));
  if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'Revisa los datos e inténtalo de nuevo');
@@ -244,7 +248,7 @@ async function act(b,fn){if(busy)return;busy=true;if(b){b.disabled=true;b.classL
 /* ---- Auth + redirección ---- */
 let mode=location.hash=='#registro'?'reg':'login';
 function vLogin(){
- $('#who').textContent='';$('#out').hidden=true;
+ $('#who').textContent='';$('#out').hidden=true;$('#homeb').hidden=true;
  migo('idle','¡Hola! Soy Migo 👋','Entra para seguir tu camino');
  V(`<div class="card"><div class="tabs"><button class="${mode=='login'?'on':''}" onclick="mode='login';vLogin()">Entrar</button><button class="${mode=='reg'?'on':''}" onclick="mode='reg';vLogin()">Crear cuenta</button></div>
  <form onsubmit="return doAuth(event)">${mode=='reg'?'<label for="nm">Tu nombre</label><input id="nm" autocomplete="name" required>':''}
@@ -257,7 +261,7 @@ function doAuth(e){e.preventDefault();const b=e.target.querySelector('[type=subm
 function logout(){S={};save();vLogin()}
 async function route(){
  if(!S.token)return vLogin();
- $('#who').textContent=S.name||S.email;$('#out').hidden=false;
+ $('#who').textContent=S.name||S.email;$('#out').hidden=false;$('#homeb').hidden=false;
  try{
   if(!S.user_id)return vOnb();
   if(PL){await api('/users/'+S.user_id+'/placement','POST',PL);PL=null;try{localStorage.removeItem('migo-pl')}catch(e){}}
@@ -375,7 +379,7 @@ function rpDone(r){
  migo(r.ok>0?'happy':'idle','Rol terminado 🎭',r.used+' de '+r.n+' palabras usadas · '+r.ok+' bien');if(VOICE&&r.friend)speakN(r.friend,r.voice_lang=='es');
  V(`<div class="card"><h2>Tu resultado</h2>${r.friend?`<div class="tip">🙂 ${E(r.friend)}</div>`:''}${r.praise?`<div class="tip">${E(r.praise)}</div>`:''}
  ${r.results.map(x=>x.used?`<div class="pc" style="--c:${x.ok?'var(--green)':'var(--orange)'}"><h3>${x.ok?'✅':'🔁'} ${E(x.w)}</h3><p>${E(x.feedback)}</p>${x.better?`<p><b>Más natural:</b> ${E(x.better)}</p>`:''}</div>`:`<div class="pc" style="--c:var(--lilac)"><h3>➖ ${E(x.w)}</h3><p class="meta">No la usaste esta vez.</p></div>`).join('')}
- ${r.fixes&&r.fixes.length?`<div class="tip green"><b>Para mejorar:</b><br>${r.fixes.map(f=>'• '+E(f)).join('<br>')}</div>`:''}
+ ${r.fixes&&r.fixes.length?`<div class="tip green"><b>Para mejorar:</b>${r.fixes.map(fxHtml).join('')}</div>`:''}${RP&&RP.log&&RP.log.length?convHtml(RP.log,r.fixes):''}
  <p class="meta">🌟 ${r.words_mastered} palabras dominadas en total.</p><div class="row"><button class="hint" onclick="goTab('vocab')">← Vocabulario</button><button class="btn pink" onclick="vRole(this)">Otro rol</button></div></div>`)}
 /* ---- Mi vocabulario: lo que necesitas para el siguiente nivel, lo visto y lo que falta ---- */
 const VOCNOTE='Estas son las palabras clave de tu nivel: tu primer paso. Para subir de nivel necesitas cientos más; como referencia, la lista Oxford 3000 cubre de A1 a B2 y la Oxford 5000 llega hasta C1.';
@@ -529,23 +533,35 @@ async function vHome(p){return tHome(p)}
 let TAB='home';
 function setTab(t){TAB=t;$('#nav').hidden=false;document.body.classList.add('hasnav');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t))}
 function goTab(t){act(null,async()=>{await({home:()=>tHome(),vocab:()=>vVocab(),progress:tProgress,chat:async()=>vChat(),settings:tSettings}[t])()})}
+const fxMark=(t,w)=>{const i=w?t.toLowerCase().indexOf(w.toLowerCase()):-1;return i<0?`<mark>${E(w||t)}</mark>`:E(t.slice(0,i))+`<mark>${E(t.slice(i,i+w.length))}</mark>`+E(t.slice(i+w.length))};
+const fxHtml=f=>typeof f=='string'?`<p>• ${E(f)}</p>`:`<div class="fx"><p>🗣️ Dijiste: “${fxMark(f.said||f.wrong,f.wrong)}”</p><p>✅ Mejor: <b>${E(f.right)}</b></p>${f.why?`<p class="meta">${E(f.why)}</p>`:''}</div>`;
+const fxBubble=(t,fx)=>{const low=t.toLowerCase(),rg=[];(fx||[]).filter(f=>f&&typeof f=='object'&&f.wrong).forEach(f=>{const i=low.indexOf(f.wrong.toLowerCase());if(i>=0&&!rg.some(r=>i<r[1]&&i+f.wrong.length>r[0]))rg.push([i,i+f.wrong.length])});
+ rg.sort((a,b)=>a[0]-b[0]);let o='',q=0;rg.forEach(r=>{o+=E(t.slice(q,r[0]))+'<mark>'+E(t.slice(r[0],r[1]))+'</mark>';q=r[1]});return o+E(t.slice(q))};
+const convHtml=(log,fx)=>`<details><summary><b>💬 Tu conversación</b></summary><div class="chat">${log.map(m=>`<div class="bub ${m.who=='migo'?'mg':'me'}">${m.who=='migo'?E(m.text):fxBubble(m.text,fx)}</div>`).join('')}</div></details>`;
 /* ---- Lecciones "How to…": expresar algo · situaciones de la vida · estructuras de inglés ---- */
 let LS=null;
 const LK={express:['🗣️','Expresar algo'],situation:['🌍','Situaciones de la vida'],structure:['🧩','Estructuras de inglés']};
 const LST={new:'',doing:'⏳',done:'✅'};
 const lsSp=t=>`<button class="hint" style="padding:0 8px" data-t="${E(t)}" onclick="speakN(this.dataset.t,false,'/users/'+S.user_id+'/lessons/'+LS.slug+'/audio')" aria-label="Escuchar">🔊</button>`;   // frases de la lección: audio guardado y compartido
 const lsSc=t=>`<button class="hint" style="padding:0 8px" data-t="${E(t)}" onclick="speakN(this.dataset.t)" aria-label="Escuchar">🔊</button>`;   // frases de la conversación
-function lsCard(l){return `<button class="lsc" onclick="${l.status=='done'?'lsResult':'lsOpen'}('${E(l.slug)}',this)"><i>${l.icon}</i><span><b>${E(l.title)}</b>${l.desc?`<small>${E(l.desc)}</small>`:''}</span><span style="margin-left:auto">${LST[l.status]||''}</span></button>`}
-function lsHomeCard(d){if(!d||!d.recommended)return '';const r=d.recommended;return `<div class="card"><h2>🎓 Lecciones</h2><p class="meta">Migo te recomienda</p><p><b>${r.icon} ${E(r.title)}</b><br><span class="meta">${E(r.reason)}</span></p><div class="row"><button class="hint" onclick="vLessons()">Ver todas</button><button class="btn pink" onclick="lsOpen('${E(r.slug)}',this)">Empezar (5 min)</button></div></div>`}
+function lsCard(l){const lock=l.lock,ic=lock?'🔒':(LST[l.status]||''),go=lock?`lsLocked('${lock}')`:`${l.status=='done'?'lsResult':'lsOpen'}('${E(l.slug)}',this)`;
+ return `<button class="lsc${lock?' lock':''}" onclick="${go}"><i>${l.icon}</i><span>${l.day?`<small><b>Día ${l.day}</b></small>`:''}<b>${E(l.title)}</b>${l.desc?`<small>${E(l.desc)}</small>`:''}</span><span style="margin-left:auto">${ic}</span></button>`}
+function lsLocked(k){migo('idle','🔒 Todavía no',k=='tomorrow'?'Se desbloquea mañana. ¡Vuelve a verme!':'Primero ve las lecciones de antes en tu plan')}
+const lsStreak=n=>n?(LANG=='en'?`🔥 Streak: ${n} ${n==1?'day':'days'}`:`🔥 Racha: ${n} ${n==1?'día':'días'}`):'';
+function lsHomeCard(d){if(!d||!d.today)return '';const t=d.today,st=lsStreak(d.streak);
+ if(t.state=='open')return `<div class="card"><h2>🎓 Tu lección de hoy</h2><p><b>${t.icon} ${E(t.title)}</b><br><span class="meta">${E(t.reason)}</span></p>${st?`<p class="meta">${st} · ${d.done}/${d.total}</p>`:''}<div class="row"><button class="hint" onclick="vLessons()">📅 Mi plan</button><button class="btn pink" onclick="lsOpen('${E(t.slug)}',this)">Empezar (5 min)</button></div></div>`;
+ if(t.state=='done_today')return `<div class="card"><h2>✅ ¡Hoy ya hiciste tu lección!</h2><p>Mañana se desbloquea: <b>${t.icon} ${E(t.title)}</b> 🔒</p>${st?`<p class="meta">${st} · ${d.done}/${d.total}</p>`:''}<div class="row"><span></span><button class="hint" onclick="vLessons()">📅 Mi plan</button></div></div>`;
+ return `<div class="card"><h2>🎉 ¡Completaste tu plan!</h2><p class="meta">Puedes repetir cualquiera o pedirle una a Migo.</p><div class="row"><span></span><button class="hint" onclick="vLessons()">📅 Mi plan</button></div></div>`}
 async function vLessons(){
- const d=await api('/users/'+S.user_id+'/lessons');
- migo('idle','Lecciones 🎓','Aprende a decir las cosas como un nativo');
- const r=d.recommended;
- V((r?`<div class="card"><h2>🎓 Migo te recomienda</h2><p><b>${r.icon} ${E(r.title)}</b><br><span class="meta">${E(r.reason)}</span></p><div class="row"><span></span><button class="btn pink" onclick="lsOpen('${E(r.slug)}',this)">Empezar</button></div></div>`:'')
- +d.groups.map(g=>`<div class="card"><h2>${LK[g.kind][0]} ${LK[g.kind][1]}</h2>${g.lessons.map(lsCard).join('')}</div>`).join('')
+ const d=await api('/users/'+S.user_id+'/lessons'),t=d.today;
+ migo('idle','Tu plan de lecciones 📅',lsStreak(d.streak)||'Una lección por día');
+ const today=t.state=='open'?`<div class="card"><h2>🎓 Tu lección de hoy</h2><p><b>${t.icon} ${E(t.title)}</b><br><span class="meta">${E(t.reason)}</span></p><div class="row"><span></span><button class="btn pink" onclick="lsOpen('${E(t.slug)}',this)">Empezar (5 min)</button></div></div>`
+  :t.state=='done_today'?`<div class="card"><h2>✅ ¡Hoy ya hiciste tu lección!</h2><p>Mañana se desbloquea: <b>${t.icon} ${E(t.title)}</b> 🔒</p></div>`
+  :`<div class="card"><h2>🎉 ¡Completaste tu plan!</h2><p class="meta">Puedes repetir cualquiera o pedirle una a Migo.</p></div>`;
+ V(today+`<div class="card"><h2>📅 Tu plan</h2><p class="meta">${d.done}/${d.total} ${LANG=='en'?'lessons':'lecciones'}${d.streak?' · '+lsStreak(d.streak):''}</p>${d.plan.map(lsCard).join('')}</div>`
  +(d.custom.length?`<div class="card"><h2>✨ Tus lecciones</h2>${d.custom.map(lsCard).join('')}</div>`:'')
  +`<div class="card"><h2>✨ Pídele una a Migo</h2><p class="meta">Escribe «How to…» y lo que quieras aprender. Hoy te quedan ${d.custom_left}.</p><p class="err" id="err" hidden></p>
- <form onsubmit="return lsCustom(event)"><input id="lsq" maxlength="80" placeholder="How to order food at a restaurant" aria-label="Lección propia"><div class="row"><button type="button" class="hint" onclick="goTab('home')">← Inicio</button><button class="btn blue" type="submit">Crear lección</button></div></form></div>`)}
+ <form onsubmit="return lsCustom(event)"><input id="lsq" maxlength="80" placeholder="How to order food at a restaurant" aria-label="Lección propia"><div class="row"><span></span><button class="btn blue" type="submit">Crear lección</button></div></form></div>`)}
 function lsInit(d){LS=d;LS.step=0;LS.qi=0;LS.score=0;LS.locked=false;LS.used=[];LS.hist=[{who:'migo',text:d.content.speak.ask}];lsRender()}
 function lsOpen(slug,b){unlockAudio();act(b,async()=>{migo('idle','Preparando tu lección…','Puede tardar unos segundos');lsInit(await api('/users/'+S.user_id+'/lessons/'+slug+'/start','POST'))})}
 function lsCustom(e){e.preventDefault();const t=$('#lsq').value.trim();if(!t)return false;unlockAudio();
@@ -585,13 +601,13 @@ function lsRender(quiet){
   <p class="err" id="err" hidden></p>${CANMIC?`<div class="row"><button type="button" class="btn pink mic" id="mic" onclick="micToggle()">🎤 Hablar</button><button type="button" class="hint" onclick="lsVoice()">${VOICE?'🔊 Voz de Migo: sí':'🔇 Voz de Migo: no'}</button></div>`:''}
   <div id="lsh"></div><form onsubmit="return lsSend(event)"><input id="lsi" autocomplete="off" placeholder="…o escribe tu respuesta en inglés" aria-label="Respuesta"><div class="row"><button type="button" class="hint" onclick="lsHint(this)">💡 Pista</button><span class="meta">${turn+1}/${LS.turns||3}</span><button class="btn blue" type="submit">Enviar</button></div></form></div>`);
   $('#rpc').scrollTop=1e5;const m=LS.hist[LS.hist.length-1];if(VOICE&&!quiet&&m&&m.who=='migo')speakN(m.text)}
- else{const r=LS.fin,n=r.n||c.check.length,sc=r.score!=null?r.score:LS.score;migo('happy','¡Lección completada! 🎉',sc+'/'+n+' en el chequeo');
-  const used=r.used_all||[];
-  V(`<div class="card">${lsTop()}<h2>🎉 ${E(LS.title)}</h2>${r.friend?`<div class="bub mg fr">🙂 ${E(r.friend)}</div>`:''}
+ else{const r=LS.fin,n=r.n||c.check.length,sc=r.score!=null?r.score:LS.score,used=r.used_all||[],fx=r.fixes||[];migo('happy','¡Lección completada! 🎉',sc+'/'+n+' en el chequeo');
+  const plan=r.streak?`<p class="tip">${lsStreak(r.streak)}${r.next_title?(r.next_locked?` · Mañana se desbloquea: <b>${E(r.next_title)}</b> 🔒`:` · Siguiente: <b>${E(r.next_title)}</b>`):' · 🎉 ¡Completaste tu plan!'}</p>`:'';
+  V(`<div class="card">${lsTop()}<h2>🎉 ${E(LS.title)}</h2>${r.friend?`<div class="bub mg fr">🙂 ${E(r.friend)}</div>`:''}${plan}
   <p><b>Expresiones que usaste</b></p><div class="chips sc">${(r.targets||[]).map(t=>`<span class="${used.includes(t)?'me':''}">${used.includes(t)?'✅ ':''}${E(t)}</span>`).join('')}</div>
-  ${(r.fixes||[]).length?`<p><b>Para la próxima</b></p>${r.fixes.map(f=>`<p>❌ <s>${E(f.wrong)}</s><br>✅ <b>${E(f.right)}</b></p>`).join('')}`:''}
-  ${(r.conversation||[]).length?`<details><summary><b>💬 Tu conversación</b></summary><div class="chat">${r.conversation.map(m=>`<div class="bub ${m.who=='migo'?'mg':'me'}">${E(m.text)}</div>`).join('')}</div></details>`:''}
-  <div class="row"><button class="hint" onclick="lsOpen('${E(LS.slug)}',this)">🔁 Practicar de nuevo</button><button class="btn pink" onclick="vLessons()">Otra lección</button></div></div>`);
+  ${fx.length?`<p><b>Para la próxima</b></p>${fx.map(fxHtml).join('')}`:''}
+  ${(r.conversation||[]).length?convHtml(r.conversation,fx):''}
+  <div class="row"><button class="hint" onclick="lsOpen('${E(LS.slug)}',this)">🔁 Practicar de nuevo</button><button class="btn pink" onclick="vLessons()">📅 Mi plan</button></div></div>`);
   if(VOICE&&!quiet)(async()=>{await speakN(r.reply);if(r.friend)speakN(r.friend,r.voice_lang=='es')})()}}
 function lsPick(i,b){if(LS.locked)return;LS.locked=true;const q=LS.content.check[LS.qi],ok=i==q.answer;if(ok)LS.score++;
  document.querySelectorAll('.opt').forEach((x,k)=>{if(k==q.answer)x.classList.add('ok');else if(k==i)x.classList.add('no')});
