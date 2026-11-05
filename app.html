@@ -174,7 +174,7 @@ body.hasnav main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 <div id="updm" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="updt"><div class="mbox"><h2 id="updt" data-i>¿Quieres actualizar Migo?</h2><p id="updsub" class="meta"></p><ul id="updnotes"></ul><div class="row"><button class="hint" id="updlater" data-i>Más tarde</button><button class="btn pink" id="updgo" data-i>Actualizar ahora</button></div></div></div>
 <nav id="nav" class="nav" hidden aria-label="Menú"><button data-t="home" onclick="goTab('home')"><i>🏠</i><span data-i>Inicio</span></button><button data-t="vocab" onclick="goTab('vocab')"><i>📚</i><span data-i>Vocabulario</span></button><button data-t="progress" onclick="goTab('progress')"><i>📈</i><span data-i>Progreso</span></button><button data-t="chat" onclick="goTab('chat')"><i>💬</i><span data-i>Chat</span></button><button data-t="settings" onclick="goTab('settings')"><i>⚙️</i><span data-i>Ajustes</span></button></nav>
 <main>
-<header class="tb"><a class="logo" href="index.html" aria-label="Migo, volver al inicio"><span>M</span><span>I</span><span>G</span><span>O</span></a><button class="back" id="homeb" onclick="goTab('home')" data-i hidden>🏠 Inicio</button><span id="who"></span><button class="inst" id="inst" data-i hidden>📲 Instalar app</button><button class="back" id="out" onclick="logout()" hidden>Salir</button></header>
+<header class="tb"><a class="logo" href="index.html" aria-label="Migo, volver al inicio"><span>M</span><span>I</span><span>G</span><span>O</span></a><span id="who"></span><button class="inst" id="inst" data-i hidden>📲 Instalar app</button><button class="back" id="out" onclick="logout()" hidden>Salir</button></header>
 <div class="coach"><div class="figwrap" id="fw"></div><div class="say" id="say" aria-live="polite"></div></div>
 <div id="view"></div>
 </main>
@@ -248,7 +248,7 @@ async function act(b,fn){if(busy)return;busy=true;if(b){b.disabled=true;b.classL
 /* ---- Auth + redirección ---- */
 let mode=location.hash=='#registro'?'reg':'login';
 function vLogin(){
- $('#who').textContent='';$('#out').hidden=true;$('#homeb').hidden=true;
+ $('#who').textContent='';$('#out').hidden=true;
  migo('idle','¡Hola! Soy Migo 👋','Entra para seguir tu camino');
  V(`<div class="card"><div class="tabs"><button class="${mode=='login'?'on':''}" onclick="mode='login';vLogin()">Entrar</button><button class="${mode=='reg'?'on':''}" onclick="mode='reg';vLogin()">Crear cuenta</button></div>
  <form onsubmit="return doAuth(event)">${mode=='reg'?'<label for="nm">Tu nombre</label><input id="nm" autocomplete="name" required>':''}
@@ -261,7 +261,7 @@ function doAuth(e){e.preventDefault();const b=e.target.querySelector('[type=subm
 function logout(){S={};save();vLogin()}
 async function route(){
  if(!S.token)return vLogin();
- $('#who').textContent=S.name||S.email;$('#out').hidden=false;$('#homeb').hidden=false;
+ $('#who').textContent=S.name||S.email;$('#out').hidden=false;
  try{
   if(!S.user_id)return vOnb();
   if(PL){await api('/users/'+S.user_id+'/placement','POST',PL);PL=null;try{localStorage.removeItem('migo-pl')}catch(e){}}
@@ -561,7 +561,7 @@ async function vLessons(){
  V(today+`<div class="card"><h2>📅 Tu plan</h2><p class="meta">${d.done}/${d.total} ${LANG=='en'?'lessons':'lecciones'}${d.streak?' · '+lsStreak(d.streak):''}</p>${d.plan.map(lsCard).join('')}</div>`
  +(d.custom.length?`<div class="card"><h2>✨ Tus lecciones</h2>${d.custom.map(lsCard).join('')}</div>`:'')
  +`<div class="card"><h2>✨ Pídele una a Migo</h2><p class="meta">Escribe «How to…» y lo que quieras aprender. Hoy te quedan ${d.custom_left}.</p><p class="err" id="err" hidden></p>
- <form onsubmit="return lsCustom(event)"><input id="lsq" maxlength="80" placeholder="How to order food at a restaurant" aria-label="Lección propia"><div class="row"><span></span><button class="btn blue" type="submit">Crear lección</button></div></form></div>`)}
+ <form onsubmit="return lsCustom(event)"><input id="lsq" maxlength="80" placeholder="How to order food at a restaurant" aria-label="Lección propia"><div class="row"><button type="button" class="hint" onclick="goTab('home')">← Inicio</button><button class="btn blue" type="submit">Crear lección</button></div></form></div>`)}
 function lsInit(d){LS=d;LS.step=0;LS.qi=0;LS.score=0;LS.locked=false;LS.used=[];LS.hist=[{who:'migo',text:d.content.speak.ask}];lsRender()}
 function lsOpen(slug,b){unlockAudio();act(b,async()=>{migo('idle','Preparando tu lección…','Puede tardar unos segundos');lsInit(await api('/users/'+S.user_id+'/lessons/'+slug+'/start','POST'))})}
 function lsCustom(e){e.preventDefault();const t=$('#lsq').value.trim();if(!t)return false;unlockAudio();
