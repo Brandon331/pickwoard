@@ -6,15 +6,15 @@
 <meta name="color-scheme" content="light dark">
 <title>Migo – Tu compañero de inglés</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2f7fd8" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#2a1d38" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#be2478" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161020" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Migo">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 :root{--sun:#ffe21f;--pink:#e0338a;--sky:#2f7fd8;--lime:#9bc53d;--plum:#8b1a7e;--lilac:#c9b6d9;--green:#0f8a3c;--orange:#e8741a;--red:#e8281e;--ink:#2a1a14;--soft:#5b4a6b;--card:#fffaf0;--bg:#fdeef3;--tx:#2a2a5a;color-scheme:light dark}
 @media(prefers-color-scheme:dark){:root{--ink:#fff3dc;--soft:#d9c8ee;--card:#3a2a4a;--bg:#2a1d38;--plum:#ff9be0;--sky:#7ab8ff;--green:#6fdc8c;--pink:#ff6fb0;--orange:#ffa45c}}
@@ -164,6 +164,64 @@ body.hasnav main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .dlg .bub small{display:block;font-weight:600;font-size:13px;opacity:.85}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}.ld::after,#ld i{animation:rot 1.6s linear infinite!important}}
 @media(max-width:480px){.figwrap{width:72px}.say{font-size:17px}.br{grid-template-columns:104px 1fr 42px}.row .btn{width:100%}}
+</style>
+<style id="v2">
+/* ===== Migo · diseño v2: papel con grano, profundidad suave, iconos de línea ===== */
+:root{--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .18 0 0 0 0 .35 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+--sun:#f2c14e;--pink:#be2478;--sky:#2c62c9;--lime:#8fb339;--plum:#7b1767;--lilac:#ddd3ea;--green:#17803f;--orange:#d9691c;--red:#d4372c;--ink:#241a33;--soft:#65597a;--card:#fffdf9;--bg:#f3edf7;--tx:#2b2540;--line:rgba(70,45,100,.15);--sh:0 1px 0 rgba(255,255,255,.9) inset,0 14px 28px -14px rgba(60,30,90,.4),0 2px 5px rgba(60,30,90,.08);--navbg:rgba(255,253,249,.84)}
+@media(prefers-color-scheme:dark){:root{--ink:#f4ecfb;--soft:#c3b5d6;--card:#271e36;--bg:#161020;--plum:#ff9be0;--sky:#86b4ff;--green:#6fdc8c;--pink:#ff6fb0;--orange:#ffa45c;--lilac:#3c3050;--line:rgba(255,255,255,.11);--sh:0 1px 0 rgba(255,255,255,.07) inset,0 14px 30px -12px rgba(0,0,0,.7),0 2px 5px rgba(0,0,0,.3);--navbg:rgba(39,30,54,.84)}}
+html{background:var(--bg)}
+body{font:500 17px/1.55 "Figtree","Segoe UI",system-ui,sans-serif;background:radial-gradient(900px 520px at 6% -8%,rgba(190,36,120,.17),transparent 62%),radial-gradient(800px 560px at 100% 2%,rgba(44,98,201,.16),transparent 62%),radial-gradient(700px 600px at 50% 112%,rgba(242,193,78,.22),transparent 62%);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--grain);opacity:.6;mix-blend-mode:multiply;pointer-events:none}
+@media(prefers-color-scheme:dark){body::before{opacity:.5;mix-blend-mode:screen}}
+#bgc{display:none}
+h1,h2,h3,.logo{font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.logo{font-size:30px;font-weight:800;letter-spacing:-.03em}.logo span:nth-child(1){color:#d4372c}.logo span:nth-child(2){color:#e0902a}.logo span:nth-child(3){color:#be2478}.logo span:nth-child(4){color:#2c62c9}
+#who{font-weight:600;font-size:14px}
+b,strong{font-weight:700}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,0) 55%),var(--grain),var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 20px;box-shadow:var(--sh);position:relative;animation-duration:.22s}
+.card+.card,.card+.card+.card,.card+.card+.card+.card{margin-top:16px;box-shadow:var(--sh)}
+.card h2,.card+.card h2,.card+.card+.card h2,.card+.card+.card+.card h2{color:var(--ink);font-size:23px;margin-bottom:10px}
+.card::before{content:"";position:absolute;left:22px;top:-1px;width:44px;height:4px;border-radius:0 0 4px 4px;background:var(--pink)}
+.card+.card::before{background:var(--sky)}.card+.card+.card::before{background:var(--green)}.card+.card+.card+.card::before{background:var(--orange)}
+.btn{font:700 16px "Figtree",system-ui,sans-serif;letter-spacing:.01em;border-radius:14px;padding:12px 24px;color:#2a1a14;background:linear-gradient(180deg,#f7d172,#eab52f);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 -2px 0 rgba(0,0,0,.12) inset,0 10px 18px -9px rgba(180,120,0,.65);transition:transform .12s,filter .12s}
+.btn.pink{background:linear-gradient(180deg,#d5308a,#ac1d69);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(0,0,0,.16) inset,0 10px 18px -9px rgba(172,29,105,.75)}
+.btn.blue{background:linear-gradient(180deg,#3d74de,#2455b8);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(0,0,0,.16) inset,0 10px 18px -9px rgba(36,85,184,.75)}
+.btn:hover{filter:brightness(1.05)}.btn:active{transform:translateY(1px);filter:brightness(.97);box-shadow:0 1px 0 rgba(255,255,255,.3) inset}
+.mic.rec{background:linear-gradient(180deg,#e5483c,#bf2a20);box-shadow:0 0 0 4px rgba(212,55,44,.25);animation:mp 1s infinite}
+.hint{background:rgba(255,255,255,.55);border:1px solid var(--line);border-radius:12px;font-weight:600;font-size:15px;color:var(--sky);box-shadow:0 1px 2px rgba(60,30,90,.08);transition:background .12s}
+.hint:hover{background:rgba(255,255,255,.9)}
+@media(prefers-color-scheme:dark){.hint{background:rgba(255,255,255,.06)}.hint:hover{background:rgba(255,255,255,.12)}}
+.back,.inst{border-radius:10px;background:rgba(255,255,255,.55);border:1px solid var(--line);color:var(--ink);box-shadow:none;font:600 13px "Figtree",system-ui,sans-serif;padding:4px 12px}
+input,select{border:1.5px solid var(--line);border-radius:12px;box-shadow:0 1px 2px rgba(60,30,90,.06) inset;font-family:inherit}
+input:focus,select:focus{border-color:var(--pink);box-shadow:0 0 0 4px rgba(190,36,120,.16)}
+textarea{border:1.5px solid var(--line);border-radius:14px;font-family:inherit}
+label{color:var(--soft);font-weight:600;font-size:15px}
+.say{border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);font:600 18px/1.3 "Figtree",system-ui,sans-serif}.say::before{display:none}.say::after{left:-8px;margin-top:-6px}
+.nm{background:var(--ink);color:var(--card);font-weight:600}
+.tip{background:rgba(242,193,78,.2);color:var(--ink);border-radius:14px;border-left:4px solid var(--sun);padding:10px 14px}
+.tip.blue,.tip.green{border-radius:14px}
+.chips span{border-radius:8px;font-weight:600;padding:2px 10px;box-shadow:0 1px 0 rgba(255,255,255,.3) inset}
+.bub{border-radius:16px;font-weight:600;box-shadow:0 1px 2px rgba(60,30,90,.14)}
+.bub.mg{background:linear-gradient(#fbe08f,#f2c14e)}.bub.me{background:linear-gradient(#3d74de,#2c62c9)}
+.li{border-top:1px solid var(--line)}.tag{border-radius:6px}
+.lsc{border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(60,30,90,.08);background:rgba(255,255,255,.5);transition:transform .12s,box-shadow .12s}
+.lsc:hover{transform:translateY(-1px);box-shadow:0 8px 16px -10px rgba(60,30,90,.5)}
+@media(prefers-color-scheme:dark){.lsc{background:rgba(255,255,255,.05)}}
+.lsc .bd{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:12px;background:linear-gradient(#d5308a,#ac1d69);color:#fff;font:700 16px "Bricolage Grotesque",system-ui,sans-serif;font-style:normal;box-shadow:0 1px 0 rgba(255,255,255,.35) inset}
+.lsc.lock .bd{background:var(--lilac);color:var(--soft);box-shadow:none}
+.opt.ok,.opt.no{border-style:solid}
+.vopt{font:600 18px "Figtree",system-ui,sans-serif;border:1.5px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(60,30,90,.1)}
+.lvb{font:800 34px "Bricolage Grotesque",system-ui,sans-serif}
+.prog{height:10px;background:var(--lilac)}.prog i{background:linear-gradient(90deg,var(--pink),var(--sky))}
+.dots i{height:6px;width:30px}
+.fx{border-radius:12px}
+.nav{background:var(--navbg);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border-top:1px solid var(--line);box-shadow:0 -10px 24px -14px rgba(60,30,90,.35)}
+.nav button{position:relative;font:600 11.5px "Figtree",system-ui,sans-serif}.nav button.on{background:none;color:var(--pink)}
+.nav button.on::before{content:"";position:absolute;top:0;left:50%;margin-left:-14px;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--pink)}
+.nav button i{display:grid;place-items:center;height:26px}.nav .ic{width:23px;height:23px;stroke-width:1.7}
+.mbox{border:1px solid var(--line);box-shadow:var(--sh),0 30px 60px -20px rgba(0,0,0,.5);border-radius:22px}.mbox h2{color:var(--ink)}
+.ic{width:1.1em;height:1.1em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ico{display:inline-flex}
 </style>
 </head>
 <body>
@@ -545,7 +603,7 @@ const LST={new:'',doing:'⏳',done:'✅'};
 const lsSp=t=>`<button class="hint" style="padding:0 8px" data-t="${E(t)}" onclick="speakN(this.dataset.t,false,'/users/'+S.user_id+'/lessons/'+LS.slug+'/audio')" aria-label="Escuchar">🔊</button>`;   // frases de la lección: audio guardado y compartido
 const lsSc=t=>`<button class="hint" style="padding:0 8px" data-t="${E(t)}" onclick="speakN(this.dataset.t)" aria-label="Escuchar">🔊</button>`;   // frases de la conversación
 function lsCard(l){const lock=l.lock,ic=lock?'🔒':(LST[l.status]||''),go=lock?`lsLocked('${lock}')`:`${l.status=='done'?'lsResult':'lsOpen'}('${E(l.slug)}',this)`;
- return `<button class="lsc${lock?' lock':''}" onclick="${go}"><i>${l.icon}</i><span>${l.day?`<small><b>Día ${l.day}</b></small>`:''}<b>${E(l.title)}</b>${l.desc?`<small>${E(l.desc)}</small>`:''}</span><span style="margin-left:auto">${ic}</span></button>`}
+ return `<button class="lsc${lock?' lock':''}" onclick="${go}"><i class="bd">${l.day||'·'}</i><span>${l.day?`<small><b>Día ${l.day}</b></small>`:''}<b>${E(l.title)}</b>${l.desc?`<small>${E(l.desc)}</small>`:''}</span><span style="margin-left:auto">${ic}</span></button>`}
 function lsLocked(k){migo('idle','🔒 Todavía no',k=='tomorrow'?'Se desbloquea mañana. ¡Vuelve a verme!':'Primero ve las lecciones de antes en tu plan')}
 const lsStreak=n=>n?(LANG=='en'?`🔥 Streak: ${n} ${n==1?'day':'days'}`:`🔥 Racha: ${n} ${n==1?'día':'días'}`):'';
 function lsHomeCard(d){if(!d||!d.today)return '';const t=d.today,st=lsStreak(d.streak);
@@ -746,6 +804,17 @@ if(canSW()){const hadCtl=!!navigator.serviceWorker.controller;let rl=false;
   reg.addEventListener('updatefound',()=>{const w=reg.installing;if(w)w.addEventListener('statechange',()=>{if(w.state==='installed')ask(w)})})}).catch(()=>{}));
  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hadCtl||rl)return;rl=true;location.reload()})}
 setLang(LANG);route();
+</script>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-speaker" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol><symbol id="i-speaker-off" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 6M21 9l-5 6"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol><symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z"/></symbol><symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></symbol><symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 10v10h5v-6h4v6h5V10"/></symbol><symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h7"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16M8 16v-4M13 16V8M18 16v-6"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 4v5h-5M20 12a8 8 0 0 1-14 5l-2-2M4 20v-5h5"/></symbol><symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol><symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol><symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol></svg><script>
+/* Iconos de línea en lugar de emojis. Las imágenes de vocabulario (#pic, .chips, .vopt, .q…) conservan su emoji. */
+(function(){const EMO=/(?![\u00A9\u00AE\u2122])\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*\uFE0F?|\uFE0F/gu,
+MAP={"🔊": "speaker", "🔈": "speaker", "🔇": "speaker-off", "🎤": "mic", "⏹": "stop", "✅": "check", "✔": "check", "❌": "x", "🔒": "lock", "🔥": "flame", "💡": "bulb", "🏠": "home", "📚": "book", "📈": "chart", "💬": "chat", "⚙": "gear", "📲": "download", "📅": "calendar", "🔁": "repeat", "🎓": "cap", "⏳": "clock", "✨": "spark", "🚫": "ban", "⭐": "star"},KEEP='#pic,.vpic,.chips,.vopt,.q,.wd,[data-keep]',SKIP='svg,script,style,textarea,input,.ico';
+function fix(n){if(n.nodeType==3)return one(n);if(n.nodeType!=1)return;const w=document.createTreeWalker(n,4),L=[];while(w.nextNode())L.push(w.currentNode);L.forEach(one)}
+function one(t){const p=t.parentElement;if(!p||!/\p{Extended_Pictographic}|\uFE0F/u.test(t.nodeValue)||p.closest(SKIP))return;const keep=!!p.closest(KEEP),v=t.nodeValue,f=document.createDocumentFragment();let last=0,ch=false;
+ v.replace(EMO,(m,i)=>{const k=MAP[m.replace(/\uFE0F/g,'')];if(!k&&keep)return m;f.append(v.slice(last,i));last=i+m.length;ch=true;if(k){const s=document.createElement('span');s.className='ico';s.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-'+k+'"/></svg>';f.append(s)}return m});
+ if(ch){f.append(v.slice(last));t.replaceWith(f)}}
+new MutationObserver(ms=>ms.forEach(m=>{m.addedNodes.forEach(fix);if(m.type=='characterData')fix(m.target)})).observe(document.body,{childList:true,subtree:true,characterData:true});
+fix(document.body)})();
 </script>
 </body>
 </html>
