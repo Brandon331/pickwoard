@@ -11,6 +11,7 @@ FastAPI + PostgreSQL (Supabase) + OpenAI. Las tablas se crean solas al arrancar.
 - Audios de lecciones: las frases de cada lección se generan una vez y se guardan en `tts_cache` (compartidas entre usuarios, no cuentan en el límite de voz). Cambiar `MIGO_VOICE`/`MIGO_TTS_MODEL` genera audios nuevos. Para regenerar el texto de todas las lecciones, sube `CACHE_V` en `migo/lessons.py`.
 - `MIGO_TALK_TURNS` (turnos del juego de roles de cada lección, por defecto 4) y `MIGO_HINT_DAILY` (pistas 💡 por usuario y día, por defecto 30).
 - Lecciones diarias: cada usuario tiene un plan fijo (`lesson_plan`) y una lección nueva por día en SU zona horaria (la app manda `X-TZ`; `tzdata` está en requirements). Las demás están bloqueadas; las ya hechas se pueden repetir y las propias («How to…») no se bloquean.
+- Recomendaciones para escuchar y ver (`migo/media.py`): catálogo de podcasts, canales, series y películas con rango de nivel (A1-C2). Se eligen según el nivel estimado del usuario y cambian solas cuando sube. Para agregar títulos, añade una fila a `CATALOG`.
 - `MIGO_VOICE_DAILY`: límite de llamadas de voz por usuario y día UTC (por defecto 120; un rol completo gasta ~14). `MIGO_VOICE`, `MIGO_TTS_MODEL`, `MIGO_STT_MODEL`: voz y modelos de voz.
 - `DB_POOL`: conexiones del pool (por defecto 5).
 

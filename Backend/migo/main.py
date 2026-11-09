@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
-from . import db, engine as E, llm, auth, i18n, levels, lessons
+from . import db, engine as E, llm, auth, i18n, levels, lessons, media
 
 db.init()
 app = FastAPI(title="Migo English Companion (prototype backend)")
@@ -206,6 +206,13 @@ def roleplay_finish(rid: int):
     if rp["status"] == "done": return E.L(rp["summary_json"]) or {"evaluator": "none", "results": []}
     return E.role_finish(u, rp)
 
+
+# ---------- recomendaciones para escuchar y ver, según tu nivel ----------
+@app.get("/users/{uid}/media")
+def media_get(uid: int, ack: int = 0): return media.recommend(U(uid), bool(ack))
+
+@app.post("/users/{uid}/media/{slug}/seen")
+def media_seen(uid: int, slug: str): return media.mark_seen(U(uid), slug)
 
 # ---------- lecciones "How to…" ----------
 def _today(request: Request):
