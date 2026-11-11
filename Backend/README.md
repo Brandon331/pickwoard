@@ -13,6 +13,7 @@ FastAPI + PostgreSQL (Supabase) + OpenAI. Las tablas se crean solas al arrancar.
 - Lecciones diarias: cada usuario tiene un plan fijo (`lesson_plan`) y una lección nueva por día en SU zona horaria (la app manda `X-TZ`; `tzdata` está en requirements). Las demás están bloqueadas; las ya hechas se pueden repetir y las propias («How to…») no se bloquean.
 - Recomendaciones para escuchar y ver (`migo/media.py`): catálogo de podcasts, canales, series y películas con rango de nivel (A1-C2). Se eligen según el nivel estimado del usuario y cambian solas cuando sube. Para agregar títulos, añade una fila a `CATALOG`.
 - `MIGO_VOICE_DAILY`: límite de llamadas de voz por usuario y día UTC (por defecto 120; un rol completo gasta ~14). `MIGO_VOICE`, `MIGO_TTS_MODEL`, `MIGO_STT_MODEL`: voz y modelos de voz.
+- `MIGO_REQUIRE_AUTH`: por defecto `1`. Cada cuenta solo puede usar SU usuario (`/users/{id}/…`), sus sesiones y sus roles; sin token válido responde 401 y con el de otra cuenta, 403. `0` lo apaga (pruebas locales o para volver atrás).
 - `DB_POOL`: conexiones del pool (por defecto 5).
 
 ## Correr
@@ -27,4 +28,4 @@ FastAPI + PostgreSQL (Supabase) + OpenAI. Las tablas se crean solas al arrancar.
 ## Módulos
 `main.py` endpoints · `engine.py` diagnóstico, decisión, sesión, memoria, progreso · `levels.py` nivel y tiempo a la siguiente etapa ·
 `i18n.py` idioma de ayuda y textos de respaldo · `auth.py` cuentas y token · `llm.py` OpenAI · `db.py` Postgres.
-Auth: los demás endpoints aún no exigen el token (pendiente antes de abrirlo al público).
+Auth: todos los endpoints (salvo `/health`, `/docs` y `/auth/*`) exigen el token y que sea del dueño del recurso (ver `MIGO_REQUIRE_AUTH`).

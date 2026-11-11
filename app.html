@@ -62,6 +62,7 @@ b,strong{color:var(--plum);font-weight:700}
 .card+.card{margin-top:22px;box-shadow:0 7px 0 var(--sky)}.card+.card h2{color:var(--sky)}
 .card+.card+.card{box-shadow:0 7px 0 var(--green)}.card+.card+.card h2{color:var(--green)}
 .card+.card+.card+.card{box-shadow:0 7px 0 var(--orange)}.card+.card+.card+.card h2{color:var(--orange)}
+.hero{padding:24px 20px}.hero .big{font-size:22px;margin:0 0 6px}.btn.go{display:block;width:100%;font-size:22px;padding:16px 20px;margin-top:14px}.more{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 6px}.lvd{margin-top:14px}.lvd>summary{cursor:pointer}
 @keyframes pop{from{transform:scale(.96);opacity:0}}
 /* tareas: texto más fino y con color */
 .q{font:600 clamp(19px,4.2vw,23px)/1.4 "Baloo 2",sans-serif;margin:8px 0 12px;color:var(--ink)}
@@ -205,6 +206,7 @@ const EN_LES=[["Para escuchar y ver","To listen and watch"],["Ver recomendacione
 ["Vamos 🚀","Let’s go 🚀"],["Mini-chequeo ","Mini-check "],["Siguiente","Next"],["¡Eso!","Yes!"],["🚫 Mejor evitar","🚫 Better avoid"],["Intenta usar: ","Try to use: "],["Ahora tú 🎤","Your turn 🎤"],["Toca 🎤 y habla en inglés","Tap 🎤 and speak English"],["Escribe en inglés","Write in English"],
 ["¡Lección completada! 🎉","Lesson complete! 🎉"],["Expresiones que usaste","Expressions you used"],["Para la próxima","For next time"],["Otra lección","Another lesson"],["Preparando tu lección…","Preparing your lesson…"],["Puede tardar unos segundos","It may take a few seconds"],["en el chequeo","in the mini-check"],
 ["🎤 Hablar","🎤 Speak"],["⏹ Listo","⏹ Done"],["🔊 Voz de Migo: sí","🔊 Migo’s voice: on"],["🔇 Voz de Migo: no","🔇 Migo’s voice: off"],["…o escribe tu respuesta en inglés","…or type your answer in English"],["Te escucho 👂","I’m listening 👂"],["Toca ⏹ cuando termines","Tap ⏹ when you’re done"]];
+const EN_HOME=[["Esto fue lo que escuché 👂","This is what I heard 👂"],["Corrígelo si hace falta y toca «Enviar»","Fix it if needed and tap “Send”"],["Para escucharte necesito tu micrófono 🎤","I need your microphone to hear you 🎤"],["Tu navegador te va a preguntar: toca «Permitir». Solo lo uso mientras hablas contigo.","Your browser will ask: tap “Allow”. I only use it while you talk to me."],["Tu sesión de hoy","Today’s session"],["Empezar · 5 min","Start · 5 min"],["Repaso: ","Review: "],["Las que fallas vuelven pronto; las que sabes, cada vez más tarde.","The ones you miss come back soon; the ones you know, later and later."],["Repasar ahora","Review now"],["🧭 Sesión guiada","🧭 Guided session"],["🔁 Repasar (","🔁 Review ("],["📊 Tu nivel y recomendaciones","📊 Your level and recommendations"],["Mañana: ","Tomorrow: "],["¡Hoy ya hiciste tu lección!","You did today’s lesson!"]];
 const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],["Vocabulario","Vocabulary"],["Sin traducir","No translating"],
 ["Entender lo que te dicen","Understanding what people say"],["Decir lo que quieres","Saying what you want"],["Tener las palabras que necesitas","Having the words you need"],["Pensar directo en inglés","Thinking directly in English"],
 ["Tu punto débil","Your weak spot"],["Error que se repite","Recurring error"],["Menos pistas","Fewer hints"],["Subir de nivel","Level up"],["Nueva estrategia","New strategy"],
@@ -222,7 +224,7 @@ const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],[
 ["Basado en tu test y tu diagnóstico práctico","Based on your test and practical diagnostic"],["Basado en tu test","Based on your test"],["Basado en tu diagnóstico práctico","Based on your practical diagnostic"],["Aún es una estimación","Still an estimate"],
 [". Estudiando todos los días; es una guía basada en horas de estudio de Cambridge, no una garantía.",". Studying every day; a guide based on Cambridge study hours, not a guarantee."],["Haz el test →","Take the test →"],["¡Estás en el nivel más alto de la escala!","You’re at the top of the scale!"],
 ["🎯 Tu test: nivel ","🎯 Your test: level "],[". Lo confirmamos con tu diagnóstico práctico.",". We’ll confirm it with your practical diagnostic."]
-].concat(EN_LES).sort((a,b)=>b[0].length-a[0].length);
+].concat(EN_LES,EN_HOME).sort((a,b)=>b[0].length-a[0].length);
 function tr(h){if(LANG=='es')return h;h=h.replace(/Turno (\d+)\/(\d+)/g,'Turn $1/$2').replace(/(\d+) de (\d+) bien usadas/g,'$1 of $2 used well').replace(/(\d+) de (\d+) palabras usadas · (\d+) bien/g,'$1 of $2 words used · $3 correct').replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2').replace(/Palabra (\d+) de (\d+)/g,'Word $1 of $2').replace(/Pregunta (\d+) de (\d+)/g,'Question $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
 function setLang(l){LANG=l||'es';try{localStorage.setItem('migo-lang',LANG)}catch(e){}document.documentElement.lang=LANG=='en'?'en':'es';$('#out').textContent=tr('Salir');document.querySelectorAll('[data-i]').forEach(e=>{e.dataset.es=e.dataset.es||e.textContent;e.textContent=tr(e.dataset.es)});$('#ldt').textContent=tr('Migo está pensando…')}
 const _iah=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(p,h){_iah.call(this,p,tr(h))};
@@ -302,13 +304,21 @@ async function speakN(t,es,path){   // es=true: Migo habla como él mismo en esp
 async function micToggle(){
  if(REC){REC.stop();return}
  if(busy)return;unlockAudio();stopAudio();
- let st;try{st=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return err('Necesito permiso del micrófono para hablar contigo 🎤')}
+ try{const q=navigator.permissions&&await navigator.permissions.query({name:'microphone'});if(q&&q.state=='prompt')migo('idle','Para escucharte necesito tu micrófono 🎤','Tu navegador te va a preguntar: toca «Permitir». Solo lo uso mientras hablas contigo.')}catch(e){}
+ let st;try{st=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return err(micErr(e))}
  const mt=['audio/webm;codecs=opus','audio/mp4','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'',ch=[];
  const mr=new MediaRecorder(st,mt?{mimeType:mt}:{});
  mr.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
  mr.onstop=()=>{clearTimeout(RECT);st.getTracks().forEach(t=>t.stop());REC=null;micUI();(VHEAR||rpHear)(new Blob(ch,{type:mr.mimeType||mt||'audio/webm'}))};
  REC=mr;mr.start();micUI();RECT=setTimeout(()=>{if(REC)REC.stop()},60000);
  migo('idle','Te escucho 👂','Toca ⏹ cuando termines')}
+function micErr(e){const n=e&&e.name;
+ if(n=='NotAllowedError'||n=='SecurityError')return 'Tu navegador tiene bloqueado el micrófono. Actívalo desde el candado junto a la dirección y toca 🎤 otra vez. Mientras tanto, puedes escribir tu respuesta.';
+ if(n=='NotFoundError'||n=='OverconstrainedError')return 'No encuentro un micrófono en este dispositivo. Puedes escribir tu respuesta en inglés.';
+ if(n=='NotReadableError')return 'Otra app está usando el micrófono. Ciérrala e inténtalo de nuevo, o escribe tu respuesta.';
+ return 'No pude usar el micrófono. Puedes escribir tu respuesta en inglés.'}
+/* Lo que Migo escuchó se muestra en la caja de texto para corregirlo (el reconocimiento falla con acentos) y se envía con «Enviar». */
+function fillHeard(sel,t){const i=$(sel);if(!i)return;i.value=t;i.focus();migo('idle','Esto fue lo que escuché 👂','Corrígelo si hace falta y toca «Enviar»')}
 function micUI(){const b=$('#mic');if(!b)return;b.classList.toggle('rec',!!REC);b.textContent=REC?'⏹ Listo':'🎤 Hablar'}
 async function sttText(blob,hint){
  let r;ld(1);
@@ -318,7 +328,7 @@ async function sttText(blob,hint){
  const t=(j.text||'').trim();if(!t)throw new Error('No te entendí. Inténtalo otra vez, un poco más fuerte 🎤');return t}
 async function rpHear(blob){
  if(blob.size<1000)return err('No te escuché. Acércate al micrófono e inténtalo otra vez 🎤');
- await act($('#mic'),async()=>{migo('idle','Escuchándote…','Pasando tu voz a texto');await rpTurnRun(await sttText(blob,RP.words.map(x=>x.w).join(', ')))})}
+ await act($('#mic'),async()=>{migo('idle','Escuchándote…','Pasando tu voz a texto');fillHeard('#rpi',await sttText(blob,RP.words.map(x=>x.w).join(', ')))})}
 function rpVoice(){VOICE=!VOICE;localStorage.setItem('migo-voice',VOICE?'1':'0');if(!VOICE)stopAudio();rpRender(true)}
 const VOC=VOCRAW.map(l=>l.map(x=>{const [w,e,s,d]=x.split('|');return{w,e,s,d}}));
 const rxw=w=>new RegExp('\\b'+w.split(' ').map(t=>t+'\\w*').join('\\s+'),'i');
@@ -617,7 +627,7 @@ function lsNextQ(){LS.locked=false;LS.qi++;if(LS.qi>=LS.content.check.length)lsG
 function lsSend(e){e.preventDefault();const t=$('#lsi').value.trim();if(!t)return false;unlockAudio();act(e.target.querySelector('[type=submit]'),()=>lsTurn(t));return false}
 async function lsHear(blob){
  if(blob.size<1000)return err('No te escuché. Acércate al micrófono e inténtalo otra vez 🎤');
- await act($('#mic'),async()=>{migo('idle','Escuchándote…','Pasando tu voz a texto');await lsTurn(await sttText(blob,LS.content.speak.targets.join(', ')))})}
+ await act($('#mic'),async()=>{migo('idle','Escuchándote…','Pasando tu voz a texto');fillHeard('#lsi',await sttText(blob,LS.content.speak.targets.join(', ')))})}
 async function lsTurn(t){const hist=LS.hist.slice();LS.hist.push({who:'me',text:t});let r;
  try{r=await api('/users/'+S.user_id+'/lessons/'+LS.slug+'/talk','POST',{text:t,history:hist,score:LS.score,role:LS.role})}catch(e){LS.hist.pop();throw e}
  LS.hist.push({who:'migo',text:r.reply});if(r.done){LS.fin=r;LS.step=4}lsRender()}
@@ -634,9 +644,18 @@ async function tHome(p){
  p=p||await api('/users/'+S.user_id+'/profile');CUR=p.path;setLang(p.lang);
  const [nx,du,ls,md]=await Promise.all([api('/users/'+S.user_id+'/next'),api('/users/'+S.user_id+'/vocab/due'),api('/users/'+S.user_id+'/lessons').catch(()=>null),api('/users/'+S.user_id+'/media').catch(()=>null)]);SIT=p.situation||SIT;
  migo('idle','Hola, '+E(S.name)+' 👋',hl(nx.reentry_note||'Tengo un plan para hoy'));
- V(`${lvlCard(p.path)}<div class="card"><h2>Hoy te propongo</h2><div class="chips"><span>${RULES[nx.rule]||E(nx.rule)}</span><span>Dificultad ${nx.difficulty}/5</span><span>Ayuda máx. ${nx.help_allowed}</span>${nx.modality=='listen'?'<span>🎧 Listening</span>':''}</div>
- <p><b>${hl(nx.objective)}</b></p><p class="meta">${hl(nx.why)}</p>
- <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>${lsHomeCard(ls)}${mediaHomeCard(md)}${dueCard(du)}`);setTab('home')}
+const hero=homeHero(nx,du,ls),more=[];
+ if(hero.k!='session')more.push(`<button class="hint" onclick="startSession(this)">🧭 Sesión guiada</button>`);
+ if(hero.k!='review'&&du&&du.count)more.push(`<button class="hint" onclick="vReview(this)">🔁 Repasar (${du.count})</button>`);
+ more.push(`<button class="hint" onclick="vLessons()">📅 Mi plan</button>`,`<button class="hint" onclick="vChat()">💬 Hablar con Migo</button>`);
+ V(`${hero.html}<div class="more">${more.join('')}</div><details class="lvd"><summary class="gt">📊 Tu nivel y recomendaciones</summary>${lvlCard(p.path)}${mediaHomeCard(md)}</details>`);setTab('home')}
+/* Una sola acción para hoy: lección del día → repaso pendiente → sesión guiada. Lo demás queda abajo, más discreto. */
+function homeHero(nx,du,ls){
+ const t=ls&&ls.today,st=ls?lsStreak(ls.streak):'',strk=st?`<p class="meta">${st}${ls.total?' · '+ls.done+'/'+ls.total:''}</p>`:'',E_='<p class="err" id="err" hidden></p>';
+ if(t&&t.state=='open')return{k:'lesson',html:`<div class="card hero"><h2>Tu sesión de hoy</h2><p class="big"><b>${t.icon} ${E(t.title)}</b></p><p class="meta">${E(t.reason||'')}</p>${strk}${E_}<button class="btn pink go" onclick="lsOpen('${E(t.slug)}',this)">Empezar · 5 min</button></div>`};
+ const done=t&&t.state=='done_today'?`<p class="tip green">✅ ¡Hoy ya hiciste tu lección!${t.title?' Mañana: <b>'+t.icon+' '+E(t.title)+'</b> 🔒':''}</p>`:'';
+ if(du&&du.count)return{k:'review',html:`<div class="card hero"><h2>Tu sesión de hoy</h2><p class="big"><b>🔁 Repaso: ${du.count} ${LANG=='en'?(du.count==1?'word':'words'):(du.count==1?'palabra':'palabras')}</b></p><p class="meta">Las que fallas vuelven pronto; las que sabes, cada vez más tarde.</p>${done}${strk}${E_}<button class="btn pink go" onclick="vReview(this)">Repasar ahora</button></div>`};
+ return{k:'session',html:`<div class="card hero"><h2>Tu sesión de hoy</h2><p class="big"><b>${hl(nx.objective)}</b></p><p class="meta">${hl(nx.why)}</p>${done}${strk}${E_}<button class="btn pink go" onclick="startSession(this)">Empezar sesión</button></div>`}}
 async function tProgress(){
  const [p,pr]=await Promise.all([api('/users/'+S.user_id+'/profile'),api('/users/'+S.user_id+'/progress')]);CUR=p.path;
  const c=Object.fromEntries(Object.entries(pr.by_competency).map(([k,v])=>[k,{autonomy:v.current_autonomy}]));
