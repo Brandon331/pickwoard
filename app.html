@@ -36,6 +36,13 @@ b,strong{color:var(--plum);font-weight:700}
 .btn.blue{background:var(--sky);color:#fff;box-shadow:0 6px 0 #1c569b;--spc:#fff}
 .btn:disabled,.hint:disabled,.back:disabled{opacity:.7;cursor:wait}
 .hint,.back{font:inherit;font-weight:700;font-size:16px;border-radius:999px;padding:6px 16px;cursor:pointer;--spc:var(--sky)}
+.tour{position:fixed;inset:0;z-index:35;background:rgba(30,10,40,.55);display:flex;align-items:center;justify-content:center;padding:16px;animation:tfade .25s}
+@keyframes tfade{from{opacity:0}}
+.tcard{background:var(--card);color:var(--ink);border-radius:26px;box-shadow:0 8px 0 var(--pink);padding:22px 20px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center}
+.tcard h2{color:var(--pink);font-size:26px;margin:4px 0 8px}.tcard p{margin:0 0 6px}.tbig{font-size:64px;line-height:1.1}
+.tpath{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;font-size:13px;font-weight:700;color:var(--soft)}
+.tpath span{display:flex;flex-direction:column;align-items:center;opacity:.55}.tpath span.on{opacity:1;color:var(--pink)}.tpath span.dn{opacity:.9;color:var(--green)}
+.tpath i{font-style:normal;font-size:22px}.tpath b{flex:0 0 24px;height:3px;border-radius:3px;background:var(--lilac)}
 .hint{background:none;border:3px dashed var(--sky);color:var(--sky)}
 .hint.o{border-color:var(--orange);color:var(--orange);--spc:var(--orange)}
 .back{background:var(--lilac);color:#2a1a14;border:0;padding:3px 14px;font-size:15px;--spc:#2a1a14}
@@ -200,6 +207,7 @@ const COL=['var(--pink)','var(--sky)','var(--green)','var(--orange)','var(--plum
 /* ---- Idioma de la interfaz (es = español · mixed/en = botones y títulos en inglés) ---- */
 let LANG='es';try{LANG=localStorage.getItem('migo-lang')||'es'}catch(e){}
 const V=h=>{stopAudio();$('#view').innerHTML=tr(h);$('#nav').hidden=true;document.body.classList.remove('hasnav');scrollTo(0,0)};
+const EN_TOUR=[["Recorrido de la app","App tour"],["Lección, sesión y vocabulario: cómo se usa Migo, paso a paso.","Lesson, session and vocabulary: how to use Migo, step by step."],["🧭 Ver el recorrido","🧭 See the tour"]];
 const EN_LES=[["Para escuchar y ver","To listen and watch"],["Ver recomendaciones","See recommendations"],["Tu nivel: ","Your level: "],["Ya lo vi o escuché","I already watched or listened"],[" · ¡Subiste de nivel!"," · You leveled up!"],["¡Subiste a ","You reached "],["Por ahora no hay más. Vuelve cuando subas de nivel.","Nothing more for now. Come back when you level up."],["Tu plan de lecciones 📅","Your lesson plan 📅"],["Una lección por día","One lesson a day"],["🎓 Tu lección de hoy","🎓 Today’s lesson"],["✅ ¡Hoy ya hiciste tu lección!","✅ You did today’s lesson!"],["Mañana se desbloquea: ","Unlocks tomorrow: "],["🎉 ¡Completaste tu plan!","🎉 You finished your plan!"],["Puedes repetir cualquiera o pedirle una a Migo.","You can repeat any lesson or ask Migo for one."],["📅 Tu plan","📅 Your plan"],["📅 Mi plan","📅 My plan"],["Día ","Day "],["🔒 Todavía no","🔒 Not yet"],["Se desbloquea mañana. ¡Vuelve a verme!","Unlocks tomorrow. Come back and see me!"],["Primero ve las lecciones de antes en tu plan","First do the earlier lessons in your plan"],["Siguiente: ","Next: "],["Dijiste: ","You said: "],["✅ Mejor: ","✅ Better: "],["Para mejorar:","To improve:"],["💡 Pista","💡 Hint"],["Preparando la escena 🎭","Setting the scene 🎭"],["Un momento…","One moment…"],["Toca una para usarla, o dila con 🎤","Tap one to use it, or say it with 🎤"],["🎭 Juego de roles con Migo","🎭 Role-play with Migo"],["💬 Tu conversación","💬 Your conversation"],["🔁 Practicar de nuevo","🔁 Practice again"],["🎓 Migo te recomienda","🎓 Migo recommends"],["Migo te recomienda","Migo recommends"],["🎓 Lecciones","🎓 Lessons"],["Lecciones","Lessons"],["Aprende a decir las cosas como un nativo","Learn to say things like a native"],["Ver todas","See all"],["Empezar (5 min)","Start (5 min)"],["Empezar","Start"],
 ["Expresar algo","Express yourself"],["Situaciones de la vida","Real-life situations"],["Estructuras de inglés","English structures"],["✨ Tus lecciones","✨ Your lessons"],["✨ Pídele una a Migo","✨ Ask Migo for one"],["Escribe «How to…» y lo que quieras aprender. Hoy te quedan ","Type “How to…” and what you want to learn. Left today: "],["Crear lección","Create lesson"],["← Lecciones","← Lessons"],
 ["Vamos 🚀","Let’s go 🚀"],["Mini-chequeo ","Mini-check "],["Siguiente","Next"],["¡Eso!","Yes!"],["🚫 Mejor evitar","🚫 Better avoid"],["Intenta usar: ","Try to use: "],["Ahora tú 🎤","Your turn 🎤"],["Toca 🎤 y habla en inglés","Tap 🎤 and speak English"],["Escribe en inglés","Write in English"],
@@ -222,7 +230,7 @@ const EN=[["Comprensión","Comprehension"],["Expresión","Speaking & writing"],[
 ["Basado en tu test y tu diagnóstico práctico","Based on your test and practical diagnostic"],["Basado en tu test","Based on your test"],["Basado en tu diagnóstico práctico","Based on your practical diagnostic"],["Aún es una estimación","Still an estimate"],
 [". Estudiando todos los días; es una guía basada en horas de estudio de Cambridge, no una garantía.",". Studying every day; a guide based on Cambridge study hours, not a guarantee."],["Haz el test →","Take the test →"],["¡Estás en el nivel más alto de la escala!","You’re at the top of the scale!"],
 ["🎯 Tu test: nivel ","🎯 Your test: level "],[". Lo confirmamos con tu diagnóstico práctico.",". We’ll confirm it with your practical diagnostic."]
-].concat(EN_LES).sort((a,b)=>b[0].length-a[0].length);
+].concat(EN_LES,EN_TOUR).sort((a,b)=>b[0].length-a[0].length);
 function tr(h){if(LANG=='es')return h;h=h.replace(/Turno (\d+)\/(\d+)/g,'Turn $1/$2').replace(/(\d+) de (\d+) bien usadas/g,'$1 of $2 used well').replace(/(\d+) de (\d+) palabras usadas · (\d+) bien/g,'$1 of $2 words used · $3 correct').replace(/Tarea (\d+) de (\d+)/g,'Task $1 of $2').replace(/Palabra (\d+) de (\d+)/g,'Word $1 of $2').replace(/Pregunta (\d+) de (\d+)/g,'Question $1 of $2');for(const [a,b] of EN)h=h.split(a).join(b);return h}
 function setLang(l){LANG=l||'es';try{localStorage.setItem('migo-lang',LANG)}catch(e){}document.documentElement.lang=LANG=='en'?'en':'es';$('#out').textContent=tr('Salir');document.querySelectorAll('[data-i]').forEach(e=>{e.dataset.es=e.dataset.es||e.textContent;e.textContent=tr(e.dataset.es)});$('#ldt').textContent=tr('Migo está pensando…')}
 const _iah=Element.prototype.insertAdjacentHTML;Element.prototype.insertAdjacentHTML=function(p,h){_iah.call(this,p,tr(h))};
@@ -636,7 +644,7 @@ async function tHome(p){
  migo('idle','Hola, '+E(S.name)+' 👋',hl(nx.reentry_note||'Tengo un plan para hoy'));
  V(`${lvlCard(p.path)}<div class="card"><h2>Hoy te propongo</h2><div class="chips"><span>${RULES[nx.rule]||E(nx.rule)}</span><span>Dificultad ${nx.difficulty}/5</span><span>Ayuda máx. ${nx.help_allowed}</span>${nx.modality=='listen'?'<span>🎧 Listening</span>':''}</div>
  <p><b>${hl(nx.objective)}</b></p><p class="meta">${hl(nx.why)}</p>
- <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>${lsHomeCard(ls)}${mediaHomeCard(md)}${dueCard(du)}`);setTab('home')}
+ <p class="err" id="err" hidden></p><div class="row"><button class="hint" onclick="vChat()">💬 Hablar con Migo</button><button class="btn pink" onclick="startSession(this)">Empezar sesión</button></div></div>${lsHomeCard(ls)}${mediaHomeCard(md)}${dueCard(du)}`);setTab('home');if(!tourSeen())showTour()}
 async function tProgress(){
  const [p,pr]=await Promise.all([api('/users/'+S.user_id+'/profile'),api('/users/'+S.user_id+'/progress')]);CUR=p.path;
  const c=Object.fromEntries(Object.entries(pr.by_competency).map(([k,v])=>[k,{autonomy:v.current_autonomy}]));
@@ -649,10 +657,34 @@ async function tSettings(){
  V(`<div class="card"><h2>Idioma de ayuda</h2><p class="meta">Tus ejercicios siempre son en inglés. Aquí eliges en qué idioma te explico.</p>
  <select id="hl" onchange="setHL(this.value)" aria-label="Idioma de ayuda"><option value="auto">Automático (según tu nivel)</option><option value="es">Español</option><option value="mixed">Mixto</option><option value="en">English</option></select><p class="meta" id="hlnow"></p></div>
  <div class="card"><h2>Audio en las prácticas</h2><p class="meta">A veces Migo te pone una conversación para escuchar, sin ver el texto.</p><label class="chk"><input type="checkbox" id="aud" onchange="setAudio(this.checked)"> 🎧 Activar listening con audio</label></div>
+ <div class="card"><h2>Recorrido de la app</h2><p class="meta">Lección, sesión y vocabulario: cómo se usa Migo, paso a paso.</p><div class="row"><span></span><button class="btn blue" onclick="showTour()">🧭 Ver el recorrido</button></div></div>
  <div class="card"><h2>Tu cuenta</h2><p><b>${E(S.name)}</b><br><span class="meta">${E(S.email||'')}</span></p><div class="row"><span></span><button class="hint" onclick="logout()">Salir</button></div></div>
  <div class="card"><h2>La app</h2><p class="meta">Instálala para abrir Migo como una app. <span id="ver"></span></p><div class="row"><span></span><button class="btn blue" id="inst2" onclick="$('#inst').click()">📲 Instalar app</button></div></div>`);
  $('#aud').checked=st.audio!==false;$('#hl').value=st.help_lang;$('#hlnow').textContent=tr({es:'Ahora: español',mixed:'Ahora: mixto',en:'Ahora: English'}[st.effective]);$('#inst2').hidden=$('#inst').hidden;setTab('settings');
  fetch('version.json',{cache:'no-store'}).then(r=>r.json()).then(v=>{if(v.version&&$('#ver'))$('#ver').textContent=tr('Versión ')+v.version}).catch(()=>{})}
+/* ---- Recorrido guiado: lección → sesión → vocabulario. Sale la primera vez que entras al inicio; se repite desde Ajustes. ---- */
+const TOUR=[
+ {i:'🎓',es:['Lección','Una lección nueva cada día','Dura unos 5 minutos: aprendes expresiones, haces un mini-chequeo y practicas hablando en un juego de roles con Migo. Mañana se desbloquea la siguiente y tu racha 🔥 crece.'],
+  en:['Lesson','A new lesson every day','About 5 minutes: you learn expressions, take a mini-check and practice speaking in a role-play with Migo. Tomorrow the next one unlocks and your streak 🔥 grows.']},
+ {i:'🧭',es:['Sesión','Práctica guiada, hecha para ti','Migo te propone una tarea y la intentas tú primero. Si te trabas, pides ayuda. Después la repites sin ayuda para ver cuánto mejoraste: esa es tu autonomía.'],
+  en:['Session','Guided practice, made for you','Migo gives you a task and you try it first. If you get stuck, ask for help. Then you do it again without help to see how much you improved: that is your autonomy.']},
+ {i:'📚',es:['Vocabulario','Las palabras de tu nivel','Las ves con imagen y las practicas con el Repaso de hoy (vuelven a los 1, 3, 7 y 14 días), ✍️ Usa la palabra y 🎭 Rol con Migo. Una palabra es tuya cuando la reconoces sin ayuda 2 veces y la usas bien 2 veces.'],
+  en:['Vocabulary','The words for your level','You see them with pictures and practice with Today’s review (they come back after 1, 3, 7 and 14 days), ✍️ Use the word and 🎭 Role-play with Migo. A word is yours when you recognize it unaided 2 times and use it correctly 2 times.']}];
+let TOURI=0;const TOURMEM={};
+const tourKey=()=>'migo-tour-'+(S.user_id||'x');
+function tourSeen(){try{return !!localStorage.getItem(tourKey())}catch(e){return !!TOURMEM[tourKey()]}}
+function tourMark(){TOURMEM[tourKey()]=1;try{localStorage.setItem(tourKey(),'1')}catch(e){}}
+function showTour(){TOURI=0;let o=$('#tour');if(!o){o=document.createElement('div');o.id='tour';o.className='tour';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');document.body.appendChild(o)}tourRender()}
+function tourRender(){const o=$('#tour');if(!o)return;const en=LANG=='en',last=TOURI==TOUR.length-1,[t,h,p]=TOUR[TOURI][en?'en':'es'];
+ o.setAttribute('aria-label',en?'Migo tour':'Recorrido de Migo');
+ o.innerHTML=`<div class="tcard"><div class="tpath">${TOUR.map((x,k)=>`<span class="${k==TOURI?'on':k<TOURI?'dn':''}"><i>${x.i}</i>${x[en?'en':'es'][0]}</span>`).join('<b></b>')}</div>
+ <div class="tbig">${TOUR[TOURI].i}</div><h2>${h}</h2><p>${p}</p>
+ <div class="row"><button class="back" onclick="${TOURI?'tourGo(-1)':'tourEnd()'}">${TOURI?(en?'← Back':'← Atrás'):(en?'Skip':'Saltar')}</button><button class="btn pink" id="tournext" onclick="${last?'tourEnd()':'tourGo(1)'}">${last?(en?'Let’s start!':'¡Empezar!'):(en?'Next':'Siguiente')}</button></div>
+ <p class="meta" style="margin-top:12px">${en?'You can see this tour again in ⚙️ Settings.':'Puedes ver este recorrido otra vez en ⚙️ Ajustes.'}</p></div>`;
+ const b=$('#tournext');if(b)b.focus()}
+function tourGo(d){TOURI=Math.max(0,Math.min(TOUR.length-1,TOURI+d));tourRender()}
+function tourEnd(){tourMark();const o=$('#tour');if(o)o.remove()}
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&$('#tour'))tourEnd()});
 /* ---- Aviso de actualización con novedades (lee version.json) ---- */
 async function showUpdate(w){
  let v={};try{const r=await fetch('version.json',{cache:'no-store'});v=await r.json()}catch(e){}
