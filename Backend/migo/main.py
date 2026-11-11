@@ -9,38 +9,6 @@ from . import db, engine as E, llm, auth, i18n, levels, lessons, media
 
 db.init()
 app = FastAPI(title="Migo English Companion (prototype backend)")
-
-# ---------- acceso: cada cuenta solo puede tocar SU usuario (/users/{uid}), SUS sesiones y SUS roles ----------
-# Se registra ANTES de CORS para que CORS quede por fuera y el navegador pueda leer también los 401/403.
-# MIGO_REQUIRE_AUTH=0 lo apaga (útil para pruebas locales o para volver atrás si algo falla).
-import re
-from fastapi.responses import JSONResponse
-from starlette.concurrency import run_in_threadpool
-
-REQUIRE_AUTH = os.getenv("MIGO_REQUIRE_AUTH", "1") != "0"
-_OPEN = ("/health", "/auth/", "/docs", "/redoc", "/openapi.json")
-_OWNER = {"users": None, "sessions": "sessions", "roleplay": "roleplays"}   # prefijo -> tabla que dice de quién es el recurso
-
-def _check_access(path, authorization):
-    """None si puede pasar; (status, mensaje) si no."""
-    t = (authorization or "").replace("Bearer ", "").strip()
-    a = db.run("select user_id from accounts where token=?", (t,), one=True) if t else None
-    if not a: return 401, "Sesión inválida, entra de nuevo"
-    m = re.match(r"^/(users|sessions|roleplay)/(\d+)(/|$)", path)
-    if not m: return None                      # p. ej. POST /users (crear el perfil): basta con tener cuenta
-    kind, rid = m.group(1), int(m.group(2))
-    uid = rid if kind == "users" else (db.run(f"select user_id from {_OWNER[kind]} where id=?", (rid,), one=True) or {}).get("user_id")
-    if uid is None: return None                # no existe: que responda 404 el endpoint
-    if a["user_id"] != uid: return 403, "Sesión inválida: esta cuenta no tiene acceso a esos datos"
-    return None
-
-@app.middleware("http")
-async def require_auth(request: Request, call_next):
-    if REQUIRE_AUTH and request.method != "OPTIONS" and not request.url.path.startswith(_OPEN):
-        bad = await run_in_threadpool(_check_access, request.url.path, request.headers.get("authorization"))
-        if bad: return JSONResponse({"detail": bad[1]}, status_code=bad[0])
-    return await call_next(request)
-
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.include_router(auth.router)
 
