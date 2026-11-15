@@ -1,0 +1,18 @@
+ENCUESTA DE MIGO — cómo ponerla en línea
+
+1) Backend: sube el migo_english_backend.zip nuevo y crea en tu hosting la variable
+   MIGO_ADMIN_KEY con una clave larga y secreta (es la que usarás para entrar al panel).
+   Las tablas de la encuesta se crean solas al arrancar.
+
+2) Abre config.js y pon la URL de tu backend en MIGO_API.
+
+3) Sube esta carpeta a cualquier hosting de archivos estáticos (Netlify, Vercel, GitHub Pages, etc.).
+   - Encuesta:  https://TU-SITIO/index.html            (agrega ?src=instagram para saber de dónde llegó cada persona)
+   - Panel:     https://TU-SITIO/admin.html             (no está enlazado en ningún lado; pide tu clave)
+
+4) En index.html, arriba del script, puedes cambiar:
+   - EMAIL_PURPOSE: el texto que explica para qué pides el correo.
+   - PRIVACY_URL: la URL de tu aviso de privacidad (si está vacía no se muestra el enlace).
+
+Importante: lo que prometas en el texto del correo ("te avisaremos cuando Migo esté listo") hay que cumplirlo,
+y necesitas un aviso de privacidad y una forma de borrar un correo si alguien lo pide.

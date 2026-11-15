@@ -1,0 +1,182 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#fdeef3" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#2a1d38" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Baloo+2:wght@500;600;700&display=swap"><title>Encuesta · Migo</title><meta name="robots" content="noindex">
+<style>
+:root{--sun:#ffe21f;--pink:#e0338a;--sky:#2f7fd8;--lime:#9bc53d;--plum:#8b1a7e;--lilac:#c9b6d9;--green:#0f8a3c;--orange:#e8741a;--red:#e8281e;--ink:#2a1a14;--soft:#5b4a6b;--card:#fffaf0;--bg:#fdeef3;--tx:#2a2a5a;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--ink:#fff3dc;--soft:#d9c8ee;--card:#3a2a4a;--bg:#2a1d38;--plum:#ff9be0;--sky:#7ab8ff;--green:#6fdc8c;--pink:#ff6fb0;--orange:#ffa45c}}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font:500 18px/1.5 "Baloo 2","Trebuchet MS",sans-serif;background:transparent}
+#bgc{position:fixed;inset:0;width:100%;height:100%;z-index:-1}
+h1,h2,h3,.logo{font-family:"Bagel Fat One",Impact,sans-serif;font-weight:400;line-height:1.05;margin:0}
+main{max-width:720px;margin:0 auto;padding:12px 14px calc(40px + env(safe-area-inset-bottom,0px));padding-top:calc(12px + env(safe-area-inset-top,0px))}
+[hidden]{display:none!important}
+b,strong{color:var(--plum);font-weight:700}
+.tb{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.logo{font-size:34px;text-decoration:none;display:flex}
+.logo span:nth-child(1){color:#e8281e}.logo span:nth-child(2){color:#f5a000}.logo span:nth-child(3){color:#e0338a}.logo span:nth-child(4){color:#4a90d9}
+#who{min-width:0;font-weight:700;font-size:15px;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sky)}
+.btn{font:inherit;font-weight:700;font-size:19px;border:0;border-radius:999px;padding:12px 28px;cursor:pointer;background:var(--sun);color:#2a1a14;box-shadow:0 6px 0 #c9a800;--spc:#2a1a14}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c9a800}
+.btn.pink{background:var(--pink);color:#fff;box-shadow:0 6px 0 #9c1f62;--spc:#fff}
+.btn.blue{background:var(--sky);color:#fff;box-shadow:0 6px 0 #1c569b;--spc:#fff}
+.btn:disabled,.hint:disabled,.back:disabled{opacity:.7;cursor:wait}
+.hint,.back{font:inherit;font-weight:700;font-size:16px;border-radius:999px;padding:6px 16px;cursor:pointer;--spc:var(--sky)}
+.hint{background:none;border:3px dashed var(--sky);color:var(--sky)}
+.hint.o{border-color:var(--orange);color:var(--orange);--spc:var(--orange)}
+.back{background:var(--lilac);color:#2a1a14;border:0;padding:3px 14px;font-size:15px;--spc:#2a1a14}
+:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+.ld{position:relative;color:transparent!important}
+.ld::after{content:"";position:absolute;inset:0;margin:auto;width:22px;height:22px;border:4px solid var(--spc,#2a1a14);border-top-color:transparent;border-radius:50%;animation:rot .7s linear infinite}
+.coach{display:flex;align-items:center;gap:10px;margin:8px 0}
+.figwrap{flex:none;width:96px}
+.nm{display:block;width:max-content;margin:2px auto 0;background:var(--sun);color:#2a1a14;border-radius:999px;padding:0 12px;font-weight:700;font-size:14px;line-height:1.5}
+.say{position:relative;background:#fff;color:#2a1a14;border:4px solid #2a1a14;border-radius:22px;padding:8px 16px;font-weight:700;font-size:20px;line-height:1.2;flex:1}
+.say b{color:var(--plum)}
+.say::before{content:"";position:absolute;left:-18px;top:50%;margin-top:-10px;border:10px solid transparent;border-right:14px solid #2a1a14;border-left:0}
+.say::after{content:"";position:absolute;left:-9px;top:50%;margin-top:-6px;border:6px solid transparent;border-right:9px solid #fff;border-left:0}
+.say.good{background:var(--sun)}.say.bad{background:var(--lilac)}
+.say small{display:block;font-size:15px;font-weight:500;margin-top:2px;color:#5b2a6b}
+.card{background:var(--card);border-radius:26px;padding:20px 18px;box-shadow:0 7px 0 var(--pink);margin-top:10px;animation:pop .3s}
+.card h2{font-size:26px;margin-bottom:8px;color:var(--pink)}
+.card+.card{margin-top:22px;box-shadow:0 7px 0 var(--sky)}.card+.card h2{color:var(--sky)}
+.card+.card+.card{box-shadow:0 7px 0 var(--green)}.card+.card+.card h2{color:var(--green)}
+.card+.card+.card+.card{box-shadow:0 7px 0 var(--orange)}.card+.card+.card+.card h2{color:var(--orange)}
+@keyframes pop{from{transform:scale(.96);opacity:0}}
+label{display:block;font-weight:700;margin:12px 0 4px;color:var(--sky)}
+input,select{width:100%;font:inherit;font-size:18px;padding:10px 14px;border-radius:14px;border:3px solid var(--lilac);background:#fff;color:var(--tx)}
+input:focus,select:focus{border-color:var(--pink);outline:none}
+.err{color:#b3001b;font-weight:700;margin:8px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:14px}
+.meta{font-size:15px;color:var(--soft);margin:0 0 6px}
+.tip{background:var(--sun);color:#2a1a14;border-radius:20px 20px 20px 4px;padding:10px 16px;margin-top:10px;font-size:17px}
+.tip b{color:#8b1a7e}
+.tip.blue{background:#dcecff;color:#14335f;border-left:8px solid var(--sky)}.tip.blue b{color:#1c569b}
+.tip.green{background:#e3f6d6;color:#17421f;border-left:8px solid var(--green)}.tip.green b{color:#0b5a28}
+.fig *{transform-box:view-box}
+.fig{width:100%;height:auto;display:block;overflow:visible}
+.fig .body-g{transform-origin:60px 170px}.fig .head-g{transform-origin:60px 58px}
+.fig .armL,.fig .armR{transform-origin:60px 72px}.fig .legL,.fig .legR{transform-origin:60px 108px}
+.fig .eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.fig .m-sad,.fig .m-big{display:none}
+.fig.idle .body-g{animation:sway 2.6s ease-in-out infinite}
+.fig.idle .armL{animation:swL 2.6s ease-in-out infinite}.fig.idle .armR{animation:swR 2.6s ease-in-out infinite}
+@keyframes sway{50%{transform:translateY(-4px) rotate(2deg)}}@keyframes swL{50%{transform:rotate(14deg)}}@keyframes swR{50%{transform:rotate(-14deg)}}
+.fig.happy .m-smile{display:none}.fig.happy .m-big{display:inline}
+.fig.happy .body-g{animation:jump .55s ease-in-out 4}
+.fig.happy .armL{transform:rotate(85deg)}.fig.happy .armR{transform:rotate(-85deg)}
+@keyframes jump{0%,100%{transform:translateY(0)}45%{transform:translateY(-22px)}}
+.fig.sad .m-smile{display:none}.fig.sad .m-sad{display:inline}
+.fig.sad .body-g{transform:translateY(5px)}.fig.sad .armL{transform:rotate(-38deg)}.fig.sad .armR{transform:rotate(38deg)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.ld::after,#ld i{animation:rot 1.6s linear infinite!important}}
+
+main{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
+.tb .who{font-weight:700;font-size:15px;color:var(--sky)}
+.step{display:flex;justify-content:space-between;gap:10px;margin:0 0 8px;font-weight:700;font-size:15px;color:var(--soft)}.step span:last-child{color:var(--sky)}
+fieldset{border:0;padding:0;margin:0;min-width:0}legend{padding:0;margin:14px 0 6px}
+.card h2.q{font-size:25px;line-height:1.12;color:var(--ink)}.card+.card h2.q{color:var(--ink)}
+.opts{display:grid;gap:10px;margin:14px 0 4px}
+.opt{position:relative;display:flex;align-items:center;gap:12px;margin:0;font:600 19px/1.25 "Baloo 2",sans-serif;color:var(--tx);padding:12px 14px;border-radius:16px;border:3px solid var(--sky);background:#fff;cursor:pointer;box-shadow:0 4px 0 var(--lilac);transition:background .12s}
+.opt:hover{background:#fff6b8}.opt:focus-within{outline:4px solid var(--sky);outline-offset:3px}
+.opt input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.opt::before{content:"";flex:none;width:26px;height:26px;border-radius:50%;border:3px solid var(--sky);background:#fff}
+.opt.multi::before{border-radius:8px}
+.opt.on{background:var(--sun);border-color:var(--pink);box-shadow:0 4px 0 var(--pink)}
+.opt.on::before{border-color:var(--pink);background:var(--pink);box-shadow:inset 0 0 0 4px #fff}
+.opt.multi.on::before{box-shadow:none;background:var(--pink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='m4.5 10.5 3.5 3.5 7.5-8' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/18px no-repeat}
+.opt.pick{animation:pop .2s}
+.other{margin-top:8px}
+.prog{margin:2px 0 6px}.prog i{transition:width .3s}
+.chk{display:flex;gap:10px;align-items:flex-start;font-weight:600;font-size:16px;color:var(--ink);margin:14px 0 4px}.chk input{width:24px;height:24px;flex:none;margin-top:3px;accent-color:var(--pink)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.big{font:400 44px "Bagel Fat One",Impact,sans-serif;color:var(--pink);line-height:1;margin:6px 0}
+@media(max-width:480px){.figwrap{width:72px}.say{font-size:17px}.row .btn{flex:1 1 auto}.card h2.q{font-size:22px}}
+
+</style></head><body>
+<canvas id="bgc" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="cr" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 4 0 0 -1.05" result="m"/><feComposite in="d" in2="m" operator="in"/></filter></defs></svg>
+<main><header class="tb"><a class="logo" href="#" aria-label="Migo"><span>M</span><span>I</span><span>G</span><span>O</span></a><span class="who">Encuesta · 2 min</span></header>
+<div class="coach"><div class="figwrap" id="fw"></div><div class="say" id="say" aria-live="polite"></div></div>
+<div id="view"></div></main>
+<script src="config.js"></script>
+<script>
+const $=q=>document.querySelector(q),E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const API=(window.MIGO_API||localStorage.getItem('migo-api')||'http://localhost:8000').replace(/\/$/,'');
+const MASCOT=`<svg class="fig idle" viewBox="0 0 120 170" aria-hidden="true"><g filter="url(#cr)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><g class="body-g"><g class="head-g"><path d="M46 22L40 8M60 18L60 3M74 22L80 8" stroke="#e8281e" stroke-width="6"/><circle cx="60" cy="40" r="20" stroke="#f5821f"/><circle class="eye" cx="52" cy="35" r="2.8" fill="#2a1a14" stroke="none"/><circle class="eye" cx="68" cy="35" r="2.8" fill="#2a1a14" stroke="none"/><path class="m-smile" d="M51 46Q60 54 69 46" stroke="#e0338a" stroke-width="5"/><path class="m-big" d="M48 44Q60 64 72 44Z" stroke="#e0338a" stroke-width="4" fill="#e0338a"/><path class="m-sad" d="M51 52Q60 43 69 52" stroke="#e0338a" stroke-width="5"/></g><path d="M60 61L60 108" stroke="#4a90d9"/><g class="armL"><path d="M60 72L32 96" stroke="#8b1a7e"/></g><g class="armR"><path d="M60 72L88 96" stroke="#8b1a7e"/></g><g class="legL"><path d="M60 108L40 148" stroke="#0f6b2b"/></g><g class="legR"><path d="M60 108L80 148" stroke="#0f6b2b"/></g></g></g></svg><span class="nm">Migo</span>`;
+function bg(){const c=$('#bgc'),w=c.width=innerWidth>>1,h=c.height=innerHeight>>1,x=c.getContext('2d');
+ const dk=matchMedia('(prefers-color-scheme:dark)').matches;x.fillStyle=dk?'#2a1d38':'#fdeef3';x.fillRect(0,0,w,h);x.lineCap='round';
+ const cols=dk?['#33244a','#221630','#3d2c55']:['#fadde7','#fff6f9','#f6d0df','#ffffff'];let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+ for(let k=0;k<w*h/500;k++){const px=r()*w,py=r()*h,a=((px/90|0)*7+(py/90|0)*13)%6*.5+r()*.4,l=30+r()*70;
+  x.strokeStyle=cols[r()*cols.length|0];x.globalAlpha=.1+r()*.25;x.lineWidth=3+r()*5;x.beginPath();x.moveTo(px,py);x.lineTo(px+Math.cos(a)*l,py+Math.sin(a)*l);x.stroke()}}
+function say(mood,t,s){const f=$('#fw .fig');f.setAttribute('class','fig '+mood);const b=$('#say');b.className='say '+(mood=='happy'?'good':mood=='sad'?'bad':'');b.innerHTML=E(t)+(s?'<small>'+E(s)+'</small>':'')}
+$('#fw').innerHTML=MASCOT;bg();addEventListener('resize',bg);
+
+/* ===== CONFIGURA AQUÍ ===== */
+const EMAIL_PURPOSE='Déjanos tu correo para avisarte cuando Migo esté listo.';
+const PRIVACY_URL='';   // pon la URL de tu aviso de privacidad (si la dejas vacía, no se muestra el enlace)
+/* ========================== */
+const QUESTIONS=[{"id": "q1", "block": "Filtro", "type": "single", "text": "¿Actualmente resides en una zona urbana de México?", "options": ["Sí", "No"]}, {"id": "q2", "block": "Filtro", "type": "single", "text": "¿Te encuentras en el rango de edad de 18 a 29 años?", "options": ["Sí", "No"]}, {"id": "q3", "block": "Análisis", "type": "single", "text": "¿Cuál es tu nivel percibido de inglés actualmente?", "options": ["Lo entiendo al leer/escuchar, pero me cuesta hablarlo", "Lo hablo con fluidez", "Tengo nivel básico sin comprensión", "Otro"]}, {"id": "q4", "block": "Análisis", "type": "single", "text": "¿Cuál es la razón principal por la que te interesa o necesitarías dominar el inglés?", "options": ["Mejorar empleos o ingresos", "Requisito de titulación escolar", "Viajes", "Desarrollo personal"]}, {"id": "q5", "block": "Análisis", "type": "multi", "text": "¿Qué métodos o herramientas has utilizado para intentar aprender inglés?", "options": ["Duolingo u otras apps", "Cursos o academias presenciales", "Videos de YouTube o podcasts", "Ninguno"]}, {"id": "q6", "block": "Análisis", "type": "single", "text": "¿Cuál es la mayor dificultad o frustración que enfrentas al usar aplicaciones tradicionales de idiomas?", "options": ["No te enseñan a hablar con soltura", "Tienen demasiados anuncios", "Son aburridas o repetitivas", "Falta de constancia o hábito"]}, {"id": "q7", "block": "Análisis", "type": "single", "text": "¿Cuánto tiempo al día estarías dispuesto/a a dedicarle a una aplicación móvil para practicar inglés mediante lecciones breves y voz?", "options": ["De 5 a 10 minutos", "De 15 a 30 minutos", "Más de 30 minutos"]}, {"id": "q8", "block": "Análisis", "type": "single", "text": "¿Estarías dispuesto/a a pagar una suscripción mensual accesible (similar al rango de otras apps de entretenimiento o educación, ej. $149 - $199 MXN) si una aplicación te garantiza perder el miedo a hablar con la ayuda de un tutor virtual interactivo?", "options": ["Sí", "Tal vez", "No"]}, {"id": "q9", "block": "Socioeconómico", "type": "single", "text": "¿Cuál es tu ocupación principal actual?", "options": ["Estudiante de bachillerato o universidad", "Empleado", "Emprendedor o profesionista independiente", "Desempleado u otro"]}, {"id": "q10", "block": "Socioeconómico", "type": "single", "text": "¿Cuentas con un teléfono inteligente (smartphone) con acceso a internet móvil o Wi-Fi propio para uso diario?", "options": ["Sí, de uso personal", "No"]}];
+const BLOCK={'Filtro':'Para empezar','Análisis':'Tu inglés y tus hábitos','Socioeconómico':'Sobre ti'};
+const SAYS={q1:['Primero, 2 preguntas','Para saber si esta encuesta es para ti'],q2:['Solo una más para empezar',''],q3:['Cuéntame de tu inglés','Sin presión, nadie te evalúa'],q4:['¿Para qué lo quieres?',''],q5:['¿Qué has probado?','Puedes marcar varias'],q6:['¿Qué te frustra?','Piensa en las apps que has usado'],q7:['¿Cuánto tiempo tienes?',''],q8:['Esta es muy importante','Responde con total honestidad'],q9:['Ya casi, ahora sobre ti',''],q10:['La última pregunta',''] };
+const A={},S={i:-1,sending:false};const src=new URLSearchParams(location.search).get('src')||'';
+fetch(API+'/health').catch(()=>{});   // despierta el servidor mientras la persona responde
+const first=()=>QUESTIONS[0];
+function go(i){S.i=i;render();scrollTo({top:0,behavior:'smooth'})}
+function render(){const v=$('#view'),n=QUESTIONS.length;
+ if(S.i<0){say('idle','¡Hola! Soy Migo','Son 10 preguntas rápidas. Tardas 2 minutos.');
+  v.innerHTML=`<section class="card"><h2>Ayúdanos a crear Migo</h2><p>Estamos haciendo una app para practicar inglés hablando, con un tutor virtual. Tu opinión nos ayuda a hacerla bien.</p><p class="meta">Tus respuestas son confidenciales y solo se usan para este estudio.</p><div class="row"><span></span><button class="btn pink" id="go">Empezar</button></div></section>`;$('#go').onclick=()=>go(0);$('#go').focus({preventScroll:true});return}
+ if(S.i<n)return renderQ(S.i);
+ if(S.i==n)return renderEmail();
+ if(S.i==n+1){say('happy','¡Gracias!','Ya quedó guardada tu respuesta');v.innerHTML=`<section class="card"><div class="big">¡Gracias!</div><h2 style="color:var(--ink)">Tu opinión ya cuenta</h2><p>Te avisaremos cuando Migo esté listo. Puedes cerrar esta página.</p></section>`;return}
+ say('sad','Gracias por tu interés','Esta encuesta no es para ti por ahora');
+ v.innerHTML=`<section class="card"><h2>Esta encuesta es para otro grupo</h2><p>Por ahora buscamos a jóvenes de <b>18 a 29 años</b> que viven en una <b>zona urbana de México</b>. ¡Gracias por tomarte el tiempo!</p></section>`}
+function renderQ(i){const q=QUESTIONS[i],n=QUESTIONS.length,multi=q.type=='multi',cur=A[q.id];const sy=SAYS[q.id]||['',''];say('idle',sy[0],sy[1]);
+ $('#view').innerHTML=`<section class="card"><p class="step"><span>Pregunta ${i+1} de ${n}</span><span>${E(BLOCK[q.block]||q.block)}</span></p>
+ <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${i+1}" aria-label="Avance"><i style="width:${Math.round((i+1)/n*100)}%"></i></div>
+ <fieldset><legend><h2 class="q">${E(q.text)}</h2>${multi?'<span class="meta">Puedes elegir más de una</span>':''}</legend>
+ <div class="opts">${q.options.map((o,k)=>`<label class="opt${multi?' multi':''}"><input type="${multi?'checkbox':'radio'}" name="a" value="${k}" ${multi?(cur||[]).includes(o):cur===o?'checked':''}><span>${E(o)}</span></label>`).join('')}</div>
+ <div class="other" id="oth" hidden><label for="ot">¿Cuál? (opcional)</label><input id="ot" maxlength="80" autocomplete="off" value="${E(A.q3_other||'')}"></div>
+ <p class="err" id="err" role="alert" hidden></p>
+ <div class="row"><button class="back" id="bk" ${i==0?'hidden':''}>Atrás</button><button class="btn pink" id="nx">Continuar</button></div></fieldset></section>`;
+ const labels=[...document.querySelectorAll('.opt')],inputs=labels.map(l=>l.querySelector('input'));
+ const sync=()=>{labels.forEach((l,k)=>l.classList.toggle('on',inputs[k].checked));if(q.id=='q3'){$('#oth').hidden=!(inputs[q.options.indexOf('Otro')]||{}).checked}};sync();
+ const err=m=>{const e=$('#err');e.textContent=m;e.hidden=!m};
+ const read=()=>multi?inputs.filter(x=>x.checked).map(x=>q.options[+x.value]):(inputs.find(x=>x.checked)?q.options[+inputs.find(x=>x.checked).value]:null);
+ const next=()=>{const v=read();if(!v||(multi&&!v.length)){err('Elige una opción para continuar');return}
+  A[q.id]=v;if(q.id=='q3')A.q3_other=v=='Otro'?($('#ot').value||'').trim():'';
+  if((q.id=='q1'||q.id=='q2')&&v=='No')return screenOut(q.id=='q1'?1:2);
+  go(i+1)};
+ labels.forEach((l,k)=>l.addEventListener('click',e=>{
+  if(multi){const x=inputs[k],none=q.options[k]=='Ninguno';setTimeout(()=>{if(x.checked){inputs.forEach((y,j)=>{if(j!=k&&(none||q.options[j]=='Ninguno'))y.checked=false})}sync();err('')},0);return}
+  setTimeout(()=>{sync();err('');if(e.detail>0&&!(q.id=='q3'&&q.options[k]=='Otro')){l.classList.add('pick');setTimeout(next,320)}},0)}));      // clic o toque avanza solo; con teclado usa «Continuar»
+ $('#nx').onclick=next;$('#bk').onclick=()=>go(i-1);
+ if(q.id=='q3')$('#ot').addEventListener('keydown',e=>{if(e.key=='Enter'){e.preventDefault();next()}});
+ (labels.find(l=>l.classList.contains('on'))||labels[0]).querySelector('input').focus({preventScroll:true})}
+function screenOut(n){S.i=QUESTIONS.length+2;render();
+ const a={};for(let k=1;k<=n;k++)a['q'+k]=A['q'+k];
+ fetch(API+'/survey/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers:a,screened:n,src}),keepalive:true}).catch(()=>{})}
+function renderEmail(){say('idle','Última cosa','Solo falta tu correo');
+ $('#view').innerHTML=`<section class="card"><h2>Último paso</h2><p class="meta">${E(EMAIL_PURPOSE)}</p>
+ <label for="em">Tu correo</label><input id="em" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="nombre@correo.com" value="${E(S.email||'')}">
+ <label class="chk"><input type="checkbox" id="cons" ${S.cons?'checked':''}><span>Acepto que Migo guarde mi correo y me contacte sobre esta encuesta y el lanzamiento.${PRIVACY_URL?` <a href="${E(PRIVACY_URL)}" target="_blank" rel="noopener">Aviso de privacidad</a>`:''}</span></label>
+ <input class="hp" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+ <p class="err" id="err" role="alert" hidden></p>
+ <div class="row"><button class="back" id="bk">Atrás</button><button class="btn pink" id="send">Enviar respuestas</button></div></section>`;
+ $('#bk').onclick=()=>go(QUESTIONS.length-1);$('#send').onclick=send;$('#em').addEventListener('keydown',e=>{if(e.key=='Enter'){e.preventDefault();send()}})}
+async function send(){if(S.sending)return;const err=m=>{const e=$('#err');e.textContent=m;e.hidden=!m};
+ const email=$('#em').value.trim(),cons=$('#cons').checked;S.email=email;S.cons=cons;
+ if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email))return err('Escribe un correo válido, por ejemplo nombre@correo.com');
+ if(!cons)return err('Marca la casilla para que podamos guardar tu correo');
+ err('');S.sending=true;const b=$('#send');b.disabled=true;b.classList.add('ld');
+ const slow=setTimeout(()=>say('idle','Un momento…','El servidor está despertando, puede tardar unos segundos'),4000);
+ try{const r=await fetch(API+'/survey/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers:A,email,consent:true,src,website:$('#hp').value})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'No se pudo enviar. Inténtalo de nuevo.');
+  go(QUESTIONS.length+1)}
+ catch(e){err(e.message=='Failed to fetch'?'No hay conexión con el servidor. Revisa tu internet e inténtalo otra vez.':e.message);say('sad','Uy, no se envió','Tus respuestas siguen aquí, vuelve a intentarlo')}
+ finally{clearTimeout(slow);S.sending=false;const b2=$('#send');if(b2){b2.disabled=false;b2.classList.remove('ld')}}}
+render();
+
+</script></body></html>
