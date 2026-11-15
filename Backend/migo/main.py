@@ -5,12 +5,13 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
-from . import db, engine as E, llm, auth, i18n, levels, lessons, media
+from . import db, engine as E, llm, auth, i18n, levels, lessons, media, survey
 
 db.init()
 app = FastAPI(title="Migo English Companion (prototype backend)")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.include_router(auth.router)
+app.include_router(survey.router)
 
 class UserIn(BaseModel):
     name: str
